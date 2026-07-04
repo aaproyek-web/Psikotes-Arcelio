@@ -346,6 +346,8 @@ const POSITIONS = [
     ideal:{ C:78, Co:78, S:65, N:32, O:50, E:45 }, w:{ C:4, Co:4, S:2, N:2, O:1, E:1 } },
   { key:"store", nama:"Store / Gudang",
     ideal:{ C:72, Co:76, S:70, A:55, N:35, D:45 }, w:{ C:3, Co:3, S:3, A:1, N:2, D:1 } },
+  { key:"housekeeping", nama:"Housekeeping",
+    ideal:{ S:75, Co:76, A:62, C:62, N:32, D:40 }, w:{ S:3, Co:4, A:2, C:2, N:2, D:1 } },
   { key:"engineering", nama:"Engineering / Maintenance",
     ideal:{ C:75, Co:75, O:65, S:65, N:30, E:40 }, w:{ C:3, Co:3, O:2, S:2, N:3, E:1 } },
 ];
@@ -446,6 +448,13 @@ const IV_BANK = {
     { q:"Ceritakan bagaimana Anda akan menata gudang agar barang cepat ditemukan dan tidak rusak.", dig:"Kerapian & logika — pengelompokan, label, FIFO untuk barang kedaluwarsa (F&B)." },
     { q:"Ada permintaan barang mendadak saat Anda sedang di tengah-tengah stock opname. Bagaimana menyikapinya?", dig:"Prioritas — layani dengan tetap tercatat, tidak meninggalkan opname berantakan." },
     { q:"Teman berkata: 'Pinjam dulu barang gudang ya, nggak usah pakai surat, besok kubalikin.' Apa jawaban Anda?", dig:"Integritas — semua keluar-masuk harus tercatat, sedekat apa pun orangnya." },
+  ],
+  housekeeping: [
+    { q:"Menurut Anda, kapan sebuah toilet atau area umum layak disebut 'bersih'? Jelaskan standar Anda sendiri.", dig:"Standar kebersihan pribadi — makin detail (kering, tidak bau, tidak berkerak, sudut-sudut) makin baik; jawaban 'yang penting kelihatan bersih' adalah tanda kurang." },
+    { q:"Anda menemukan dompet atau HP pengunjung tertinggal di area yang sedang Anda bersihkan. Apa persisnya yang Anda lakukan?", dig:"Integritas barang temuan — serahkan lewat jalur resmi dengan saksi/pencatatan, tidak disimpan dulu 'untuk diamankan sendiri'." },
+    { q:"Area tanggung jawab Anda luas sementara waktunya terbatas. Bagaimana Anda mengatur urutan pekerjaannya?", dig:"Prioritas & sistematika — dahulukan area kontak pengunjung/berisiko (toilet, area makan), ada pola rute, bukan asal jalan." },
+    { q:"Ada pengunjung muntah di dekat kolam saat sedang ramai-ramainya. Ceritakan langkah Anda satu per satu.", dig:"Respons cepat & higienis — amankan area dulu (tanda/pembatas), alat pelindung, cairan pembersih yang tepat, tidak jijik berlebihan atau menunda." },
+    { q:"Atasan sedang tidak ada dan area Anda terlihat 'masih bersih'. Apa yang Anda kerjakan?", dig:"Kerja tanpa pengawasan — tetap menjalankan checklist rutin, mengisi waktu dengan deep cleaning; waspadai jawaban 'istirahat dulu'." },
   ],
   engineering: [
     { q:"Pompa atau filter kolam tiba-tiba mati di jam operasional saat ramai pengunjung. Ceritakan langkah Anda satu per satu.", dig:"Troubleshooting darurat — utamakan keselamatan, cek penyebab sistematis, koordinasi dengan operasional." },
