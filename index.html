@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psikotes Arcelio Aquapark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B3C49; --teal:#0E7C86; --aqua:#1FB6C9; --aqua-soft:#DFF3F5;
+  --paper:#F1F7F8; --card:#FFFFFF;
+  --coral:#E4593F; --coral-soft:#FCEAE5;
+  --amber:#D9950F; --amber-soft:#FBF1DC;
+  --green:#2E9E6B; --green-soft:#E3F4EC;
+  --line:#D7E5E7; --muted:#5B7A82;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;font-size:16px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 64px}
+header.hero{background:linear-gradient(160deg,var(--ink) 0%,var(--teal) 78%);color:#fff;padding:28px 16px 8px}
+header.hero .h-inner{max-width:760px;margin:0 auto}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--aqua);font-weight:700;margin-bottom:6px}
+header.hero h1{font-weight:800;font-size:clamp(22px,4.5vw,30px);line-height:1.2}
+header.hero p.sub{color:#CFEDF1;font-size:14px;margin-top:6px;max-width:56ch}
+.wave{display:block;width:100%;height:34px;margin-top:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:16px}
+.card h2{font-size:17px;font-weight:800;margin-bottom:10px}
+.small{font-size:13px;color:var(--muted)}
+label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 5px}
+input[type=text],input[type=tel],select{width:100%;padding:12px 14px;font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input:disabled,select:disabled{background:#EFF5F5;color:var(--muted)}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outline-offset:1px}
+.btn{display:inline-block;border:0;cursor:pointer;font:inherit;font-weight:800;background:var(--teal);color:#fff;border-radius:999px;padding:13px 26px;font-size:15px;margin-top:18px;transition:transform .06s ease,background .15s ease}
+.btn:hover{background:var(--ink)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}
+.note-time{background:var(--amber-soft);border:1px solid var(--amber);border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px}
+.note-time b{color:var(--amber)}
+
+/* Bilah timer + progres */
+.top-bar{position:sticky;top:0;z-index:20;background:var(--paper);padding:12px 0 8px}
+.timer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.timer .clock{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--teal);background:#fff;border:2px solid var(--teal);border-radius:10px;padding:4px 14px}
+.timer.warn .clock{color:var(--amber);border-color:var(--amber)}
+.timer.danger .clock{color:var(--coral);border-color:var(--coral);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.55}}
+.timer .tl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.prog-meta{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}
+.prog-track{height:14px;border-radius:999px;background:#E2EDEF;border:1px solid var(--line);overflow:hidden}
+.prog-fill{height:100%;width:0%;border-radius:999px;background:repeating-linear-gradient(115deg,var(--aqua) 0 14px,var(--teal) 14px 28px);transition:width .3s ease}
+
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.item.unanswered-hl{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft)}
+.item .no{font-size:11px;font-weight:800;color:var(--aqua);letter-spacing:.08em}
+.item .stmt{font-size:15.5px;font-weight:600;margin:4px 0 12px}
+.likert{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.likert button{flex:1;aspect-ratio:1/1;max-width:52px;border-radius:50%;border:2px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:all .12s ease}
+.likert button:hover{border-color:var(--aqua)}
+.likert button.sel{background:var(--teal);border-color:var(--teal);color:#fff;transform:scale(1.08)}
+.lik-lab{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px;font-weight:600}
+.err{color:var(--coral);font-size:13px;font-weight:700;margin-top:8px;display:none}
+.center-card{text-align:center;padding:44px 24px}
+.center-card .emo{font-size:48px}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="h-inner">
+    <div class="eyebrow">Arcelio Aquapark · HRD</div>
+    <h1>Psikotes Arcelio Aquapark</h1>
+    <p class="sub">Tes kepribadian terpadu DISC &amp; Big Five (OCEAN) — 80 pernyataan, satu kali pengisian.</p>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,30 C240,60 480,0 720,25 C960,50 1200,10 1440,35 L1440,60 L0,60 Z" fill="#F1F7F8"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <!-- Gerbang: memeriksa token -->
+  <section id="screen-gate">
+    <div class="card center-card">
+      <div class="emo" id="gate-emo">⏳</div>
+      <h2 style="margin-top:8px" id="gate-title">Memeriksa tautan undangan…</h2>
+      <p class="small" id="gate-msg" style="max-width:48ch;margin:8px auto 0">Mohon tunggu sebentar.</p>
+    </div>
+  </section>
+
+  <!-- Data peserta + petunjuk -->
+  <section id="screen-start" class="hidden">
+    <div class="card">
+      <h2>Data Peserta</h2>
+      <label class="f" for="in-nama">Nama lengkap</label>
+      <input type="text" id="in-nama" placeholder="Tulis nama lengkap Anda" autocomplete="name">
+      <label class="f" for="in-telp">Nomor telepon / WhatsApp</label>
+      <input type="tel" id="in-telp" inputmode="numeric" placeholder="Contoh: 081234567890" autocomplete="tel">
+      <label class="f" for="in-posisi">Posisi yang dilamar</label>
+      <select id="in-posisi"></select>
+      <label class="f" for="in-usia">Usia (opsional)</label>
+      <input type="text" id="in-usia" inputmode="numeric" placeholder="Contoh: 24" autocomplete="off">
+    </div>
+    <div class="card">
+      <h2>Petunjuk Pengisian</h2>
+      <ul style="padding-left:20px;font-size:14px">
+        <li>Terdapat <b>80 pernyataan</b> tentang kebiasaan dan sikap Anda sehari-hari.</li>
+        <li>Pilih angka <b>1 – 5</b>: <b>1</b> = Sangat Tidak Setuju · <b>3</b> = Netral · <b>5</b> = Sangat Setuju.</li>
+        <li>Tidak ada jawaban benar atau salah. Jawablah dengan <b>jujur dan spontan</b> — jawaban yang dibuat-buat akan terdeteksi sistem.</li>
+      </ul>
+      <div class="note-time">
+        ⏱️ <b>Tentang waktu:</b> Anda memiliki <b><span id="txt-durasi">25</span> menit</b>. Waktu berjalan mundur <b>sejak tombol "Mulai Tes" ditekan</b> dan tidak bisa dihentikan.
+        Jika waktu habis, jawaban yang sudah terisi akan <b>terkirim otomatis</b>.
+        Tautan ini hanya bisa dipakai <b>satu kali</b>. Jika koneksi terputus, buka kembali tautan yang sama — Anda bisa melanjutkan selama waktu masih tersisa.
+      </div>
+      <p class="small" style="margin-top:10px">Pastikan sinyal stabil dan Anda tidak akan terganggu selama <span id="txt-durasi2">25</span> menit ke depan.</p>
+      <button class="btn" id="btn-mulai">Mulai Tes — Waktu Langsung Berjalan</button>
+    </div>
+  </section>
+
+  <!-- Tes -->
+  <section id="screen-test" class="hidden">
+    <div class="top-bar">
+      <div class="timer" id="timer-box">
+        <span class="tl">Sisa waktu</span>
+        <span class="clock" id="clock">25:00</span>
+      </div>
+      <div class="prog-meta"><span id="prog-label">Bagian 1 dari 8</span><span id="prog-count">0 / 80</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+    <div id="item-list"></div>
+    <p class="err" id="err-page">Masih ada pernyataan yang belum dijawab. Mohon lengkapi yang ditandai merah.</p>
+    <div class="btn-row">
+      <button class="btn ghost" id="btn-prev">&larr; Sebelumnya</button>
+      <button class="btn" id="btn-next">Lanjut &rarr;</button>
+    </div>
+  </section>
+
+  <!-- Selesai -->
+  <section id="screen-done" class="hidden">
+    <div class="card center-card">
+      <div class="emo">🌊</div>
+      <h2 style="font-size:22px;margin-top:10px">Terima kasih sudah mengikuti<br>Psikotes Arcelio Aquapark</h2>
+      <p class="small" style="max-width:46ch;margin:10px auto 0" id="done-msg">Jawaban Anda telah terkirim dan tersimpan.<br><b>Lembar jawaban hanya dapat diakses oleh HRD.</b><br>Anda boleh menutup halaman ini.</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   PSIKOTES ARCELIO — HALAMAN PELAMAR (akses via token)
+   1) Isi kredensial Supabase di bawah (sama dengan hrd.html)
+   2) Jalankan supabase_setup.sql sekali di SQL Editor Supabase
+   ============================================================ */
+const SUPABASE_URL = "https://sscfekaqpsrszgwnnbgz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzY2Zla2FxcHNyc3pnd25uYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNDg0NDksImV4cCI6MjA5ODcyNDQ0OX0.LL-2T2UPEQ7hKtFlc1TkeowzGZ-fSpQFQDvgpBwerYw";
+
+const PAGE_SIZE = 10;
+const $ = s => document.querySelector(s);
+
+/* ---------- helper Supabase REST ---------- */
+async function sb(path, opt = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opt,
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation",
+      ...(opt.headers || {})
+    }
+  });
+  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+/* ---------- DAFTAR POSISI (nama saja; profil ideal ada di hrd.html) ---------- */
+const POSITIONS = [
+  { key:"security",   nama:"Security" },
+  { key:"poolguard",  nama:"Pool Guard" },
+  { key:"frontdesk",  nama:"Front Desk / Receptionist" },
+  { key:"sales",      nama:"Sales" },
+  { key:"marketing",  nama:"Marketing" },
+  { key:"accounting", nama:"Accounting" },
+  { key:"kasir",      nama:"Kasir" },
+  { key:"admin",      nama:"Admin" },
+  { key:"store",      nama:"Store / Gudang" },
+  { key:"engineering",nama:"Engineering / Maintenance" },
+];
+
+/* ---------- BANK SOAL (identik dengan pengaturan skoring di hrd.html) ---------- */
+const POOLS = {
+  D: [
+    {t:"Ketika tim saya kebingungan dan tidak ada yang memimpin, saya yang maju mengambil alih."},
+    {t:"Saya berani mengambil keputusan dengan cepat, meskipun informasinya belum lengkap semua.", id:"D2"},
+    {t:"Jika saya tidak setuju dengan seseorang, saya menyampaikannya langsung kepada orangnya, bukan di belakang."},
+    {t:"Target kerja yang berat dan menantang justru membuat saya lebih bersemangat, bukan takut."},
+    {t:"Saya lebih senang menjadi ketua/pemimpin daripada menjadi anggota biasa."},
+    {t:"Dalam rapat atau kerja kelompok, saya sering menjadi orang yang mengarahkan jalannya pembicaraan."},
+    {t:"Jika melihat rekan kerja melakukan kesalahan, saya berani menegurnya secara langsung."},
+    {t:"Saya lebih memilih menghindari situasi yang bersifat lomba atau persaingan.", rev:true},
+  ],
+  I: [
+    {t:"Saya mudah memulai obrolan dengan orang yang baru pertama kali saya temui."},
+    {t:"Teman-teman menganggap saya orang yang ceria dan penuh semangat."},
+    {t:"Saya merasa senang (bukan gugup) ketika menjadi pusat perhatian di sebuah kelompok."},
+    {t:"Saya pandai membujuk orang lain sehingga mereka mau mengikuti ide atau ajakan saya."},
+    {t:"Suasana kerja yang ramai dan banyak orang membuat saya bertambah semangat."},
+    {t:"Saya sering melontarkan candaan untuk mencairkan suasana yang kaku."},
+    {t:"Saya bingung harus bicara apa ketika mengobrol dengan orang yang belum akrab.", rev:true},
+    {t:"Saat menjelaskan sesuatu, saya lebih suka memakai cerita dan contoh daripada angka dan data."},
+  ],
+  S: [
+    {t:"Saya lebih nyaman dengan jadwal dan rutinitas yang tetap daripada perubahan yang mendadak.", id:"S1"},
+    {t:"Saya sanggup mendengarkan keluhan orang lain sampai selesai tanpa memotong pembicaraannya."},
+    {t:"Menurut orang-orang di sekitar saya, saya termasuk orang yang tenang dan tidak mudah panik."},
+    {t:"Saya tipe orang yang betah bekerja bertahun-tahun di satu tempat, tidak suka pindah-pindah."},
+    {t:"Ketika ada aturan atau cara kerja baru, saya butuh waktu lebih lama dari orang lain untuk terbiasa."},
+    {t:"Sebisa mungkin saya mengalah agar tidak terjadi pertengkaran dengan orang lain."},
+    {t:"Mengerjakan tugas yang sama persis setiap hari membuat saya cepat bosan.", rev:true},
+    {t:"Saya tetap bisa sabar dan sopan melayani pelanggan yang sedang marah-marah."},
+  ],
+  C: [
+    {t:"Sebelum menyerahkan hasil kerja, saya selalu memeriksanya ulang minimal satu kali."},
+    {t:"Saya merasa terganggu jika melihat orang bekerja tidak sesuai aturan atau prosedur (SOP)."},
+    {t:"Dalam mengambil keputusan, saya lebih percaya pada data dan bukti daripada perasaan."},
+    {t:"Saya menyukai pekerjaan yang menuntut ketelitian tinggi, misalnya menghitung atau mencocokkan data."},
+    {t:"Sebelum memutuskan sesuatu yang penting, saya harus menimbang dulu semua kemungkinannya."},
+    {t:"Saya merasa tidak nyaman jika perintah kerja yang saya terima tidak jelas dan tidak rinci."},
+    {t:"Bagi saya, yang penting pekerjaan selesai — tidak harus sempurna sampai hal-hal kecil.", rev:true},
+    {t:"Berkas, catatan, dan barang kerja saya selalu tersimpan rapi sehingga mudah dicari."},
+  ],
+  O: [
+    {t:"Saya senang mencoba cara baru dalam mengerjakan sesuatu, walaupun cara lama masih bisa dipakai."},
+    {t:"Saya suka mempelajari hal-hal baru di luar bidang pekerjaan saya, hanya karena penasaran."},
+    {t:"Saya sering punya ide atau usulan yang berbeda dari kebiasaan orang-orang."},
+    {t:"Saya menikmati kegiatan seni atau kreatif, misalnya musik, desain, menggambar, atau menulis."},
+    {t:"Saya lebih memilih cara lama yang sudah terbukti aman daripada mencoba-coba cara baru.", rev:true},
+    {t:"Saya cepat bisa menggunakan alat atau aplikasi baru tanpa harus lama diajari."},
+    {t:"Bagi saya, perubahan di tempat kerja adalah kesempatan, bukan ancaman."},
+    {t:"Saya cepat bosan dengan pembahasan yang penuh teori tetapi tidak ada prakteknya.", rev:true},
+  ],
+  Co: [
+    {t:"Saya biasa menyelesaikan tugas sebelum batas waktunya, bukan pas-pasan di akhir."},
+    {t:"Sebelum mulai bekerja, saya membuat rencana atau daftar urutan yang akan saya kerjakan."},
+    {t:"Barang-barang pribadi saya selalu tertata di tempatnya masing-masing, tidak berantakan."},
+    {t:"Saya sering menunda-nunda pekerjaan sampai waktunya sudah mepet.", rev:true},
+    {t:"Dalam hal kehadiran, saya bisa diandalkan — hampir selalu datang tepat waktu.", id:"Co5"},
+    {t:"Sekali saya mulai mengerjakan sesuatu, saya pastikan selesai sampai tuntas."},
+    {t:"Saya kadang meninggalkan pekerjaan dalam keadaan setengah jadi lalu lupa melanjutkannya.", rev:true},
+    {t:"Saya menuntut diri sendiri untuk memberikan hasil kerja yang berkualitas tinggi."},
+  ],
+  E: [
+    {t:"Setelah berkumpul dan mengobrol dengan banyak orang, energi saya justru bertambah, bukan terkuras."},
+    {t:"Dalam obrolan kelompok, saya lebih banyak berbicara daripada hanya mendengarkan."},
+    {t:"Saya lebih suka mengerjakan tugas sendirian daripada bersama-sama dalam tim.", rev:true},
+    {t:"Saya cepat akrab dengan rekan kerja atau teman yang baru saya kenal."},
+    {t:"Terlalu lama berada di tempat yang ramai membuat saya lelah dan ingin menyendiri.", rev:true},
+    {t:"Saya berani berbicara di depan banyak orang, misalnya memimpin doa atau memberi pengumuman."},
+    {t:"Saat bertemu orang lain, biasanya saya yang lebih dulu menyapa."},
+    {t:"Bagi saya, libur yang menyenangkan adalah berkumpul dengan banyak teman, bukan sendirian di rumah."},
+  ],
+  A: [
+    {t:"Sebelum menilai seseorang, saya berusaha memahami dulu alasan dan sudut pandangnya."},
+    {t:"Saya mau membantu pekerjaan rekan yang kerepotan, walaupun pekerjaan saya sendiri juga banyak."},
+    {t:"Saya mudah memaafkan orang yang pernah berbuat salah kepada saya."},
+    {t:"Saya butuh waktu lama untuk bisa percaya kepada orang yang baru saya kenal.", rev:true},
+    {t:"Bagi saya, kepentingan tim lebih penting daripada kepentingan pribadi saya sendiri."},
+    {t:"Saya kadang menyindir atau mengomentari orang yang kerjanya lambat atau tidak becus.", rev:true},
+    {t:"Menurut orang lain, saya termasuk orang yang ramah dan enak diajak bicara."},
+    {t:"Saya sulit menolak ketika ada orang yang meminta tolong, walaupun sebenarnya saya keberatan."},
+  ],
+  N: [
+    {t:"Ketika menghadapi tekanan atau dikejar waktu, saya mudah menjadi cemas dan gelisah.", id:"N1"},
+    {t:"Suasana hati saya mudah berubah — bisa senang lalu tiba-tiba kesal dalam satu hari."},
+    {t:"Dalam keadaan darurat atau genting, saya tetap bisa berpikir tenang.", rev:true},
+    {t:"Jika dikritik atau ditegur, saya bisa memikirkannya terus-menerus sampai berhari-hari."},
+    {t:"Saya mudah tersinggung oleh ucapan atau candaan orang lain."},
+    {t:"Saya sering mengkhawatirkan hal-hal buruk yang sebenarnya belum tentu terjadi."},
+    {t:"Setelah mengalami kejadian yang tidak menyenangkan, saya cepat pulih dan kembali normal.", rev:true},
+    {t:"Ketika sedang banyak masalah, saya jadi sulit tidur atau sulit berkonsentrasi."},
+  ],
+};
+const SD_ITEMS = [
+  {t:"Seumur hidup, saya tidak pernah berbohong sekali pun, sekecil apa pun.", dim:"SD"},
+  {t:"Semua janji yang pernah saya buat selalu saya tepati, tanpa terkecuali.", dim:"SD"},
+  {t:"Saya tidak pernah merasa iri kepada siapa pun, dalam hal apa pun.", dim:"SD"},
+  {t:"Semua peraturan selalu saya patuhi — tidak pernah melanggar satu kali pun.", dim:"SD"},
+];
+const PAIR_ITEMS = [
+  {t:"Walaupun datanya belum lengkap semua, saya tetap berani segera memutuskan.",                    dim:"D",  pairOf:"D2"},
+  {t:"Perubahan jadwal atau rencana yang tiba-tiba membuat saya merasa tidak nyaman.",                dim:"S",  pairOf:"S1"},
+  {t:"Saya hampir tidak pernah datang terlambat, baik ke tempat kerja maupun ke janji dengan orang.", dim:"Co", pairOf:"Co5"},
+  {t:"Tekanan dan tuntutan pekerjaan membuat saya mudah merasa gelisah.",                             dim:"N",  pairOf:"N1"},
+];
+const ITEMS = (() => {
+  const dims = ["D","I","S","C","O","Co","E","A","N"];
+  const out = [];
+  for (let r = 0; r < 8; r++) {
+    for (const d of dims) out.push({ ...POOLS[d][r], dim: d });
+    if (r === 2) out.push(SD_ITEMS[0]);
+    if (r === 4) out.push(SD_ITEMS[1]);
+    if (r === 5) out.push({ ...PAIR_ITEMS[0] });
+    if (r === 6) { out.push(SD_ITEMS[2]); out.push({ ...PAIR_ITEMS[1] }); }
+    if (r === 7) { out.push(SD_ITEMS[3]); out.push({ ...PAIR_ITEMS[2] }); out.push({ ...PAIR_ITEMS[3] }); }
+  }
+  return out; // 80 item
+})();
+
+/* ============================================================
+   ALUR PESERTA
+   ============================================================ */
+let tokenRow = null;
+let answers = new Array(ITEMS.length).fill(0);
+let page = 0;
+const TOTAL_PAGES = Math.ceil(ITEMS.length / PAGE_SIZE);
+let peserta = {};
+let deadline = 0;          // epoch ms — jangkar dari used_at (server), bukan jam klien
+let timerId = null;
+let submitted = false;
+let saveDirty = false;
+
+function gate(emo, title, msg){
+  $("#gate-emo").textContent = emo;
+  $("#gate-title").textContent = title;
+  $("#gate-msg").innerHTML = msg;
+}
+
+(async function init(){
+  if (SUPABASE_URL.includes("GANTI")) {
+    gate("⚙️","Aplikasi belum dikonfigurasi","Administrator: isi SUPABASE_URL dan SUPABASE_KEY di bagian atas berkas ini, lalu jalankan supabase_setup.sql di Supabase.");
+    return;
+  }
+  const tok = new URLSearchParams(location.search).get("t");
+  if (!tok) {
+    gate("🎟️","Diperlukan tautan undangan","Halaman ini hanya bisa dibuka melalui tautan undangan psikotes yang dikirimkan oleh HRD Arcelio Aquapark. Silakan hubungi HRD jika Anda belum menerimanya.");
+    return;
+  }
+  let rows;
+  try { rows = await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tok)}&select=*`); }
+  catch(e){ gate("📡","Gagal terhubung","Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu muat ulang halaman."); return; }
+  if (!rows || rows.length === 0) { gate("❌","Tautan tidak valid","Kode undangan tidak ditemukan. Pastikan tautan disalin lengkap, atau hubungi HRD."); return; }
+  tokenRow = rows[0];
+
+  const now = Date.now();
+  if (tokenRow.status === "selesai") { gate("✅","Tautan sudah digunakan","Psikotes dengan tautan ini sudah selesai dikerjakan dan terkirim. Tautan hanya berlaku satu kali."); return; }
+
+  if (tokenRow.status === "dipakai") {
+    // hitung ulang tenggat dari data server
+    const dl = new Date(tokenRow.used_at).getTime() + tokenRow.durasi_menit*60000;
+    if (now >= dl) {
+      // waktu habis saat peserta tidak di halaman — kirim otomatis dari progress
+      await autoSubmitFromProgress();
+      return;
+    }
+    // lanjutkan pengerjaan
+    if (tokenRow.progress) {
+      answers = tokenRow.progress.answers || answers;
+      page = tokenRow.progress.page || 0;
+      peserta = tokenRow.progress.peserta || {};
+    }
+    deadline = dl;
+    resumeTest();
+    return;
+  }
+
+  // status 'baru'
+  if (now >= new Date(tokenRow.expires_at).getTime()) {
+    gate("⌛","Tautan kedaluwarsa",`Masa berlaku tautan ini sudah lewat (${fmtTgl(tokenRow.expires_at)}). Silakan hubungi HRD untuk meminta tautan baru.`);
+    return;
+  }
+  showStart();
+})();
+
+function fmtTgl(iso){ return new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+
+function showStart(){
+  $("#screen-gate").classList.add("hidden");
+  $("#screen-start").classList.remove("hidden");
+  $("#txt-durasi").textContent = tokenRow.durasi_menit;
+  $("#txt-durasi2").textContent = tokenRow.durasi_menit;
+  const sel = $("#in-posisi");
+  if (tokenRow.posisi_key) {
+    const p = POSITIONS.find(x=>x.key===tokenRow.posisi_key);
+    sel.innerHTML = `<option value="${p.key}">${p.nama}</option>`;
+    sel.disabled = true;
+  } else {
+    sel.innerHTML = '<option value="">— Pilih posisi —</option>' +
+      POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
+  }
+  $("#btn-mulai").addEventListener("click", mulaiTes);
+  bindNav();
+}
+function bindNav(){
+  $("#btn-prev").addEventListener("click", ()=>gotoPage(page-1));
+  $("#btn-next").addEventListener("click", nextPage);
+}
+
+async function mulaiTes(){
+  const nama = $("#in-nama").value.trim();
+  const telp = $("#in-telp").value.trim().replace(/[^0-9+]/g,"");
+  const posKey = $("#in-posisi").value;
+  if(!nama){ alert("Mohon isi nama lengkap."); $("#in-nama").focus(); return; }
+  if(!/^(\+62|62|0)8[0-9]{7,12}$/.test(telp)){ alert("Mohon isi nomor telepon/WhatsApp yang valid (contoh: 081234567890)."); $("#in-telp").focus(); return; }
+  if(!posKey){ alert("Mohon pilih posisi yang dilamar."); $("#in-posisi").focus(); return; }
+  if(!confirm(`Waktu ${tokenRow.durasi_menit} menit akan langsung berjalan dan tidak bisa dihentikan. Mulai sekarang?`)) return;
+
+  peserta = {
+    nama, telepon: telp, usia: $("#in-usia").value.trim(),
+    posisiKey: posKey, posisi: POSITIONS.find(p=>p.key===posKey).nama
+  };
+  // klaim token secara atomik: hanya berhasil jika status masih 'baru'
+  const usedAt = new Date().toISOString();
+  let claimed;
+  try {
+    claimed = await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}&status=eq.baru`, {
+      method:"PATCH",
+      body: JSON.stringify({ status:"dipakai", used_at: usedAt, progress:{ answers, page:0, peserta } })
+    });
+  } catch(e){ alert("Gagal memulai — periksa koneksi lalu coba lagi."); return; }
+  if(!claimed || claimed.length===0){
+    $("#screen-start").classList.add("hidden");
+    $("#screen-gate").classList.remove("hidden");
+    gate("❌","Tautan sudah digunakan","Tautan ini sudah dipakai di perangkat/waktu lain. Tautan hanya berlaku satu kali. Hubungi HRD jika ini keliru.");
+    return;
+  }
+  tokenRow = claimed[0];
+  deadline = new Date(tokenRow.used_at).getTime() + tokenRow.durasi_menit*60000;
+  $("#screen-start").classList.add("hidden");
+  $("#screen-test").classList.remove("hidden");
+  startTimer();
+  gotoPage(0);
+}
+
+function resumeTest(){
+  $("#screen-gate").classList.add("hidden");
+  $("#screen-test").classList.remove("hidden");
+  bindNav();
+  startTimer();
+  gotoPage(page);
+}
+
+/* ---------- timer (jangkar waktu server: used_at + durasi) ---------- */
+function startTimer(){
+  const tick = ()=>{
+    const sisa = Math.max(0, deadline - Date.now());
+    const m = Math.floor(sisa/60000), s = Math.floor(sisa%60000/1000);
+    $("#clock").textContent = `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    const box = $("#timer-box");
+    box.classList.toggle("warn", sisa <= 5*60000 && sisa > 60000);
+    box.classList.toggle("danger", sisa <= 60000);
+    if (sisa <= 0){ clearInterval(timerId); submitTest(true); }
+  };
+  tick();
+  timerId = setInterval(tick, 1000);
+  // auto-save progres tiap 20 detik jika ada perubahan
+  setInterval(()=>{ if(saveDirty && !submitted){ saveDirty=false; saveProgress(); } }, 20000);
+}
+async function saveProgress(){
+  try {
+    await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}&status=eq.dipakai`, {
+      method:"PATCH", body: JSON.stringify({ progress:{ answers, page, peserta } })
+    });
+  } catch(e){ /* koneksi putus — dicoba lagi pada siklus berikutnya */ }
+}
+
+/* ---------- halaman soal ---------- */
+function gotoPage(p){
+  page = Math.max(0, Math.min(TOTAL_PAGES-1, p));
+  const start = page*PAGE_SIZE, end = Math.min(start+PAGE_SIZE, ITEMS.length);
+  const list = $("#item-list");
+  list.innerHTML = "";
+  for(let i=start;i<end;i++){
+    const div = document.createElement("div");
+    div.className = "item"; div.dataset.idx = i;
+    div.innerHTML = `
+      <div class="no">PERNYATAAN ${i+1} DARI ${ITEMS.length}</div>
+      <div class="stmt">${ITEMS[i].t}</div>
+      <div class="likert">${[1,2,3,4,5].map(v=>
+        `<button type="button" data-v="${v}" class="${answers[i]===v?"sel":""}" aria-label="Nilai ${v}">${v}</button>`).join("")}</div>
+      <div class="lik-lab"><span>Sangat tidak setuju</span><span>Sangat setuju</span></div>`;
+    div.querySelectorAll(".likert button").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        answers[i] = +b.dataset.v;
+        div.querySelectorAll(".likert button").forEach(x=>x.classList.toggle("sel", x===b));
+        div.classList.remove("unanswered-hl");
+        saveDirty = true;
+        updateProgress();
+      });
+    });
+    list.appendChild(div);
+  }
+  $("#btn-prev").disabled = page===0;
+  $("#btn-next").textContent = page===TOTAL_PAGES-1 ? "Selesai & Kirim ✓" : "Lanjut →";
+  $("#prog-label").textContent = `Bagian ${page+1} dari ${TOTAL_PAGES}`;
+  $("#err-page").style.display = "none";
+  updateProgress();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function updateProgress(){
+  const done = answers.filter(a=>a>0).length;
+  $("#prog-count").textContent = `${done} / ${ITEMS.length}`;
+  $("#prog-fill").style.width = (done/ITEMS.length*100)+"%";
+}
+function nextPage(){
+  const start = page*PAGE_SIZE, end = Math.min(start+PAGE_SIZE, ITEMS.length);
+  let ok = true;
+  for(let i=start;i<end;i++){
+    if(answers[i]===0){ ok=false; document.querySelector(`.item[data-idx="${i}"]`).classList.add("unanswered-hl"); }
+  }
+  if(!ok){
+    $("#err-page").style.display = "block";
+    const firstBad = document.querySelector(".item.unanswered-hl");
+    if(firstBad) firstBad.scrollIntoView({behavior:"smooth", block:"center"});
+    return;
+  }
+  saveProgress();
+  if(page < TOTAL_PAGES-1){ gotoPage(page+1); return; }
+  submitTest(false);
+}
+
+/* ---------- skoring (dijalankan di sisi peserta, disimpan ke DB) ---------- */
+function computeResults(ans){
+  const sums = {}, counts = {};
+  let sdSum = 0, sdCount = 0, kosong = 0;
+  ITEMS.forEach((it,i)=>{
+    let raw = ans[i];
+    if(raw === 0){ kosong++; raw = 3; } // waktu habis: soal kosong dihitung netral
+    if(it.dim === "SD"){ sdSum += raw; sdCount++; return; }
+    const val = it.rev ? 6-raw : raw;
+    sums[it.dim] = (sums[it.dim]||0) + val;
+    counts[it.dim] = (counts[it.dim]||0) + 1;
+  });
+  const dims = {};
+  for(const d in sums) dims[d] = Math.round((sums[d]/counts[d] - 1) / 4 * 100);
+  const pairDetails = [];
+  ITEMS.forEach((it,i)=>{
+    if(it.pairOf){
+      const j = ITEMS.findIndex(x=>x.id===it.pairOf);
+      const a1 = ans[j]||3, a2 = ans[i]||3;
+      pairDetails.push({ q1:ITEMS[j].t, a1, q2:it.t, a2, diff:Math.abs(a2-a1) });
+    }
+  });
+  const consist = pairDetails.reduce((a,b)=>a+b.diff,0)/pairDetails.length;
+  const filled = ans.map(a=>a||3);
+  const mean = filled.reduce((a,b)=>a+b,0)/filled.length;
+  const sdAll = Math.sqrt(filled.reduce((a,b)=>a+(b-mean)**2,0)/filled.length);
+  const nExtreme = filled.filter(a=>a===1||a===5).length;
+  const pctExtreme = Math.round(nExtreme/filled.length*100);
+  return { dims, sd:+(sdSum/sdCount).toFixed(3), consist:+consist.toFixed(3), sdAll:+sdAll.toFixed(3),
+           pctExtreme, pairDetails, flat:sdAll<0.55, extreme:pctExtreme>=85, tidakDijawab:kosong };
+}
+
+async function submitTest(waktuHabis){
+  if(submitted) return;
+  submitted = true;
+  clearInterval(timerId);
+  const r = computeResults(answers);
+  const row = {
+    token: tokenRow.token,
+    nama: peserta.nama || "(tanpa nama)",
+    telepon: peserta.telepon || "",
+    usia: peserta.usia || "",
+    posisi_key: peserta.posisiKey || tokenRow.posisi_key || "",
+    posisi: peserta.posisi || (POSITIONS.find(p=>p.key===tokenRow.posisi_key)||{}).nama || "",
+    waktu_habis: waktuHabis,
+    tidak_dijawab: r.tidakDijawab,
+    jawaban: answers,
+    hasil: r
+  };
+  try {
+    await sb("psikotes_hasil", { method:"POST", body: JSON.stringify(row) });
+    await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}`, {
+      method:"PATCH", body: JSON.stringify({ status:"selesai", progress:null })
+    });
+  } catch(e){
+    submitted = false;
+    alert("Gagal mengirim jawaban — periksa koneksi lalu tekan OK untuk mencoba lagi.");
+    return submitTest(waktuHabis);
+  }
+  $("#screen-test").classList.add("hidden");
+  $("#screen-start").classList.add("hidden");
+  $("#screen-gate").classList.add("hidden");
+  if(waktuHabis) $("#done-msg").innerHTML = "Waktu pengerjaan telah habis — jawaban yang sudah terisi <b>terkirim otomatis</b>.<br><b>Lembar jawaban hanya dapat diakses oleh HRD.</b><br>Anda boleh menutup halaman ini.";
+  $("#screen-done").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+
+/* waktu habis saat peserta sedang tidak membuka halaman */
+async function autoSubmitFromProgress(){
+  const pr = tokenRow.progress || {};
+  answers = pr.answers || answers;
+  peserta = pr.peserta || {};
+  gate("⌛","Waktu pengerjaan telah habis","Jawaban yang sempat terisi sedang dikirim otomatis…");
+  await submitTest(true);
+}
+
+</script>
+</body>
+</html>

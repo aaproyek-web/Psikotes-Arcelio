@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard HRD — Psikotes Arcelio Aquapark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B3C49; --teal:#0E7C86; --aqua:#1FB6C9; --aqua-soft:#DFF3F5;
+  --paper:#F1F7F8; --card:#FFFFFF;
+  --coral:#E4593F; --coral-soft:#FCEAE5;
+  --amber:#D9950F; --amber-soft:#FBF1DC;
+  --green:#2E9E6B; --green-soft:#E3F4EC;
+  --line:#D7E5E7; --muted:#5B7A82;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;font-size:16px}
+.wrap{max-width:840px;margin:0 auto;padding:0 16px 64px}
+header.hero{background:linear-gradient(160deg,var(--ink) 0%,var(--teal) 78%);color:#fff;padding:24px 16px 6px}
+header.hero .h-inner{max-width:840px;margin:0 auto}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--aqua);font-weight:700;margin-bottom:6px}
+header.hero h1{font-weight:800;font-size:clamp(20px,4vw,26px);line-height:1.2}
+.wave{display:block;width:100%;height:28px;margin-top:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:16px}
+.card h2{font-size:17px;font-weight:800;margin-bottom:10px}
+.card h3{font-size:15px;font-weight:700;margin:14px 0 6px}
+.small{font-size:13px;color:var(--muted)}
+label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 5px}
+input[type=text],input[type=password],select,textarea{width:100%;padding:12px 14px;font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--aqua);outline-offset:1px}
+.btn{display:inline-block;border:0;cursor:pointer;font:inherit;font-weight:800;background:var(--teal);color:#fff;border-radius:999px;padding:13px 26px;font-size:15px;margin-top:18px;transition:transform .06s ease,background .15s ease}
+.btn:hover{background:var(--ink)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.btn.green{background:var(--green)}
+.btn.small-btn{padding:8px 16px;font-size:13px;margin-top:0}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}
+.hidden{display:none!important}
+.err{color:var(--coral);font-size:13px;font-weight:700;margin-top:8px;display:none}
+.pin-box{display:flex;gap:10px;margin-top:12px;justify-content:center}
+.pin-box input{max-width:160px;text-align:center;letter-spacing:.4em;font-weight:800}
+.center-card{text-align:center;padding:44px 24px}
+.note-info{background:var(--aqua-soft);border-radius:10px;padding:10px 14px;font-size:13px;margin-top:10px}
+
+/* Tab */
+.tabs{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.tabs button{border:1.5px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-weight:800;font-size:14px;padding:10px 18px;border-radius:999px;cursor:pointer}
+.tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* Grid form token */
+.tok-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tok-list{margin-top:6px}
+.tok-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;flex-wrap:wrap;background:#fff}
+.tok-row .code{font-weight:800;font-size:15px;letter-spacing:.05em}
+.tok-row .meta{font-size:12px;color:var(--muted)}
+.tok-row .acts{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:5px;color:#fff}
+.b-baru{background:var(--teal)} .b-dipakai{background:var(--amber)} .b-selesai{background:var(--green)} .b-hangus{background:var(--muted)}
+.bulk-box{background:#fff;border:1px dashed var(--teal);border-radius:12px;padding:14px;margin-top:12px}
+.bulk-box textarea{font-size:12.5px;min-height:120px}
+
+/* Daftar hasil */
+.hasil-row{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;background:#fff;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.hasil-row .hn{font-weight:800;font-size:15px}
+.hasil-row .hm{font-size:12.5px;color:var(--muted)}
+.hasil-row .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px}
+.c-teal{background:var(--aqua-soft);color:var(--teal)}
+.c-red{background:var(--coral-soft);color:var(--coral)}
+.c-amber{background:var(--amber-soft);color:var(--amber)}
+.c-green{background:var(--green-soft);color:var(--green)}
+
+/* Lembar hasil (identik gaya v2) */
+.confid{display:inline-block;background:var(--coral-soft);color:var(--coral);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:6px;margin-bottom:8px}
+.id-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:14px}
+.id-grid b{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.hl-match{border:2px solid var(--teal);border-radius:14px;margin-top:16px;padding:20px;background:linear-gradient(150deg,#fff,var(--aqua-soft));display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.hl-match .pct{font-size:44px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.hl-match .pct small{display:block;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.hl-match h2{font-size:16px}
+.hl-match p{font-size:13.5px;color:var(--muted);margin-top:4px}
+.bar-row{display:grid;grid-template-columns:120px 1fr 44px;gap:10px;align-items:center;margin-top:10px;font-size:13.5px}
+.bar-row .bl{font-weight:700}
+.bar-track{height:16px;background:#EAF2F3;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.bar-fill{height:100%;border-radius:999px;background:var(--teal);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.bar-fill.dim-N{background:var(--coral)}
+.bar-val{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.bar-note{font-size:12px;color:var(--muted);margin-top:2px;grid-column:2/4}
+.arch{background:linear-gradient(150deg,var(--ink),var(--teal));color:#fff;border-radius:14px;padding:22px;margin-top:16px}
+.arch .tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--aqua);font-weight:800}
+.arch h2{font-size:24px;font-weight:800;margin:4px 0 8px}
+.arch p{font-size:14px;color:#DFF3F5}
+.arch .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.arch .cols h4{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--aqua);margin-bottom:5px}
+.arch .cols ul{padding-left:18px;font-size:13.5px;color:#EAF7F8}
+.match-row{display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center;margin-top:12px}
+.match-row .mt{font-weight:700;font-size:14px}
+.match-row .mt .applied{font-size:10px;background:var(--aqua-soft);color:var(--teal);font-weight:800;padding:2px 8px;border-radius:5px;margin-left:6px;text-transform:uppercase;letter-spacing:.05em;vertical-align:1px}
+.match-bar{height:12px;background:#EAF2F3;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:4px}
+.match-fill{height:100%;border-radius:999px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.match-pct{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.match-pct small{display:block;font-size:10px;font-weight:700;color:var(--muted)}
+.validity{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:12px}
+.vbox .vt{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.vbox .vv{font-size:15px;font-weight:800;margin-top:3px}
+.vbox .vd{font-size:12px;color:var(--muted);margin-top:2px}
+.ok{color:var(--green)} .warn{color:var(--amber)} .bad{color:var(--coral)}
+.flag{border-radius:14px;margin-top:14px;overflow:hidden;border:1.5px solid}
+.flag.red{border-color:var(--coral);background:var(--coral-soft)}
+.flag.yellow{border-color:var(--amber);background:var(--amber-soft)}
+.flag.green{border-color:var(--green);background:var(--green-soft);padding:18px}
+.flag-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;background:transparent;border:0;cursor:pointer;font:inherit;text-align:left}
+.flag-head .ft{font-weight:800;font-size:15px}
+.flag.red .ft{color:#9C2E17}
+.flag.yellow .ft{color:#7A5407}
+.flag-head .pill{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:5px;color:#fff;flex-shrink:0;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.flag.red .pill{background:var(--coral)}
+.flag.yellow .pill{background:var(--amber)}
+.flag-body{display:none;padding:0 18px 18px;font-size:14px}
+.flag.open .flag-body{display:block}
+.flag-body h4{font-size:12px;text-transform:uppercase;letter-spacing:.07em;margin:14px 0 5px;color:var(--ink)}
+.flag-body ul{padding-left:20px}
+.flag-body li{margin-top:4px}
+.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.sign-grid .g,.sign-grid .b{border-radius:10px;padding:10px 12px;font-size:13px;background:#fff}
+.sign-grid .g{border:1px solid var(--green)}
+.sign-grid .b{border:1px solid var(--coral)}
+.sign-grid h5{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.sign-grid .g h5{color:var(--green)} .sign-grid .b h5{color:var(--coral)}
+.rekom{background:#fff;border-radius:10px;padding:12px 14px;margin-top:12px;border:1px dashed var(--muted);font-size:13.5px}
+.rekom b{color:var(--teal)}
+.pair-box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:8px;font-size:13px}
+.pair-box.pair-bad{border-color:var(--coral)}
+.pair-box .pv{font-weight:800;font-variant-numeric:tabular-nums}
+.pair-box .pv.bad{color:var(--coral)}
+.iv-q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}
+.iv-q .qt{font-weight:700;font-size:14.5px}
+.iv-q .dig{font-size:12px;color:var(--muted);margin-top:4px}
+.iv-q .dig b{color:var(--teal)}
+.iv-score{display:flex;gap:8px;margin-top:10px}
+.iv-score button{flex:1;max-width:64px;padding:8px 0;border-radius:9px;border:2px solid var(--line);background:#fff;font:inherit;font-weight:800;cursor:pointer;color:var(--muted)}
+.iv-score button.sel{background:var(--teal);border-color:var(--teal);color:#fff}
+.anchor{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:5px;font-weight:600}
+.iv-result{border:2px solid var(--green);background:var(--green-soft);border-radius:14px;padding:20px;margin-top:16px}
+.iv-result .big{display:flex;gap:24px;flex-wrap:wrap}
+.iv-result .big > div{text-align:center}
+.iv-result .n{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.iv-result .l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.filters select{max-width:230px}
+table.rank{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+table.rank th{background:var(--ink);color:#fff;padding:9px 8px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.rank th:first-child{border-radius:8px 0 0 0}
+table.rank th:last-child{border-radius:0 8px 0 0}
+table.rank td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.rank tr:nth-child(even) td{background:#F7FBFB}
+.rk1 td:first-child{font-weight:800;color:var(--amber)}
+.badge-final{font-weight:800;font-variant-numeric:tabular-nums}
+.del-btn{border:0;background:none;color:var(--coral);cursor:pointer;font-size:15px}
+a.wa{color:var(--green);font-weight:700;text-decoration:none}
+
+@media print{
+  body{background:#fff;font-size:12px}
+  header.hero,.no-print,.tabs{display:none!important}
+  .wrap{max-width:100%;padding:0}
+  .card,.flag,.arch,.hl-match,.iv-result,.iv-q{break-inside:avoid;border-radius:8px}
+  .flag-body{display:block!important;padding:0 18px 18px}
+  .arch{background:var(--ink)!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
+@media (max-width:560px){
+  .sign-grid,.arch .cols{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:88px 1fr 40px;font-size:12.5px}
+  .hl-match{grid-template-columns:1fr;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="h-inner">
+    <div class="eyebrow">Arcelio Aquapark · Internal</div>
+    <h1>Dashboard HRD — Psikotes</h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,30 C240,60 480,0 720,25 C960,50 1200,10 1440,35 L1440,60 L0,60 Z" fill="#F1F7F8"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <!-- Gerbang PIN -->
+  <section id="screen-pin">
+    <div class="card center-card">
+      <div style="font-size:44px">🔐</div>
+      <h2 style="margin-top:8px">Area Terbatas HRD</h2>
+      <p class="small">Masukkan PIN untuk membuka dashboard.</p>
+      <div class="pin-box">
+        <input type="password" id="in-pin" placeholder="PIN" inputmode="numeric" maxlength="6" autocomplete="off">
+        <button class="btn small-btn" id="btn-pin" style="margin-top:0">Masuk</button>
+      </div>
+      <p class="err" id="err-pin">PIN salah.</p>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="screen-dash" class="hidden">
+    <div class="tabs no-print">
+      <button data-tab="token" class="on">🎟️ Token</button>
+      <button data-tab="hasil">📄 Hasil Tes</button>
+      <button data-tab="rank">🏆 Peringkat</button>
+    </div>
+
+    <!-- TAB TOKEN -->
+    <div id="tab-token">
+      <div class="card">
+        <h2>Buat Token Undangan</h2>
+        <p class="small">Setiap pelamar mendapat satu token sekali pakai. Kirimkan tautannya via WhatsApp.</p>
+        <div class="tok-grid">
+          <div><label class="f">Posisi</label><select id="tk-posisi"></select></div>
+          <div><label class="f">Durasi tes</label>
+            <select id="tk-durasi">
+              <option value="20">20 menit</option>
+              <option value="25" selected>25 menit (disarankan)</option>
+              <option value="30">30 menit</option>
+              <option value="40">40 menit</option>
+            </select></div>
+          <div><label class="f">Link berlaku</label>
+            <select id="tk-berlaku">
+              <option value="1">1 hari</option>
+              <option value="3" selected>3 hari</option>
+              <option value="7">7 hari</option>
+            </select></div>
+          <div><label class="f">Jumlah token</label>
+            <select id="tk-jumlah">
+              <option value="1" selected>1 (satu pelamar)</option>
+              <option value="5">5 — massal</option>
+              <option value="10">10 — massal</option>
+              <option value="20">20 — massal</option>
+              <option value="30">30 — massal</option>
+              <option value="50">50 — massal</option>
+            </select></div>
+        </div>
+        <button class="btn" id="btn-buat-token">＋ Buat Token</button>
+        <div id="bulk-hasil"></div>
+      </div>
+      <div class="card">
+        <h2>Daftar Token</h2>
+        <div class="filters no-print"><select id="tk-filter">
+          <option value="">Semua status</option>
+          <option value="baru">Baru</option>
+          <option value="dipakai">Sedang dikerjakan</option>
+          <option value="selesai">Selesai</option>
+          <option value="hangus">Kedaluwarsa</option>
+        </select>
+        <button class="btn small-btn ghost" id="btn-tk-refresh">↻ Muat ulang</button></div>
+        <div class="tok-list" id="tok-list"><p class="small" style="margin-top:10px">Memuat…</p></div>
+      </div>
+    </div>
+
+    <!-- TAB HASIL -->
+    <div id="tab-hasil" class="hidden">
+      <div id="hasil-list-wrap">
+        <div class="card">
+          <h2>Hasil Tes Masuk</h2>
+          <div class="filters no-print">
+            <input type="text" id="h-cari" placeholder="Cari nama…" style="max-width:220px">
+            <select id="h-posisi"></select>
+            <button class="btn small-btn ghost" id="btn-h-refresh">↻ Muat ulang</button>
+          </div>
+          <div id="hasil-list"><p class="small" style="margin-top:10px">Memuat…</p></div>
+        </div>
+      </div>
+      <div id="hasil-detail" class="hidden"></div>
+    </div>
+
+    <!-- TAB PERINGKAT -->
+    <div id="tab-rank" class="hidden">
+      <div class="card">
+        <span class="confid">Rahasia — Internal HRD</span>
+        <h2 style="font-size:20px">🏆 Peringkat Kandidat Direkomendasikan</h2>
+        <p class="small">Diurutkan berdasarkan skor akhir (40% psikotes + 60% wawancara).</p>
+        <div class="filters no-print">
+          <select id="f-posisi"></select>
+          <select id="f-periode"></select>
+          <button class="btn small-btn ghost" id="btn-rank-refresh">↻ Muat ulang</button>
+        </div>
+        <div id="rank-table"></div>
+        <div class="btn-row no-print">
+          <span></span>
+          <button class="btn small-btn" onclick="window.print()">🖨️ Cetak</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   DASHBOARD HRD — PSIKOTES ARCELIO AQUAPARK
+   1) Isi kredensial Supabase (SAMA dengan index.html)
+   2) PIN HRD default 2626 — ubah di HR_PIN
+   ============================================================ */
+const SUPABASE_URL = "https://sscfekaqpsrszgwnnbgz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzY2Zla2FxcHNyc3pnd25uYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNDg0NDksImV4cCI6MjA5ODcyNDQ0OX0.LL-2T2UPEQ7hKtFlc1TkeowzGZ-fSpQFQDvgpBwerYw";
+const HR_PIN = "2626";
+const W_TES = 0.4, W_IV = 0.6;
+
+const $ = s => document.querySelector(s);
+async function sb(path, opt = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opt,
+    headers: { "apikey":SUPABASE_KEY, "Authorization":`Bearer ${SUPABASE_KEY}`,
+      "Content-Type":"application/json", "Prefer":"return=representation", ...(opt.headers||{}) }
+  });
+  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+/* ---------- POSISI + PROFIL IDEAL ---------- */
+const POSITIONS = [
+  { key:"security", nama:"Security",
+    ideal:{ D:62, S:70, Co:76, C:65, N:24, A:50 }, w:{ D:2, S:2, Co:3, C:2, N:4, A:1 } },
+  { key:"poolguard", nama:"Pool Guard",
+    ideal:{ S:75, Co:78, N:18, C:65, D:55, E:50 }, w:{ S:3, Co:3, N:4, C:2, D:1, E:1 } },
+  { key:"frontdesk", nama:"Front Desk / Receptionist",
+    ideal:{ I:75, E:70, A:70, Co:68, C:60, N:28 }, w:{ I:3, E:2, A:2, Co:3, C:2, N:3 } },
+  { key:"sales", nama:"Sales",
+    ideal:{ I:80, E:75, D:65, O:60, Co:60, N:28 }, w:{ I:4, E:3, D:2, O:1, Co:2, N:2 } },
+  { key:"marketing", nama:"Marketing",
+    ideal:{ O:75, I:70, E:62, Co:66, C:58, N:32 }, w:{ O:3, I:3, E:2, Co:2, C:2, N:1 } },
+  { key:"accounting", nama:"Accounting",
+    ideal:{ C:85, Co:82, S:65, N:30, O:45, E:42 }, w:{ C:4, Co:4, S:2, N:2, O:1, E:1 } },
+  { key:"kasir", nama:"Kasir",
+    ideal:{ C:75, Co:78, A:62, S:66, N:28, I:55 }, w:{ C:3, Co:3, A:2, S:2, N:3, I:1 } },
+  { key:"admin", nama:"Admin",
+    ideal:{ C:78, Co:78, S:65, N:32, O:50, E:45 }, w:{ C:4, Co:4, S:2, N:2, O:1, E:1 } },
+  { key:"store", nama:"Store / Gudang",
+    ideal:{ C:72, Co:76, S:70, A:55, N:35, D:45 }, w:{ C:3, Co:3, S:3, A:1, N:2, D:1 } },
+  { key:"engineering", nama:"Engineering / Maintenance",
+    ideal:{ C:75, Co:75, O:65, S:65, N:30, E:40 }, w:{ C:3, Co:3, O:2, S:2, N:3, E:1 } },
+];
+const DIM_LABELS = { D:"Dominance", I:"Influence", S:"Steadiness", C:"Compliance",
+  O:"Openness", Co:"Conscientiousness", E:"Extraversion", A:"Agreeableness", N:"Neuroticism" };
+const DIM_NOTES = {
+  D:"Ketegasan, dorongan hasil, keberanian mengambil kendali",
+  I:"Pengaruh sosial, antusiasme, kemampuan persuasi",
+  S:"Kesabaran, kestabilan, kesetiaan pada rutinitas",
+  C:"Kepatuhan aturan, ketelitian, orientasi standar",
+  O:"Keterbukaan pada ide, cara, dan pengalaman baru",
+  Co:"Kedisiplinan, tanggung jawab, keandalan",
+  E:"Energi sosial, keaktifan berinteraksi",
+  A:"Keramahan, kerja sama, kepedulian pada orang lain",
+  N:"Kecemasan & kepekaan emosi — makin TINGGI makin perlu perhatian" };
+
+const ARCHETYPES = {
+  "D":{nama:"Pengarah",desc:"Tegas, cepat, berorientasi hasil. Nyaman mengambil keputusan dan memikul tanggung jawab. Bisa terkesan keras jika tidak diimbangi kepekaan.",kuat:["Pengambilan keputusan cepat","Berani ambil tanggung jawab","Fokus pada target"],awas:["Kurang sabar pada proses","Bisa menabrak perasaan orang","Sulit menerima atasan yang lambat"]},
+  "DI":{nama:"Pelopor",desc:"Energik dan berani — menggerakkan orang sekaligus mengejar hasil. Cocok di lini depan yang butuh inisiatif dan pengaruh.",kuat:["Inisiatif tinggi","Persuasif","Cepat bergerak"],awas:["Kurang teliti pada detail","Bosan pada rutinitas","Bisa terlalu dominan di tim"]},
+  "DC":{nama:"Perancang Strategi",desc:"Tegas sekaligus analitis. Menuntut standar tinggi dan hasil terukur. Kuat untuk peran perbaikan sistem dan penegakan standar.",kuat:["Standar tinggi","Analitis dan tegas","Berorientasi perbaikan"],awas:["Perfeksionis, sulit puas","Kritis pada orang lain","Kurang hangat"]},
+  "I":{nama:"Komunikator",desc:"Hangat, ekspresif, mudah disukai. Membawa energi positif ke tim dan pelanggan. Butuh struktur eksternal agar tetap fokus.",kuat:["Membangun hubungan cepat","Antusias dan optimis","Pandai bicara"],awas:["Kurang disiplin administrasi","Mudah teralihkan","Menghindari pembicaraan sulit"]},
+  "ID":{nama:"Penggerak Sosial",desc:"Persuasif dan ambisius — mempengaruhi orang untuk mencapai target. Profil klasik untuk sales dan pengembangan bisnis.",kuat:["Negosiasi dan persuasi","Percaya diri","Tahan ditolak"],awas:["Bisa terlalu banyak janji","Detail administrasi lemah","Cari panggung"]},
+  "IS":{nama:"Penasihat Ramah",desc:"Hangat dan sabar — pendengar yang baik yang membuat orang merasa nyaman. Kuat di pelayanan pelanggan.",kuat:["Pelayanan tulus","Sabar menghadapi orang","Menjaga suasana tim"],awas:["Sulit berkata tidak","Menghindari konflik","Kurang tegas pada pelanggaran"]},
+  "S":{nama:"Pendukung Setia",desc:"Tenang, konsisten, dapat diandalkan. Kekuatan diam sebuah tim — bekerja stabil tanpa banyak drama.",kuat:["Konsisten dan loyal","Sabar","Kerja tim baik"],awas:["Lambat menghadapi perubahan","Memendam ketidakpuasan","Kurang inisiatif menonjol"]},
+  "SI":{nama:"Perekat Tim",desc:"Ramah dan stabil — menjaga keharmonisan tim dan pelanggan. Andal untuk pelayanan jangka panjang.",kuat:["Menjaga hubungan baik","Stabil melayani","Kooperatif"],awas:["Menghindari keputusan sulit","Terlalu mengalah","Perubahan membuat stres"]},
+  "SC":{nama:"Spesialis Stabil",desc:"Teliti, sabar, dan sistematis. Menjalankan prosedur dengan konsisten — tulang punggung operasional.",kuat:["Patuh SOP","Teliti dan konsisten","Tenang dan rapi"],awas:["Kaku pada perubahan","Lambat mengambil keputusan","Kurang vokal"]},
+  "C":{nama:"Analis Teliti",desc:"Logis, akurat, dan berstandar tinggi. Bekerja terbaik dengan aturan jelas, data, dan waktu untuk berpikir.",kuat:["Ketelitian tinggi","Berpikir sistematis","Menjaga kualitas"],awas:["Terlalu perfeksionis","Sulit ambil keputusan cepat","Kurang luwes bersosialisasi"]},
+  "CS":{nama:"Penjaga Kualitas",desc:"Teliti dan tenang — memastikan semua berjalan sesuai standar tanpa gejolak. Ideal untuk administrasi dan kontrol.",kuat:["Akurat dan rapi","Konsisten","Rendah drama"],awas:["Menghindari konfrontasi","Terlalu hati-hati","Butuh kepastian"]},
+  "CD":{nama:"Penantang Standar",desc:"Kritis, tegas, dan menuntut presisi. Cepat menemukan kesalahan sistem dan berani menegurnya.",kuat:["Kontrol kualitas kuat","Berani menegur penyimpangan","Logis"],awas:["Terkesan dingin/kritis","Sulit mentolerir kesalahan","Gesekan dengan rekan santai"]},
+};
+
+/* ---------- BANK WAWANCARA ---------- */
+const IV_UNIVERSAL = [
+  { q:"Ceritakan kegiatan Anda sehari-hari dari bangun tidur sampai malam. Bagaimana Anda memastikan selalu datang tepat waktu?", dig:"Kedisiplinan & keteraturan hidup — cari rutinitas nyata, bukan jawaban normatif." },
+  { q:"Pernahkah Anda melihat teman melakukan kecurangan kecil (di sekolah/tempat kerja)? Apa yang Anda lakukan waktu itu?", dig:"Integritas — perhatikan apakah berani jujur atau ikut menutupi." },
+  { q:"Mengapa memilih melamar di Arcelio Aquapark, dan Anda membayangkan akan bertahan berapa lama di sini?", dig:"Komitmen & motivasi — jawaban realistis (jarak rumah, kebutuhan jelas) lebih baik daripada gombalan." },
+];
+const IV_BANK = {
+  security: [
+    { q:"Ada pengunjung mabuk membuat keributan dan mengganggu pengunjung lain. Ceritakan langkah demi langkah apa yang Anda lakukan.", dig:"Ketegasan terukur — urutan: amankan situasi, dekati tenang, jangan langsung fisik, panggil bantuan." },
+    { q:"Bagaimana cara Anda tetap waspada saat berjaga di pos yang sepi dan membosankan berjam-jam?", dig:"Kewaspadaan & anti-jenuh — cari kebiasaan konkret (patroli berkala, cek titik rawan)." },
+    { q:"Teman sesama karyawan meminta Anda meloloskan barang keluar tanpa pemeriksaan, 'sekali ini saja'. Apa jawaban Anda?", dig:"Integritas vs pertemanan — jawaban terbaik: tetap periksa, tolak halus tapi jelas." },
+    { q:"Ceritakan pengalaman Anda menghadapi orang yang hampir berkelahi. Bagaimana Anda meredakannya?", dig:"Pengendalian diri — nilai tinggi jika meredakan tanpa kekerasan dan tahu kapan minta bantuan." },
+    { q:"Anda menemukan anak kecil menangis terpisah dari orang tuanya. Apa yang Anda lakukan pertama kali?", dig:"SOP & empati — amankan anak, jangan diserahkan sembarang orang, informasikan lewat jalur resmi." },
+  ],
+  poolguard: [
+    { q:"Anda melihat anak megap-megap di tengah kolam, sementara Anda bertugas sendirian. Ceritakan urutan tindakan Anda detik demi detik.", dig:"Prioritas keselamatan — peluit/teriak minta bantuan dulu, alat apung, baru masuk air; jangan tinggalkan kolam tanpa pengawasan." },
+    { q:"Pengunjung dewasa melompat-lompat di kolam anak dan membahayakan. Apa persisnya kata-kata dan tindakan Anda?", dig:"Ketegasan ramah — berani menegur langsung dengan sopan, tidak hanya diam atau lapor saja." },
+    { q:"Mengawasi kolam itu monoton. Bagaimana Anda menjaga mata dan fokus tetap awas selama berjam-jam?", dig:"Vigilance — teknik scanning, rotasi posisi, tidak main HP; kejujuran soal godaan bosan bernilai plus." },
+    { q:"Seberapa baik kemampuan renang Anda? Ceritakan pengalaman menolong orang di air, jika pernah.", dig:"Kompetensi teknis — wajib bisa berenang; catat perlunya tes praktik sebelum penempatan." },
+    { q:"Hari libur, pengunjung membludak, satu rekan Anda izin sakit. Bagaimana Anda mengatur pengawasan kolam?", dig:"Kerja di bawah tekanan — pembagian zona, komunikasi dengan atasan, tidak meninggalkan area." },
+  ],
+  frontdesk: [
+    { q:"Pengunjung marah karena antre lama, lalu membentak Anda di depan umum. Apa yang Anda katakan dan lakukan saat itu juga?", dig:"Pengendalian emosi & service recovery — tetap tenang, minta maaf, beri solusi; tidak balas membentak/menangis." },
+    { q:"Saat antrean panjang, bagaimana cara Anda membuat setiap pengunjung tetap merasa dilayani dengan baik?", dig:"Keramahan yang efisien — sapaan singkat, informasi estimasi, gerakan cepat tapi sopan." },
+    { q:"Pengunjung memaksa minta harga promo yang sudah berakhir kemarin. Bagaimana Anda menolaknya tanpa membuatnya kecewa berat?", dig:"Tegas + ramah — tidak melanggar aturan harga, tapi menawarkan alternatif." },
+    { q:"Ceritakan pengalaman Anda melayani beberapa permintaan sekaligus dalam waktu bersamaan. Mana yang Anda dahulukan dan mengapa?", dig:"Multitasking & prioritas — ada logika urutan yang masuk akal." },
+    { q:"Bagaimana cara Anda memastikan uang dan tiket yang Anda pegang selalu cocok dengan catatan di akhir shift?", dig:"Ketelitian & tanggung jawab uang — kebiasaan menghitung ulang, mencatat, serah terima jelas." },
+  ],
+  sales: [
+    { q:"Anggap saya HRD sebuah pabrik di Purwokerto. Tawarkan paket gathering Arcelio kepada saya, mulai sekarang.", dig:"Roleplay persuasi — nilai pembukaan, penggalian kebutuhan, penawaran manfaat (bukan sekadar harga), penutupan." },
+    { q:"Ceritakan pengalaman menjual atau menawarkan sesuatu yang berhasil. Menurut Anda apa kuncinya?", dig:"Track record — cari bukti nyata sekecil apa pun (jualan online, dagang, organisasi)." },
+    { q:"Calon klien sudah menolak Anda lima kali. Apa yang Anda lakukan pada pendekatan keenam?", dig:"Resiliensi — gigih tapi cerdas (ganti pendekatan/waktu/penawaran), bukan memaksa membabi buta." },
+    { q:"Jika diminta mencari calon klien gathering dari nol di wilayah Banyumas, dari mana Anda mulai?", dig:"Prospecting — sebutkan sumber konkret: sekolah, pabrik, instansi, komunitas, media sosial." },
+    { q:"Klien besar minta diskon melebihi wewenang Anda dan mengancam batal. Apa yang Anda lakukan?", dig:"Integritas vs target — tidak janji sembarangan; eskalasi ke atasan dengan tetap menjaga klien." },
+  ],
+  marketing: [
+    { q:"Menurut Anda, apa alasan utama orang memilih datang ke waterpark? Bagaimana memakai alasan itu untuk promosi Arcelio?", dig:"Insight konsumen — jawaban dari sudut pandang pengunjung (keluarga, anak, harga, foto-foto), bukan asal." },
+    { q:"Hari kerja (Senin–Jumat) pengunjung sepi. Usulkan ide konten atau program promosi untuk menaikkannya.", dig:"Kreativitas terarah — ide spesifik dan masuk akal untuk pasar lokal, bukan ide mahal yang mengawang." },
+    { q:"Dari mana Anda tahu sebuah promosi berhasil atau gagal? Apa yang Anda ukur?", dig:"Orientasi data — sebut ukuran nyata: jumlah pengunjung, jangkauan, biaya per hasil." },
+    { q:"Ceritakan konten atau kampanye yang pernah Anda buat (pribadi/organisasi/kerja) dan bagaimana hasilnya.", dig:"Portofolio — minta bukti bisa ditunjukkan; hasil kecil yang jujur lebih baik dari klaim besar." },
+    { q:"Anggaran promosi bulan ini sangat kecil. Kegiatan apa yang Anda prioritaskan dan apa yang Anda korbankan?", dig:"Prioritas & realistis — paham mana yang murah-berdampak (organik, kemitraan) vs mahal." },
+  ],
+  accounting: [
+    { q:"Ceritakan pengalaman Anda menyusun pembukuan atau laporan keuangan. Aplikasi/software apa saja yang Anda kuasai?", dig:"Kompetensi teknis — gali sedetail mungkin; siapkan tes praktik Excel/jurnal sederhana." },
+    { q:"Di akhir hari Anda menemukan selisih kas Rp50.000 yang tidak jelas. Apa langkah Anda satu per satu?", dig:"Ketelitian & prosedur — telusuri transaksi, jangan ditambal uang pribadi diam-diam, lapor transparan." },
+    { q:"Atasan meminta Anda mencatat sebuah transaksi dengan cara yang menurut Anda tidak wajar. Apa yang Anda lakukan?", dig:"Integritas — berani bertanya/menolak halus dan mendokumentasikan; hati-hati pada yang langsung menurut." },
+    { q:"Saat hari ramai dengan ratusan transaksi, bagaimana Anda memastikan tidak ada yang terlewat dicatat?", dig:"Sistematika — kebiasaan rekonsiliasi harian, cek silang dengan kasir/tiket." },
+    { q:"Tutup buku bulanan bertepatan dengan banyak tugas lain yang juga mendesak. Bagaimana Anda mengaturnya?", dig:"Manajemen deadline — ada metode prioritas nyata, berani komunikasi ke atasan sejak awal." },
+  ],
+  kasir: [
+    { q:"Saat serah terima shift, uang di laci Anda kurang Rp20.000. Apa yang Anda lakukan?", dig:"Kejujuran & prosedur — lapor apa adanya dan telusuri; waspadai jawaban 'saya ganti saja biar aman'." },
+    { q:"Teman dekat Anda berkata: 'Tiketnya nggak usah dibayar ya, kan kamu kasirnya.' Bagaimana persisnya Anda menjawab?", dig:"Integritas — menolak dengan jelas meski canggung; 'tergantung situasi' adalah tanda bahaya." },
+    { q:"Antrean panjang, sistem kasir lemot, pengunjung mulai protes. Apa yang Anda lakukan saat itu?", dig:"Ketenangan di bawah tekanan — tetap teliti walau diburu-buru, komunikasi ke antrean, minta bantuan." },
+    { q:"Bagaimana kebiasaan Anda memastikan uang kembalian selalu tepat, bahkan saat ramai?", dig:"Ketelitian — hitung di depan pengunjung, sebutkan nominal, rapikan laci per pecahan." },
+    { q:"Pernahkah Anda salah hitung atau salah input? Ceritakan kejadiannya dan apa yang Anda lakukan setelahnya.", dig:"Tanggung jawab — mengaku dan memperbaiki bernilai tinggi; 'tidak pernah salah' justru mencurigakan." },
+  ],
+  admin: [
+    { q:"Ceritakan pengalaman Anda mengelola dokumen atau data. Seperti apa sistem penyimpanan/pengarsipan yang Anda pakai?", dig:"Sistematika — ada metode nyata (penamaan file, folder, buku agenda), bukan sekadar 'rapi kok'." },
+    { q:"Anda menemukan angka di dua laporan tidak cocok satu sama lain. Apa langkah Anda?", dig:"Ketelitian — telusuri ke sumber, tanya pihak terkait, catat perbaikan; bukan pilih salah satu asal cepat." },
+    { q:"Dua atasan berbeda memberi Anda tiga tugas mendesak sekaligus. Bagaimana Anda mengaturnya?", dig:"Prioritas & komunikasi — berani mengkonfirmasi urutan ke atasan, tidak diam-diam keteteran." },
+    { q:"Seberapa mahir Anda menggunakan Excel/Google Sheets? Sebutkan rumus atau fitur yang biasa Anda pakai.", dig:"Kompetensi — minimal SUM/IF/VLOOKUP/filter; siapkan tes praktik singkat untuk membuktikan." },
+    { q:"Anda mengetahui data gaji dan data pribadi karyawan. Bagaimana Anda menjaga kerahasiaannya, termasuk dari teman dekat?", dig:"Integritas & kerahasiaan — tegas menolak membocorkan walau ditanya teman/keluarga." },
+  ],
+  store: [
+    { q:"Bagaimana cara Anda mencatat barang masuk dan keluar supaya stok di catatan selalu cocok dengan fisik?", dig:"Sistematika — kartu stok/pencatatan langsung saat barang bergerak, bukan dirapel." },
+    { q:"Saat stock opname, jumlah fisik tidak cocok dengan catatan. Apa yang Anda lakukan?", dig:"Ketelitian & kejujuran — hitung ulang, telusuri dokumen, lapor apa adanya; jangan 'disesuaikan' diam-diam." },
+    { q:"Ceritakan bagaimana Anda akan menata gudang agar barang cepat ditemukan dan tidak rusak.", dig:"Kerapian & logika — pengelompokan, label, FIFO untuk barang kedaluwarsa (F&B)." },
+    { q:"Ada permintaan barang mendadak saat Anda sedang di tengah-tengah stock opname. Bagaimana menyikapinya?", dig:"Prioritas — layani dengan tetap tercatat, tidak meninggalkan opname berantakan." },
+    { q:"Teman berkata: 'Pinjam dulu barang gudang ya, nggak usah pakai surat, besok kubalikin.' Apa jawaban Anda?", dig:"Integritas — semua keluar-masuk harus tercatat, sedekat apa pun orangnya." },
+  ],
+  engineering: [
+    { q:"Pompa atau filter kolam tiba-tiba mati di jam operasional saat ramai pengunjung. Ceritakan langkah Anda satu per satu.", dig:"Troubleshooting darurat — utamakan keselamatan, cek penyebab sistematis, koordinasi dengan operasional." },
+    { q:"Ceritakan perbaikan listrik, mesin, atau pipa paling sulit yang pernah Anda tangani. Bagaimana menyelesaikannya?", dig:"Kompetensi — detail teknisnya nyambung atau tidak; siapkan tes praktik bila perlu." },
+    { q:"Bagaimana Anda menyusun jadwal perawatan rutin agar tidak ada kerusakan mendadak?", dig:"Pola pikir preventif — checklist harian/mingguan/bulanan, pencatatan riwayat mesin." },
+    { q:"Apa saja yang WAJIB Anda lakukan sebelum memperbaiki peralatan listrik di area basah seperti kolam?", dig:"Keselamatan kerja — matikan sumber listrik, kunci panel (LOTO), alat pelindung; jawaban asal = bahaya." },
+    { q:"Sparepart habis, toko/vendor tutup, tapi wahana harus beroperasi besok pagi. Apa yang Anda lakukan?", dig:"Problem solving — solusi sementara yang AMAN, komunikasi risiko ke atasan; bukan akal-akalan berbahaya." },
+  ],
+};
+
+/* ---------- ATURAN FLAG ---------- */
+const FLAG_RULES = [
+  { id:"n-tinggi", level:"red", cond:r=>r.dims.N>=70,
+    title:"Stabilitas Emosi Rendah (Neuroticism Tinggi)",
+    indikator:r=>`Skor Neuroticism ${r.dims.N}/100 — jauh di atas ambang waspada (70).`,
+    risiko:"Mudah panik atau tersinggung saat ramai pengunjung, komplain pelanggan, atau tekanan target. Sangat kritis untuk pool guard (keselamatan), security, front desk, dan kasir.",
+    tanya:["Ceritakan pengalaman yang paling menekan bagi Anda. Apa yang terjadi, apa yang Anda lakukan, dan bagaimana hasilnya? (metode STAR)","Bagaimana biasanya reaksi Anda saat dimarahi pelanggan atau atasan di depan orang lain?","Apa yang Anda lakukan untuk menenangkan diri saat sedang tertekan? Berikan contoh nyata.","Pernahkah Anda meninggalkan pekerjaan/tugas karena merasa tidak sanggup? Ceritakan."],
+    baik:["Punya cara nyata mengelola stres (olahraga, cerita ke orang, jeda sejenak)","Bisa menceritakan situasi tertekan dengan tenang dan reflektif","Ada bukti bertahan dan menyelesaikan situasi sulit"],
+    buruk:["Menyalahkan orang lain di semua cerita","Emosi ikut naik saat menceritakan pengalaman lama","Pola keluar/menghilang setiap ada tekanan"],
+    rekom:"Jangan tempatkan di posisi berisiko keselamatan atau garda depan tanpa pendalaman. Jika aspek lain kuat, pertimbangkan posisi back-office dengan masa percobaan yang diawasi ketat." },
+  { id:"co-rendah", level:"red", cond:r=>r.dims.Co<=35,
+    title:"Kedisiplinan & Keandalan Rendah (Conscientiousness Rendah)",
+    indikator:r=>`Skor Conscientiousness ${r.dims.Co}/100 — di bawah ambang minimum (35).`,
+    risiko:"Risiko terlambat, tugas tidak tuntas, SOP dilewati. Berdampak langsung ke kebersihan, keselamatan, stok gudang, dan keuangan (kasir/accounting).",
+    tanya:["Ceritakan rutinitas harian Anda dari bangun tidur sampai berangkat kerja/sekolah.","Bagaimana cara Anda memastikan tugas selesai tepat waktu? Berikan contoh terakhir.","Pernah terlambat atau lupa tugas penting? Apa penyebabnya dan apa yang berubah setelah itu?","Kalau atasan tidak mengawasi, apa yang biasanya Anda kerjakan?"],
+    baik:["Punya kebiasaan/rutinitas teratur yang bisa diceritakan detail","Mengakui kesalahan lalu menjelaskan perbaikan konkret","Referensi kerja sebelumnya mengkonfirmasi kehadiran baik"],
+    buruk:["Jawaban mengambang, tidak ada contoh nyata","Banyak alasan eksternal (macet, teman, cuaca) tanpa refleksi diri","Riwayat pindah kerja cepat tanpa alasan jelas"],
+    rekom:"Wajib cek referensi ke tempat kerja sebelumnya (khusus tanyakan kehadiran). Jika tetap direkrut: target kehadiran tertulis di masa percobaan, evaluasi 2 minggu pertama." },
+  { id:"d-a-konflik", level:"red", cond:r=>r.dims.D>=70&&r.dims.A<=35,
+    title:"Potensi Gaya Keras / Sumber Konflik (D Tinggi + Agreeableness Rendah)",
+    indikator:r=>`Dominance ${r.dims.D}/100 dengan Agreeableness hanya ${r.dims.A}/100.`,
+    risiko:"Gaya komunikasi menabrak, sulit menerima arahan, berpotensi gesekan dengan rekan dan atasan — apalagi di tim operasional yang harus kompak saat ramai.",
+    tanya:["Ceritakan konflik terbesar Anda dengan rekan kerja atau atasan. Apa yang terjadi dan bagaimana penyelesaiannya?","Bagaimana reaksi Anda jika diberi instruksi yang menurut Anda salah?","Bagaimana perasaan Anda bekerja di bawah aturan ketat dari atasan yang lebih muda?","Apa kata rekan kerja lama tentang gaya kerja Anda? Kalau saya telepon mereka, apa yang akan mereka bilang?"],
+    baik:["Bisa menceritakan konflik yang berakhir baik atas inisiatifnya","Mengakui gaya kerasnya dan tahu kapan mengerem","Menghormati keputusan final atasan walau tidak setuju"],
+    buruk:["Semua konflik disebut salah orang lain","Merendahkan rekan/atasan lama saat bercerita","Mengisyaratkan akan melawan aturan yang tidak disukai"],
+    rekom:"Hati-hati untuk posisi staf pelaksana; profil ini kadang justru cocok untuk security atau sales mandiri. Wajib klarifikasi lewat wawancara kedua dengan pewawancara berbeda." },
+  { id:"faking", level:"red", cond:r=>r.sd>=4.25,
+    title:"Indikasi Faking Good — Jawaban Terlalu Ideal",
+    indikator:r=>`Skor social desirability ${r.sd.toFixed(2)}/5 (ambang 4.25). Peserta menyetujui pernyataan yang hampir mustahil benar (mis. \u201Ctidak pernah berbohong sekali pun\u201D).`,
+    risiko:"Seluruh profil kemungkinan lebih \u201Cbagus\u201D dari aslinya — yang terbaca adalah topeng (Mask), bukan karakter inti (Core). Skor N asli bisa lebih tinggi dan Co asli bisa lebih rendah dari yang tampil.",
+    tanya:["Semua orang punya kelemahan — apa kelemahan Anda yang paling mengganggu di pekerjaan? (tolak jawaban klise seperti \u201Cterlalu perfeksionis\u201D, minta contoh nyata)","Ceritakan kesalahan terbesar yang pernah Anda buat di pekerjaan/sekolah, dan apa akibatnya.","Kapan terakhir kali Anda melanggar aturan? Sekecil apa pun.","Apa kritik yang pernah Anda terima dari atasan/guru, dan bagian mana yang menurut Anda benar?"],
+    baik:["Akhirnya mau bercerita jujur tentang kelemahan dengan contoh spesifik","Tidak defensif saat didesak","Refleksi diri masuk akal"],
+    buruk:["Tetap mengaku nyaris tanpa kelemahan","Kelemahan yang disebut selalu terdengar seperti kelebihan","Marah/defensif ketika didalami"],
+    rekom:"Jangan gugurkan hanya karena flag ini — bisa juga karena gugup atau ingin tampil sopan. Tapi abaikan skor \u201Cbagus\u201D di profil; andalkan wawancara mendalam dan cek referensi. Bila perlu, tes ulang di hari berbeda." },
+  { id:"inkonsisten", level:"red", cond:r=>r.consist>=1.5,
+    title:"Jawaban Tidak Konsisten",
+    indikator:r=>`Rata-rata selisih pasangan pernyataan kembar ${r.consist.toFixed(2)} poin (ambang 1.5). Pernyataan yang sama maknanya dijawab berbeda jauh.`,
+    detail:r=>{
+      const rows=(r.pairDetails||[]).map(p=>`
+        <div class="pair-box ${p.diff>=2?'pair-bad':''}">
+          <div>\u201C${p.q1}\u201D → dijawab <span class="pv ${p.diff>=2?'bad':''}">${p.a1}</span></div>
+          <div style="margin-top:4px">\u201C${p.q2}\u201D → dijawab <span class="pv ${p.diff>=2?'bad':''}">${p.a2}</span></div>
+          <div class="small" style="margin-top:4px">Selisih: <b class="${p.diff>=2?'bad':'ok'}">${p.diff} poin</b> ${p.diff>=2?'— bertolak belakang, tanyakan ulang di wawancara':'— masih wajar'}</div>
+        </div>`).join("");
+      return `<h4>Pasangan pernyataan untuk ditanyakan ulang di wawancara</h4>
+        <p class="small">Bacakan kedua pernyataan yang bertanda merah, lalu minta peserta memilih ulang sambil menjelaskan alasannya.</p>${rows}`;
+    },
+    risiko:"Peserta menjawab asal-asalan, tidak memahami pernyataan, atau kondisi saat tes tidak ideal (terburu-buru, terganggu). Seluruh hasil tidak layak dijadikan dasar keputusan.",
+    tanya:["Tanyakan langsung (tanpa menghakimi): \u201CBagaimana kondisi Anda saat mengisi tes tadi? Ada yang membingungkan?\u201D","Bacakan pasangan pernyataan bertanda merah di atas, minta peserta memilih ulang dan menjelaskan.","Cek pemahaman bahasa: minta peserta menjelaskan ulang salah satu pernyataan dengan kata-katanya sendiri."],
+    baik:["Ada penjelasan wajar (terburu-buru, salah paham istilah) dan bersedia tes ulang","Saat dibacakan ulang, jawabannya konsisten"],
+    buruk:["Tidak peduli / menganggap remeh","Jawaban lisan juga berubah-ubah"],
+    rekom:"Hasil ini JANGAN dipakai untuk keputusan. Buat token baru untuk tes ulang di kondisi tenang. Jika hasil kedua tetap inkonsisten, itu sendiri adalah data tentang keseriusan kandidat." },
+  { id:"pola-datar", level:"yellow", cond:r=>r.flat||r.extreme,
+    title:"Pola Jawaban Perlu Dicermati",
+    indikator:r=>r.flat
+      ?`Variasi jawaban sangat rendah (hampir semua jawaban sama/netral) — simpangan baku ${(+r.sdAll).toFixed(2)}.`
+      :`Jawaban hampir semua ekstrem 1 atau 5 (${r.pctExtreme}% dari seluruh item).`,
+    risiko:"Jawaban serba netral bisa berarti ragu, takut, atau tidak serius. Jawaban serba ekstrem bisa berarti impulsif atau ingin cepat selesai. Profil jadi kurang tajam.",
+    tanya:["\u201CSaya lihat banyak jawaban Anda di tengah/ekstrem — boleh cerita kenapa?\u201D","Dalami 3–4 dimensi terpenting untuk posisi yang dilamar lewat pertanyaan perilaku (STAR), abaikan skor tes."],
+    baik:["Penjelasan masuk akal (hati-hati, belum paham skala)","Jawaban wawancara hidup dan spesifik"],
+    buruk:["Sikap sama datarnya/meledak-ledaknya saat wawancara","Tidak bisa memberi contoh nyata apa pun"],
+    rekom:"Bobot keputusan digeser ke wawancara perilaku dan referensi; skor tes diperlakukan sebagai indikasi kasar saja." },
+  { id:"waktu-habis", level:"yellow", cond:r=>r.tidakDijawab>0,
+    title:"Waktu Habis — Ada Soal Tidak Terjawab",
+    indikator:r=>`${r.tidakDijawab} dari 80 soal tidak sempat dijawab (dihitung netral dalam skoring).`,
+    risiko:"Profil kurang tajam karena sebagian jawaban dihitung netral. Bisa berarti kandidat lambat membaca, terlalu berhati-hati, kendala sinyal, atau menunda-nunda mulai.",
+    tanya:["\u201CWaktu tes kemarin habis sebelum semua terjawab — apa yang terjadi?\u201D","Cek kendala teknis (sinyal, HP) vs kebiasaan kerja (lambat, menunda)."],
+    baik:["Kendala teknis yang masuk akal dan jumlah kosong sedikit","Mengakui kurang cepat dan menjelaskan wajar"],
+    buruk:["Banyak soal kosong tanpa alasan jelas","Menyalahkan sistem tanpa dasar"],
+    rekom:"Jika soal kosong lebih dari 15, pertimbangkan tes ulang dengan token baru. Jika sedikit, lanjutkan tapi baca profil dengan hati-hati." },
+  { id:"turnover", level:"yellow", cond:r=>r.dims.S<=30&&r.dims.N>=60,
+    title:"Risiko Tidak Betah / Turnover (S Rendah + N Cukup Tinggi)",
+    indikator:r=>`Steadiness ${r.dims.S}/100 dan Neuroticism ${r.dims.N}/100 — mudah bosan sekaligus mudah tertekan.`,
+    risiko:"Kombinasi cepat bosan pada rutinitas dan kurang tahan tekanan sering berakhir resign di bulan-bulan awal — mahal untuk biaya rekrutmen dan pelatihan.",
+    tanya:["Berapa lama Anda bertahan di pekerjaan/kegiatan sebelumnya? Apa alasan berhenti masing-masing?","Pekerjaan di sini banyak rutinitas yang sama setiap hari. Bagian mana yang menurut Anda paling berat?","Apa yang membuat Anda bertahan di sebuah pekerjaan walau sedang jenuh?"],
+    baik:["Alasan pindah kerja masuk akal dan progresif (bukan kabur)","Sadar dirinya mudah bosan dan punya cara mengatasinya","Ada komitmen konkret (jarak rumah dekat, kebutuhan jelas)"],
+    buruk:["Riwayat berhenti berulang dalam hitungan minggu/bulan","Ekspektasi kerja tidak realistis","Menjawab \u201Ctergantung\u201D untuk semua pertanyaan komitmen"],
+    rekom:"Sampaikan gambaran kerja apa adanya sebelum penawaran. Jika direkrut, beri variasi tugas ringan dan cek keterlibatan tiap 2 minggu di masa percobaan." },
+  { id:"terlalu-mengalah", level:"yellow", cond:r=>r.dims.S>=80&&r.dims.D<=25,
+    title:"Terlalu Menghindari Konflik (S Sangat Tinggi + D Sangat Rendah)",
+    indikator:r=>`Steadiness ${r.dims.S}/100 dengan Dominance hanya ${r.dims.D}/100.`,
+    risiko:"Sulit menegur pengunjung yang melanggar aturan, sulit menolak permintaan tidak wajar, dan cenderung memendam masalah. Kurang pas untuk posisi yang butuh ketegasan (security, pool guard).",
+    tanya:["Ada pengunjung dewasa melompat di kolam anak dan membahayakan. Apa persisnya yang Anda lakukan dan katakan?","Ceritakan pengalaman menegur atau menolak permintaan seseorang. Bagaimana rasanya?","Kalau Anda tidak setuju dengan keputusan tim, apa yang Anda lakukan?"],
+    baik:["Tetap mau menegur walau tidak nyaman, dengan cara halus tapi jelas","Punya contoh nyata pernah bersikap tegas","Menyalurkan ketidaksetujuan lewat jalur yang benar"],
+    buruk:["Memilih diam/melapor saja tanpa tindakan pada situasi darurat","Tidak punya satu pun contoh bersikap tegas","Mengaku selalu mengalah agar aman"],
+    rekom:"Aman untuk peran pelayanan dan administrasi. Untuk security/pool guard: latih skenario menegur saat onboarding dan uji lewat simulasi sebelum penempatan." },
+  { id:"people-pleaser", level:"yellow", cond:r=>r.dims.A>=82,
+    title:"Sulit Berkata Tidak (Agreeableness Sangat Tinggi)",
+    indikator:r=>`Agreeableness ${r.dims.A}/100 — sangat tinggi.`,
+    risiko:"Rentan dimanfaatkan rekan dan rawan untuk posisi yang memegang uang/stok (kasir, accounting, store) — bisa sulit menolak permintaan \u201Cbon dulu\u201D atau lolos tanpa bayar.",
+    tanya:["Teman dekat sesama karyawan minta masuk gratis lewat Anda \u201Csekali ini saja\u201D. Apa yang Anda lakukan?","Ceritakan pengalaman menolak permintaan teman/atasan. Bagaimana caranya?","Pernahkah kebaikan Anda dimanfaatkan orang? Apa yang Anda pelajari?"],
+    baik:["Ramah tapi punya garis tegas soal aturan dan uang","Bisa menolak dengan cara halus dan tetap menolak","Sadar kelemahannya dan punya siasat"],
+    buruk:["Menjawab \u201Ctergantung situasi\u201D untuk pelanggaran aturan yang jelas","Tidak pernah bisa menolak siapa pun","Menganggap menolong teman lebih penting daripada aturan"],
+    rekom:"Kekuatan besar untuk pelayanan — jaga dengan SOP yang tegas, dual control untuk kasir/stok, dan penegasan saat onboarding bahwa menolak pelanggaran adalah bagian dari tugas." },
+];
+
+/* ============================================================
+   LOGIKA DASHBOARD
+   ============================================================ */
+function posOf(k){ return POSITIONS.find(p=>p.key===k); }
+function matchScore(pos, dims){
+  let num=0, den=0;
+  for(const d in pos.ideal){ num += pos.w[d]*Math.abs(dims[d]-pos.ideal[d]); den += pos.w[d]; }
+  return Math.max(0, Math.min(100, Math.round(100 - num/den*1.6)));
+}
+function matchLabel(v){
+  if(v>=80) return {t:"Sangat cocok", c:"var(--green)"};
+  if(v>=65) return {t:"Cocok", c:"var(--teal)"};
+  if(v>=50) return {t:"Cukup", c:"var(--amber)"};
+  return {t:"Kurang cocok", c:"var(--coral)"};
+}
+function archetypeOf(dims){
+  const order = ["D","I","S","C"].map(d=>({d, v:dims[d]})).sort((a,b)=>b.v-a.v);
+  const [p, s] = order;
+  let key = p.d;
+  if(s.v >= 50 && (p.v - s.v) <= 18) key = p.d + s.d;
+  return { key, ...ARCHETYPES[key] };
+}
+function flagsOf(r){ return FLAG_RULES.filter(f=>f.cond(r)); }
+function fmtTgl(iso){ return new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+function tesLink(token){
+  const base = location.origin + location.pathname.replace(/[^/]*$/,"");
+  return base + "index.html?t=" + encodeURIComponent(token);
+}
+function copyText(txt, btn, orig){
+  const done=()=>{ if(btn){btn.textContent="✓ Tersalin"; setTimeout(()=>btn.textContent=orig,1500);} };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(()=>fb());
+  else fb();
+  function fb(){ const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}catch(e){alert("Gagal menyalin.");} document.body.removeChild(ta); }
+}
+
+/* ---------- init + PIN ---------- */
+(function init(){
+  $("#btn-pin").addEventListener("click", checkPin);
+  $("#in-pin").addEventListener("keydown", e=>{ if(e.key==="Enter") checkPin(); });
+  document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click", ()=>switchTab(b.dataset.tab)));
+  $("#tk-posisi").innerHTML = '<option value="">— Pelamar memilih sendiri —</option>' +
+    POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
+  $("#h-posisi").innerHTML = '<option value="">Semua posisi</option>' +
+    POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
+  $("#f-posisi").innerHTML = '<option value="">Semua posisi</option>' +
+    POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
+  $("#btn-buat-token").addEventListener("click", buatToken);
+  $("#btn-tk-refresh").addEventListener("click", loadTokens);
+  $("#tk-filter").addEventListener("change", renderTokens);
+  $("#btn-h-refresh").addEventListener("click", loadHasil);
+  $("#h-cari").addEventListener("input", renderHasilList);
+  $("#h-posisi").addEventListener("change", renderHasilList);
+  $("#btn-rank-refresh").addEventListener("click", loadRank);
+  $("#f-posisi").addEventListener("change", renderRankTable);
+  $("#f-periode").addEventListener("change", renderRankTable);
+})();
+function checkPin(){
+  if($("#in-pin").value !== HR_PIN){ $("#err-pin").style.display="block"; return; }
+  if(SUPABASE_URL.includes("GANTI")){
+    alert("Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_KEY di bagian atas berkas hrd.html dan index.html, lalu jalankan supabase_setup.sql.");
+  }
+  $("#screen-pin").classList.add("hidden");
+  $("#screen-dash").classList.remove("hidden");
+  loadTokens(); loadHasil(); loadRank();
+}
+function switchTab(t){
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===t));
+  ["token","hasil","rank"].forEach(x=>$("#tab-"+x).classList.toggle("hidden", x!==t));
+}
+
+/* ============================================================
+   TAB TOKEN
+   ============================================================ */
+let tokens = [];
+function genCode(){
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // tanpa karakter ambigu
+  let s = "";
+  const rnd = crypto.getRandomValues(new Uint32Array(6));
+  for(let i=0;i<6;i++) s += abc[rnd[i]%abc.length];
+  return "ARC-"+s;
+}
+async function buatToken(){
+  const posisi = $("#tk-posisi").value || null;
+  const durasi = +$("#tk-durasi").value;
+  const hari = +$("#tk-berlaku").value;
+  const jumlah = +$("#tk-jumlah").value;
+  const expires = new Date(Date.now() + hari*86400000).toISOString();
+  const rows = Array.from({length:jumlah}, ()=>({
+    token: genCode(), posisi_key: posisi, durasi_menit: durasi, expires_at: expires
+  }));
+  const btn = $("#btn-buat-token");
+  btn.disabled = true; btn.textContent = "Membuat…";
+  try {
+    const created = await sb("psikotes_tokens", { method:"POST", body: JSON.stringify(rows) });
+    if(jumlah > 1){
+      const teks = created.map((r,i)=>`${i+1}. ${tesLink(r.token)}`).join("\n");
+      $("#bulk-hasil").innerHTML = `
+        <div class="bulk-box">
+          <b>✅ ${created.length} token massal berhasil dibuat</b> — durasi ${durasi} menit, berlaku ${hari} hari${posisi?`, posisi ${posOf(posisi).nama}`:""}.
+          <p class="small" style="margin:6px 0">Salin daftar di bawah, lalu bagikan satu tautan untuk satu pelamar (jangan satu tautan ke banyak orang — sekali dipakai langsung terkunci).</p>
+          <textarea id="bulk-text" readonly>${teks}</textarea>
+          <button class="btn small-btn" style="margin-top:8px" onclick="copyText(document.querySelector('#bulk-text').value, this, '📋 Salin Semua Tautan')">📋 Salin Semua Tautan</button>
+        </div>`;
+    } else {
+      $("#bulk-hasil").innerHTML = `
+        <div class="bulk-box"><b>✅ Token dibuat:</b> <span style="font-weight:800">${created[0].token}</span>
+        <p class="small" style="margin:6px 0">${tesLink(created[0].token)}</p>
+        <button class="btn small-btn" onclick="copyText(tesLink('${created[0].token}'), this, '📋 Salin Tautan')">📋 Salin Tautan</button>
+        <a class="btn small-btn green" style="text-decoration:none;margin-left:6px" target="_blank" href="${waHref(created[0])}">💬 Kirim via WhatsApp</a></div>`;
+    }
+    loadTokens();
+  } catch(e){ alert("Gagal membuat token: "+e.message); }
+  btn.disabled = false; btn.textContent = "＋ Buat Token";
+}
+function waHref(t){
+  const msg = `Halo! Berikut tautan Psikotes Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Berlaku sampai ${fmtTgl(t.expires_at)}\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
+  return "https://wa.me/?text="+encodeURIComponent(msg);
+}
+async function loadTokens(){
+  try { tokens = await sb("psikotes_tokens?select=*&order=created_at.desc&limit=200"); }
+  catch(e){ $("#tok-list").innerHTML = `<p class="small">Gagal memuat: ${e.message}</p>`; return; }
+  renderTokens();
+}
+function tokenStatus(t){
+  if(t.status==="baru" && Date.now() > new Date(t.expires_at).getTime()) return "hangus";
+  return t.status;
+}
+function renderTokens(){
+  const f = $("#tk-filter").value;
+  const list = tokens.filter(t=>!f || tokenStatus(t)===f);
+  if(list.length===0){ $("#tok-list").innerHTML = '<p class="small" style="margin-top:10px">Belum ada token.</p>'; return; }
+  const lbl = {baru:"Baru",dipakai:"Dikerjakan",selesai:"Selesai",hangus:"Kedaluwarsa"};
+  $("#tok-list").innerHTML = list.map(t=>{
+    const st = tokenStatus(t);
+    return `<div class="tok-row">
+      <div>
+        <div class="code">${t.token} <span class="badge b-${st}">${lbl[st]}</span></div>
+        <div class="meta">${t.posisi_key ? posOf(t.posisi_key).nama : "Posisi bebas"} · ${t.durasi_menit} mnt · berlaku s/d ${fmtTgl(t.expires_at)}</div>
+      </div>
+      <div class="acts">
+        ${st==="baru" ? `
+          <button class="btn small-btn ghost" onclick="copyText(tesLink('${t.token}'), this, '📋 Link')">📋 Link</button>
+          <a class="btn small-btn green" style="text-decoration:none" target="_blank" href="${waHref(t)}">💬 WA</a>
+          <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" onclick="hapusToken('${t.token}')">✕</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+async function hapusToken(tok){
+  if(!confirm(`Hapus token ${tok}?`)) return;
+  try { await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tok)}&status=eq.baru`, {method:"DELETE"}); loadTokens(); }
+  catch(e){ alert("Gagal menghapus: "+e.message); }
+}
+
+/* ============================================================
+   TAB HASIL
+   ============================================================ */
+let hasil = [];
+let cur = null;      // baris hasil yang sedang dibuka
+let ivState = null;
+async function loadHasil(){
+  try { hasil = await sb("psikotes_hasil?select=*&order=created_at.desc&limit=300"); }
+  catch(e){ $("#hasil-list").innerHTML = `<p class="small">Gagal memuat: ${e.message}</p>`; return; }
+  renderHasilList();
+}
+function renderHasilList(){
+  const q = $("#h-cari").value.trim().toLowerCase();
+  const fp = $("#h-posisi").value;
+  const list = hasil.filter(h=>(!q || h.nama.toLowerCase().includes(q)) && (!fp || h.posisi_key===fp));
+  if(list.length===0){ $("#hasil-list").innerHTML = '<p class="small" style="margin-top:10px">Belum ada hasil tes masuk.</p>'; return; }
+  $("#hasil-list").innerHTML = list.map(h=>{
+    const r = h.hasil;
+    const fl = flagsOf(r);
+    const red = fl.filter(f=>f.level==="red").length, yel = fl.filter(f=>f.level==="yellow").length;
+    const v = matchScore(posOf(h.posisi_key), r.dims);
+    const chips = [
+      `<span class="chip c-teal">${h.posisi} · ${v}%</span>`,
+      red?`<span class="chip c-red">🔴 ${red} red flag</span>`:"",
+      yel?`<span class="chip c-amber">🟡 ${yel} perlu digali</span>`:"",
+      h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
+      h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
+    ].join("");
+    return `<div class="hasil-row">
+      <div>
+        <div class="hn">${h.nama}</div>
+        <div class="hm">${fmtTgl(h.created_at)} · <a class="wa" href="https://wa.me/${(h.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${h.telepon||"—"}</a>${h.usia?` · ${h.usia} th`:""}</div>
+        <div class="chips">${chips}</div>
+      </div>
+      <button class="btn small-btn" onclick="bukaHasil('${h.id}')">Buka →</button>
+    </div>`;
+  }).join("");
+}
+
+function bukaHasil(id){
+  cur = hasil.find(h=>h.id===id);
+  if(!cur) return;
+  $("#hasil-list-wrap").classList.add("hidden");
+  renderDetail();
+  $("#hasil-detail").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+function tutupDetail(){
+  $("#hasil-detail").classList.add("hidden");
+  $("#hasil-list-wrap").classList.remove("hidden");
+  loadHasil();
+}
+
+function renderDetail(){
+  const r = cur.hasil;
+  const dims = r.dims;
+  const posApplied = posOf(cur.posisi_key);
+  const vApplied = matchScore(posApplied, dims);
+  const labA = matchLabel(vApplied);
+  const arch = archetypeOf(dims);
+  const matches = POSITIONS.map(p=>({p, v:matchScore(p,dims)})).sort((a,b)=>b.v-a.v);
+  const best = matches[0];
+  const fl = flagsOf(r);
+
+  const cCls = r.consist<0.8?"ok":(r.consist<1.5?"warn":"bad");
+  const sdCls = r.sd<3.75?"ok":(r.sd<4.25?"warn":"bad");
+  const pCls = (r.flat||r.extreme)?"warn":"ok";
+
+  const bar = d => `
+    <div class="bar-row">
+      <div class="bl">${DIM_LABELS[d]}</div>
+      <div class="bar-track"><div class="bar-fill dim-${d}" style="width:${dims[d]}%"></div></div>
+      <div class="bar-val">${dims[d]}</div>
+      <div class="bar-note">${DIM_NOTES[d]}</div>
+    </div>`;
+
+  $("#hasil-detail").innerHTML = `
+    <button class="btn ghost small-btn no-print" onclick="tutupDetail()" style="margin-top:16px">&larr; Kembali ke daftar</button>
+    <div class="card">
+      <span class="confid">Rahasia — Internal HRD</span>
+      <h2 style="font-size:20px">Lembar Hasil Psikotes</h2>
+      <div class="id-grid" style="margin-top:12px">
+        <div><b>Nama</b>${cur.nama}</div>
+        <div><b>Posisi dilamar</b>${cur.posisi}</div>
+        <div><b>Telepon / WA</b><a class="wa" href="https://wa.me/${(cur.telepon||"").replace(/^0/,"62")}" target="_blank">${cur.telepon||"—"}</a></div>
+        <div><b>Usia</b>${cur.usia||"—"}</div>
+        <div><b>Tanggal &amp; waktu tes</b>${fmtTgl(cur.created_at)}</div>
+        <div><b>Token</b>${cur.token||"—"}</div>
+      </div>
+      ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu pengerjaan habis — ${cur.tidak_dijawab} soal tidak terjawab (dihitung netral).</div>`:""}
+    </div>
+
+    <div class="hl-match">
+      <div class="pct" style="color:${labA.c}">${vApplied}%<small style="color:${labA.c}">${labA.t}</small></div>
+      <div>
+        <h2>Kesesuaian dengan posisi yang dilamar: ${posApplied.nama}</h2>
+        <p>Angka ini membandingkan profil DISC + OCEAN peserta dengan profil ideal posisi ${posApplied.nama}. Gunakan panduan wawancara di bagian bawah untuk memverifikasinya langsung.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Validitas Jawaban</h2>
+      <p class="small">Periksa bagian ini terlebih dahulu. Jika ada indikator merah, seluruh profil di bawah harus dibaca dengan hati-hati.</p>
+      <div class="validity">
+        <div class="vbox"><div class="vt">Konsistensi jawaban</div>
+          <div class="vv ${cCls}">${r.consist.toFixed(2)} <small>selisih</small></div>
+          <div class="vd">${r.consist<0.8?"Konsisten — jawaban dapat dipercaya":(r.consist<1.5?"Cukup — masih wajar":"Tidak konsisten — hasil diragukan")}</div></div>
+        <div class="vbox"><div class="vt">Kejujuran respon</div>
+          <div class="vv ${sdCls}">${r.sd.toFixed(2)} <small>/ 5</small></div>
+          <div class="vd">${r.sd<3.75?"Wajar — tidak ada indikasi pencitraan":(r.sd<4.25?"Agak ideal — waspadai pencitraan ringan":"Terlalu ideal — indikasi faking good")}</div></div>
+        <div class="vbox"><div class="vt">Pola menjawab</div>
+          <div class="vv ${pCls}">${r.flat?"Datar":(r.extreme?"Ekstrem":"Normal")}</div>
+          <div class="vd">${r.flat?"Hampir semua jawaban sama — profil kurang tajam":(r.extreme?"Dominan jawaban 1/5 — cek keseriusan":"Variasi jawaban sehat")}</div></div>
+        <div class="vbox"><div class="vt">Soal terjawab</div>
+          <div class="vv ${r.tidakDijawab>0?"warn":"ok"}">${80-(r.tidakDijawab||0)} <small>/ 80</small></div>
+          <div class="vd">${r.tidakDijawab>0?"Sebagian kosong karena waktu habis":"Semua soal terjawab"}</div></div>
+      </div>
+    </div>
+
+    <div class="arch">
+      <div class="tag">Tipe karakter · DISC ${arch.key}</div>
+      <h2>${arch.nama}</h2>
+      <p>${arch.desc}</p>
+      <div class="cols">
+        <div><h4>Kekuatan</h4><ul>${arch.kuat.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+        <div><h4>Perlu diwaspadai</h4><ul>${arch.awas.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      </div>
+    </div>
+
+    <div class="card"><h2>Profil DISC</h2>${["D","I","S","C"].map(bar).join("")}</div>
+    <div class="card"><h2>Profil Big Five (OCEAN)</h2>${["O","Co","E","A","N"].map(bar).join("")}</div>
+
+    <div class="card">
+      <h2>Kecocokan Semua Posisi</h2>
+      <p class="small">Perbandingan profil peserta dengan profil ideal 10 posisi di Arcelio Aquapark.</p>
+      ${matches.map(({p,v})=>{
+        const lab = matchLabel(v);
+        const ap = p.key===cur.posisi_key ? '<span class="applied">Dilamar</span>' : "";
+        return `<div class="match-row">
+          <div><div class="mt">${p.nama}${ap}</div>
+            <div class="match-bar"><div class="match-fill" style="width:${v}%;background:${lab.c}"></div></div></div>
+          <div class="match-pct">${v}%<small style="color:${lab.c}">${lab.t}</small></div></div>`;
+      }).join("")}
+      <div class="note-info">${best.p.key!==cur.posisi_key && best.v-vApplied>=8
+        ? `💡 <b>Saran sistem:</b> profil peserta lebih mendekati posisi <b>${best.p.nama}</b> (${best.v}%) daripada posisi yang dilamar (${vApplied}%). Ganti posisi di bagian Wawancara — pertanyaan akan otomatis menyesuaikan.`
+        : `Posisi paling sesuai berdasarkan tes: <b>${best.p.nama}</b> (${best.v}%).`}</div>
+    </div>
+
+    <div style="margin-top:8px"><h2 style="font-size:17px;font-weight:800;margin-top:16px">Catatan Perhatian &amp; Panduan Pendalaman</h2>
+    ${fl.length===0 ? `<div class="flag green">
+        <b style="color:var(--green)">✅ Tidak ada red flag terdeteksi.</b>
+        <p class="small" style="margin-top:6px">Profil dalam rentang wajar dan jawaban valid. Tetap lakukan wawancara di bawah dan cek referensi — tes ini alat bantu, bukan pengganti penilaian manusia.</p></div>`
+      : fl.map(f=>`
+      <div class="flag ${f.level}">
+        <button type="button" class="flag-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="ft">${f.level==="red"?"🔴":"🟡"} ${f.title}</span>
+          <span class="pill">${f.level==="red"?"Red flag":"Perlu digali"}</span>
+        </button>
+        <div class="flag-body">
+          <h4>Indikator</h4><p>${f.indikator(r)}</p>
+          ${f.detail ? f.detail(r) : ""}
+          <h4>Risiko di lapangan</h4><p>${f.risiko}</p>
+          <h4>Pertanyaan wawancara pendalaman</h4>
+          <ul>${f.tanya.map(q=>`<li>${q}</li>`).join("")}</ul>
+          <h4>Cara membaca jawaban</h4>
+          <div class="sign-grid">
+            <div class="g"><h5>Tanda menenangkan</h5><ul>${f.baik.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+            <div class="b"><h5>Tanda mengkhawatirkan</h5><ul>${f.buruk.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+          </div>
+          <div class="rekom"><b>Rekomendasi:</b> ${f.rekom}</div>
+        </div>
+      </div>`).join("")}
+    </div>
+
+    <div class="card">
+      <h2>🎤 Wawancara &amp; Penilaian</h2>
+      <p class="small">Pilih posisi wawancara. Jika hasil DISC/OCEAN menunjukkan posisi lain lebih cocok, ganti di sini — pertanyaan otomatis menyesuaikan.</p>
+      <label class="f">Posisi wawancara</label>
+      <select id="iv-posisi">${matches.map(({p,v})=>
+        `<option value="${p.key}">${p.nama} — ${v}%${p.key===cur.posisi_key?" (dilamar)":""}</option>`).join("")}</select>
+      <div class="note-info" id="iv-fit-note"></div>
+      <div id="iv-questions"></div>
+      <label class="f">Catatan pewawancara (opsional)</label>
+      <textarea id="iv-notes" placeholder="Kesan umum, hal yang perlu dicek ke referensi, dsb."></textarea>
+      <p class="err" id="err-iv">Masih ada pertanyaan yang belum dinilai.</p>
+      <button class="btn no-print" id="btn-iv-hitung">Hitung &amp; Simpan Hasil Wawancara</button>
+    </div>
+    <div id="iv-result-wrap"></div>
+
+    <div class="card no-print">
+      <h2>Aksi</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn small-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        <button class="btn small-btn ghost" id="btn-json">📋 Salin Data (JSON)</button>
+        <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
+      </div>
+    </div>`;
+
+  $("#iv-posisi").addEventListener("change", onIvPosisiChange);
+  $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
+  $("#btn-json").addEventListener("click", copyJSON);
+  $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
+
+  // pulihkan wawancara tersimpan (jika ada)
+  const saved = cur.wawancara;
+  const startKey = saved ? saved.posisiKey : cur.posisi_key;
+  $("#iv-posisi").value = startKey;
+  setupInterview(startKey, saved);
+  if(saved) tampilkanHasilWawancara();
+}
+
+/* ---------- modul wawancara ---------- */
+function ivQuestionsFor(key){ return [...IV_BANK[key], ...IV_UNIVERSAL]; }
+function setupInterview(key, saved){
+  const pos = posOf(key);
+  const vTes = matchScore(pos, cur.hasil.dims);
+  ivState = { posisiKey:key, pctTes:vTes,
+    scores: saved && saved.posisiKey===key ? [...saved.scores] : new Array(ivQuestionsFor(key).length).fill(0),
+    done:false, pctIv:0, final:0 };
+  if(saved && saved.posisiKey===key){ ivState.pctIv=saved.pctIv; ivState.final=saved.final; ivState.done=true; }
+  $("#iv-fit-note").innerHTML = `Panduan wawancara untuk <b>${pos.nama}</b> — kesesuaian psikotes ${vTes}%. Nilai setiap jawaban 1–5. <b>1</b> = buruk/menghindar/berbahaya · <b>3</b> = cukup, kurang contoh nyata · <b>5</b> = sangat baik dengan contoh konkret.`;
+  const qs = ivQuestionsFor(key);
+  $("#iv-questions").innerHTML = qs.map((q,i)=>`
+    <div class="iv-q" data-qi="${i}">
+      <div class="qt">${i+1}. ${q.q}</div>
+      <div class="dig"><b>Yang digali:</b> ${q.dig}</div>
+      <div class="iv-score">${[1,2,3,4,5].map(v=>`<button type="button" data-v="${v}" class="${ivState.scores[i]===v?"sel":""}">${v}</button>`).join("")}</div>
+      <div class="anchor"><span>Buruk</span><span>Cukup</span><span>Sangat baik</span></div>
+    </div>`).join("");
+  document.querySelectorAll(".iv-q").forEach(div=>{
+    const qi = +div.dataset.qi;
+    div.querySelectorAll(".iv-score button").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        ivState.scores[qi] = +b.dataset.v;
+        div.querySelectorAll(".iv-score button").forEach(x=>x.classList.toggle("sel", x===b));
+        div.style.borderColor = "var(--line)";
+      });
+    });
+  });
+  if(saved && saved.catatan) $("#iv-notes").value = saved.catatan;
+  if(!(saved && saved.posisiKey===key)) $("#iv-result-wrap").innerHTML = "";
+  $("#err-iv").style.display = "none";
+}
+function onIvPosisiChange(){
+  const newKey = $("#iv-posisi").value;
+  if(ivState.scores.some(s=>s>0) && !confirm("Mengganti posisi akan mengosongkan nilai wawancara yang sudah diisi. Lanjutkan?")){
+    $("#iv-posisi").value = ivState.posisiKey; return;
+  }
+  setupInterview(newKey, cur.wawancara);
+  if(!(cur.wawancara && cur.wawancara.posisiKey===newKey)) $("#iv-result-wrap").innerHTML = "";
+}
+async function hitungWawancara(){
+  let ok = true;
+  document.querySelectorAll(".iv-q").forEach(div=>{
+    const qi = +div.dataset.qi;
+    if(ivState.scores[qi]===0){ ok=false; div.style.borderColor="var(--coral)"; }
+  });
+  if(!ok){ $("#err-iv").style.display="block"; return; }
+  $("#err-iv").style.display="none";
+  const sum = ivState.scores.reduce((a,b)=>a+b,0);
+  ivState.pctIv = Math.round(sum/(ivState.scores.length*5)*100);
+  ivState.final = Math.round(W_TES*ivState.pctTes + W_IV*ivState.pctIv);
+  ivState.done = true;
+  const wawancara = { posisiKey:ivState.posisiKey, posisi:posOf(ivState.posisiKey).nama,
+    scores:ivState.scores, pctTes:ivState.pctTes, pctIv:ivState.pctIv, final:ivState.final,
+    catatan:$("#iv-notes").value.trim(), pada:new Date().toISOString() };
+  try {
+    await sb(`psikotes_hasil?id=eq.${cur.id}`, { method:"PATCH", body: JSON.stringify({ wawancara }) });
+    cur.wawancara = wawancara;
+  } catch(e){ alert("Gagal menyimpan wawancara: "+e.message); return; }
+  tampilkanHasilWawancara();
+}
+function tampilkanHasilWawancara(){
+  const pos = posOf(ivState.posisiKey);
+  const lab = matchLabel(ivState.final);
+  const rec = ivState.final>=80 ? "Layak direkomendasikan — prioritaskan."
+    : ivState.final>=65 ? "Layak direkomendasikan dengan catatan — bandingkan dengan kandidat lain."
+    : ivState.final>=50 ? "Pertimbangkan sebagai cadangan; dalami kelemahan yang muncul."
+    : "Tidak disarankan untuk posisi ini; cek kecocokan posisi lain.";
+  const sudahRekom = !!cur.rekomendasi;
+  $("#iv-result-wrap").innerHTML = `
+    <div class="iv-result" id="iv-result">
+      <h2 style="font-size:17px">Hasil Wawancara — ${pos.nama}</h2>
+      <div class="big" style="margin-top:12px">
+        <div><div class="n">${ivState.pctTes}%</div><div class="l">Psikotes (bobot 40%)</div></div>
+        <div><div class="n">${ivState.pctIv}%</div><div class="l">Wawancara (bobot 60%)</div></div>
+        <div><div class="n" style="color:${lab.c}">${ivState.final}%</div><div class="l">Skor akhir · ${lab.t}</div></div>
+      </div>
+      <p style="font-size:14px;margin-top:12px"><b>Kesimpulan sistem:</b> ${rec}</p>
+      <div class="no-print" style="margin-top:6px">
+        <button class="btn green" id="btn-rekom" ${sudahRekom?"disabled":""}>${sudahRekom?"✓ Sudah Direkomendasikan":"⭐ Direkomendasikan oleh HRD"}</button>
+        ${sudahRekom?'<button class="btn small-btn ghost" style="margin-left:8px" id="btn-batal-rekom">Batalkan rekomendasi</button>':""}
+      </div>
+      <p class="small" id="rekom-status" style="margin-top:8px">${sudahRekom?`Direkomendasikan pada ${fmtTgl(cur.rekomendasi.pada)} untuk posisi ${cur.rekomendasi.posisi}. Lihat di tab 🏆 Peringkat.`:""}</p>
+    </div>`;
+  const btn = $("#btn-rekom");
+  if(!sudahRekom) btn.addEventListener("click", rekomendasikan);
+  const bb = $("#btn-batal-rekom");
+  if(bb) bb.addEventListener("click", batalRekom);
+  $("#iv-result").scrollIntoView({behavior:"smooth", block:"center"});
+}
+async function rekomendasikan(){
+  const rekomendasi = { pada:new Date().toISOString(), posisiKey:ivState.posisiKey,
+    posisi:posOf(ivState.posisiKey).nama, final:ivState.final, pctTes:ivState.pctTes, pctIv:ivState.pctIv };
+  try {
+    await sb(`psikotes_hasil?id=eq.${cur.id}`, { method:"PATCH", body: JSON.stringify({ rekomendasi }) });
+    cur.rekomendasi = rekomendasi;
+  } catch(e){ alert("Gagal menyimpan rekomendasi: "+e.message); return; }
+  tampilkanHasilWawancara(); loadRank();
+}
+async function batalRekom(){
+  if(!confirm("Batalkan rekomendasi kandidat ini?")) return;
+  try {
+    await sb(`psikotes_hasil?id=eq.${cur.id}`, { method:"PATCH", body: JSON.stringify({ rekomendasi:null }) });
+    cur.rekomendasi = null;
+  } catch(e){ alert("Gagal: "+e.message); return; }
+  tampilkanHasilWawancara(); loadRank();
+}
+async function hapusHasil(){
+  if(!confirm(`Hapus permanen hasil tes ${cur.nama}? Tindakan ini tidak bisa dibatalkan.`)) return;
+  try { await sb(`psikotes_hasil?id=eq.${cur.id}`, {method:"DELETE"}); }
+  catch(e){ alert("Gagal menghapus: "+e.message); return; }
+  tutupDetail();
+}
+function copyJSON(){
+  const data = { peserta:{nama:cur.nama, telepon:cur.telepon, usia:cur.usia, posisi:cur.posisi, tanggal:cur.created_at},
+    skor:cur.hasil.dims, validitas:{konsistensi:cur.hasil.consist, socialDesirability:cur.hasil.sd,
+      polaDatar:cur.hasil.flat, polaEkstrem:cur.hasil.extreme, tidakDijawab:cur.hasil.tidakDijawab},
+    pasanganKonsistensi:cur.hasil.pairDetails,
+    arketipe:archetypeOf(cur.hasil.dims).nama,
+    kecocokan:POSITIONS.map(p=>({posisi:p.nama, skor:matchScore(p,cur.hasil.dims)})).sort((a,b)=>b.skor-a.skor),
+    flags:flagsOf(cur.hasil).map(f=>({level:f.level, judul:f.title})),
+    wawancara:cur.wawancara||null, rekomendasi:cur.rekomendasi||null, jawabanMentah:cur.jawaban };
+  copyText(JSON.stringify(data,null,2), $("#btn-json"), "📋 Salin Data (JSON)");
+}
+
+/* ============================================================
+   TAB PERINGKAT
+   ============================================================ */
+let rankRows = [];
+async function loadRank(){
+  try { rankRows = await sb("psikotes_hasil?select=*&rekomendasi=not.is.null&order=created_at.desc&limit=500"); }
+  catch(e){ $("#rank-table").innerHTML = `<p class="small">Gagal memuat: ${e.message}</p>`; return; }
+  const months = [...new Set(rankRows.map(x=>x.rekomendasi.pada.slice(0,7)))].sort().reverse();
+  const curVal = $("#f-periode").value;
+  $("#f-periode").innerHTML = '<option value="">Semua periode</option>' +
+    months.map(m=>{
+      const [y,mo]=m.split("-");
+      const nama = new Date(+y,+mo-1,1).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
+      return `<option value="${m}">${nama}</option>`;
+    }).join("");
+  $("#f-periode").value = curVal;
+  renderRankTable();
+}
+function renderRankTable(){
+  const fp = $("#f-posisi").value, fm = $("#f-periode").value;
+  const rows = rankRows
+    .filter(x=>(!fp || x.rekomendasi.posisiKey===fp) && (!fm || x.rekomendasi.pada.slice(0,7)===fm))
+    .sort((a,b)=>b.rekomendasi.final-a.rekomendasi.final);
+  if(rows.length===0){
+    $("#rank-table").innerHTML = `<p class="small" style="margin-top:14px">Belum ada kandidat direkomendasikan${fp||fm?" untuk filter ini":""}. Kandidat masuk ke sini setelah HRD menekan <b>⭐ Direkomendasikan oleh HRD</b> di lembar hasil.</p>`;
+    return;
+  }
+  $("#rank-table").innerHTML = `<table class="rank">
+    <thead><tr><th>#</th><th>Nama</th><th>Posisi</th><th>Tgl rekom</th><th>Tes</th><th>Wwn</th><th>Akhir</th><th>Flag</th><th class="no-print"></th></tr></thead>
+    <tbody>${rows.map((x,i)=>{
+      const rk = x.rekomendasi;
+      const lab = matchLabel(rk.final);
+      const tgl = new Date(rk.pada).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
+      const fl = flagsOf(x.hasil);
+      const red = fl.filter(f=>f.level==="red").length, yel = fl.filter(f=>f.level==="yellow").length;
+      const flg = (red?`🔴${red} `:"")+(yel?`🟡${yel}`:"")||"—";
+      const beda = rk.posisi!==x.posisi ? `<div class="small">melamar: ${x.posisi}</div>` : "";
+      const cat = x.wawancara&&x.wawancara.catatan?`<div class="small">📝 ${x.wawancara.catatan}</div>`:"";
+      return `<tr class="${i===0?"rk1":""}">
+        <td>${i+1}</td>
+        <td><b>${x.nama}</b><div class="small">${x.usia?x.usia+" th · ":""}${archetypeOf(x.hasil.dims).nama} · <a class="wa" href="https://wa.me/${(x.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${x.telepon||"—"}</a></div>${cat}</td>
+        <td>${rk.posisi}${beda}</td>
+        <td>${tgl}</td>
+        <td>${rk.pctTes}%</td>
+        <td>${rk.pctIv}%</td>
+        <td><span class="badge-final" style="color:${lab.c}">${rk.final}%</span></td>
+        <td>${flg}</td>
+        <td class="no-print"><button class="btn small-btn ghost" onclick="bukaHasil('${x.id}');switchTab('hasil')">Buka</button></td>
+      </tr>`;
+    }).join("")}</tbody></table>`;
+}
+
+</script>
+</body>
+</html>
