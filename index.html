@@ -68,11 +68,21 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outl
 .err{color:var(--coral);font-size:13px;font-weight:700;margin-top:8px;display:none}
 .center-card{text-align:center;padding:44px 24px}
 .center-card .emo{font-size:48px}
+#screen-test{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.opts button{text-align:left;border:2px solid var(--line);border-radius:10px;padding:11px 13px;font:inherit;font-size:14px;line-height:1.45;background:#fff;cursor:pointer;color:var(--ink)}
+.opts button.sel{border-color:var(--teal);background:var(--aqua-soft);font-weight:700}
+.opts button b{color:var(--teal);margin-right:6px}
+#wm{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;transform:rotate(-22deg) scale(1.5)}
+#wm span{font-size:13px;font-weight:800;color:rgba(11,60,73,.07);white-space:nowrap;padding:26px 30px}
+#toast-fokus{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:var(--coral);color:#fff;font-size:13px;font-weight:700;padding:10px 18px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none}
 .hidden{display:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+<div id="wm" class="hidden" aria-hidden="true"></div>
+<div id="toast-fokus"></div>
 
 <header class="hero">
   <div class="h-inner">
@@ -111,7 +121,7 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outl
     </div>
     <div class="card">
       <h2>Petunjuk Pengisian</h2>
-      <ul style="padding-left:20px;font-size:14px">
+      <ul style="padding-left:20px;font-size:14px" id="petunjuk-list">
         <li>Terdapat <b>80 pernyataan</b> tentang kebiasaan dan sikap Anda sehari-hari.</li>
         <li>Pilih angka <b>1 – 5</b>: <b>1</b> = Sangat Tidak Setuju · <b>3</b> = Netral · <b>5</b> = Sangat Setuju.</li>
         <li>Tidak ada jawaban benar atau salah. Jawablah dengan <b>jujur dan spontan</b> — jawaban yang dibuat-buat akan terdeteksi sistem.</li>
@@ -319,17 +329,271 @@ const ITEMS = (() => {
 })();
 
 /* ============================================================
+   BANK SOAL TES JENJANG SPV & MANAGER
+   SJT: setiap opsi berbobot w (4=terbaik, 2=cukup, 1=kurang, 0=berbahaya)
+   Nalar: c = indeks jawaban benar (0-3)
+   ============================================================ */
+const KOMPETENSI = {
+  tim:"Kepemimpinan Tim", prio:"Keputusan & Prioritas", integ:"Integritas",
+  layanan:"Pelayanan & Keselamatan", kom:"Komunikasi",
+  orang:"Kepemimpinan & Pengembangan Orang", strategi:"Keputusan Strategis",
+  tatakelola:"Integritas & Tata Kelola", bisnis:"Orientasi Bisnis", ubah:"Manajemen Perubahan"
+};
+
+const J_BANK = {
+/* ==================== SPV ==================== */
+spv: {
+sjt: [
+{k:"tim", t:"Hari Minggu ramai. Dua anak buah Anda bertengkar hebat di depan pengunjung soal pembagian area kerja. Apa yang Anda lakukan PERTAMA?",
+ o:[{t:"Panggil keduanya ke kantor saat itu juga untuk mediasi sampai tuntas",w:2},
+    {t:"Pisahkan segera, tugaskan ke area berjauhan, bahas masalahnya setelah jam operasional",w:4},
+    {t:"Tegur keras keduanya di tempat agar jadi pelajaran bagi yang lain",w:1},
+    {t:"Biarkan dulu — mereka orang dewasa, bisa selesai sendiri",w:0}]},
+{k:"tim", t:"Anak buah paling senior (lebih tua dari Anda) sering mengabaikan instruksi Anda dan bekerja dengan caranya sendiri.",
+ o:[{t:"Tegur di depan tim agar wibawa Anda sebagai SPV terjaga",w:1},
+    {t:"Laporkan ke manager dan minta dia dipindah dari tim Anda",w:2},
+    {t:"Ajak bicara empat mata: dengarkan pandangannya, hargai pengalamannya, lalu tegaskan pembagian peran",w:4},
+    {t:"Diamkan saja — dia lebih senior, tidak enak menegur",w:0}]},
+{k:"tim", t:"Performa salah satu anggota tim turun drastis dua minggu terakhir: sering melamun, kerja lambat.",
+ o:[{t:"Ajak bicara empat mata untuk mencari tahu apa yang sedang terjadi sebelum menilai",w:4},
+    {t:"Langsung beri surat peringatan agar dia sadar",w:1},
+    {t:"Kurangi jam shiftnya diam-diam supaya dampaknya kecil",w:2},
+    {t:"Tunggu sebulan lagi — mungkin nanti normal sendiri",w:0}]},
+{k:"tim", t:"Hari libur ramai, dua anggota tim mendadak sakit. Tim Anda kekurangan orang.",
+ o:[{t:"Minta yang sakit tetap masuk setengah hari — darurat",w:0},
+    {t:"Minta semua kerja rangkap tanpa penjelasan, yang penting jalan",w:2},
+    {t:"Susun ulang penempatan: prioritaskan titik kritis, turun tangan ikut bekerja, laporkan kondisi ke manager",w:4},
+    {t:"Tutup sebagian area sendiri tanpa koordinasi agar beban ringan",w:1}]},
+{k:"prio", t:"Bersamaan terjadi: pengunjung komplain keras di front desk, ada laporan pecahan kaca di area kolam anak, dan manager memanggil Anda rapat.",
+ o:[{t:"Hadiri rapat dulu — panggilan atasan nomor satu",w:1},
+    {t:"Tangani komplain dulu karena pengunjung sudah marah",w:2},
+    {t:"Amankan pecahan kaca dulu (risiko keselamatan), delegasikan komplain ke staf senior, kabari manager Anda menyusul",w:4},
+    {t:"Minta semuanya menunggu sampai Anda selesai satu per satu sesuai urutan kejadian",w:0}]},
+{k:"prio", t:"Anda sedang menyusun jadwal shift bulan depan (tenggat sore ini), lalu diminta gudang membantu hitung stok hari ini juga.",
+ o:[{t:"Tinggalkan jadwal, bantu gudang dulu — mereka minta tolong",w:2},
+    {t:"Kerjakan dua-duanya buru-buru, hasilnya asal jadi",w:1},
+    {t:"Bicarakan prioritas: sepakati mana yang bisa digeser tenggatnya, atau delegasikan salah satunya",w:4},
+    {t:"Tolak mentah-mentah — bukan tugas saya",w:0}]},
+{k:"prio", t:"Pompa utama berbunyi kasar tidak normal di tengah jam operasional yang ramai.",
+ o:[{t:"Lanjutkan operasional sampai benar-benar rusak — sayang kalau tutup saat ramai",w:0},
+    {t:"Lapor teknisi segera, pantau ketat, dan siapkan skenario penutupan sebagian bila memburuk",w:4},
+    {t:"Langsung matikan semua wahana demi aman",w:2},
+    {t:"Catat saja, laporkan nanti setelah jam tutup",w:1}]},
+{k:"prio", t:"Manager minta laporan mingguan dikirim sekarang; di saat yang sama anak buah butuh keputusan penempatan segera karena antrean menumpuk.",
+ o:[{t:"Putuskan penempatan dulu (operasional berjalan), lalu kirim laporan sambil beri kabar singkat ke manager",w:4},
+    {t:"Kerjakan laporan dulu — perintah atasan",w:1},
+    {t:"Delegasikan keputusan penempatan ke staf paling senior dengan arahan singkat, lalu kerjakan laporan",w:2},
+    {t:"Abaikan salah satunya, nanti juga dimaklumi",w:0}]},
+{k:"integ", t:"Anda memergoki anak buah kesayangan Anda meloloskan temannya masuk tanpa tiket.",
+ o:[{t:"Pura-pura tidak melihat — dia anak buah terbaik Anda",w:0},
+    {t:"Tegur ringan secara pribadi, tidak perlu dilaporkan",w:2},
+    {t:"Minta dia langsung dipecat tanpa klarifikasi",w:1},
+    {t:"Tegur, proses sesuai aturan, dan laporkan — justru karena dia terbaik, standarnya harus dijaga",w:4}]},
+{k:"integ", t:"Manager meminta Anda ikut menandatangani rekap kehadiran yang Anda tahu ada manipulasi kecil di dalamnya.",
+ o:[{t:"Tanda tangan — itu perintah atasan, tanggung jawab di dia",w:0},
+    {t:"Tolak dengan sopan: minta datanya dibetulkan dulu, sampaikan risikonya bagi semua pihak",w:4},
+    {t:"Tanda tangan tapi simpan bukti percakapan untuk jaga diri",w:2},
+    {t:"Tolak lalu ceritakan ke seluruh tim agar semua tahu",w:1}]},
+{k:"integ", t:"Setelah pengadaan barang, vendor menyelipkan amplop 'uang terima kasih' pribadi untuk Anda.",
+ o:[{t:"Terima saja — Anda tidak memintanya",w:0},
+    {t:"Terima lalu bagikan ke tim biar adil",w:1},
+    {t:"Tolak diam-diam, tidak perlu ada yang tahu",w:2},
+    {t:"Tolak dan laporkan/catat ke atasan agar hubungan vendor tetap bersih",w:4}]},
+{k:"integ", t:"Anda sendiri salah input yang membuat laporan shift keliru. Belum ada yang menyadarinya.",
+ o:[{t:"Laporkan dan koreksi secara terbuka ke atasan",w:4},
+    {t:"Perbaiki diam-diam, toh hasil akhirnya benar",w:2},
+    {t:"Biarkan — selisihnya kecil, tidak penting",w:0},
+    {t:"Siapkan alasan bahwa sistemnya yang bermasalah",w:1}]},
+{k:"layanan", t:"Anak pengunjung terpeleset (luka ringan). Orang tuanya marah dan mengancam memviralkan di media sosial.",
+ o:[{t:"Tangani anaknya dulu (P3K), dampingi orang tua dengan empati, catat kronologi, segera lapor manager",w:4},
+    {t:"Minta maaf dan beri kompensasi sesuai batas wewenang Anda, lalu laporkan",w:2},
+    {t:"Berdebat menjelaskan bahwa itu kelalaian pengunjung sendiri",w:0},
+    {t:"Janjikan kompensasi besar apa pun agar tidak viral, urusan wewenang belakangan",w:1}]},
+{k:"layanan", t:"Anda memergoki pool guard bermain HP saat bertugas mengawasi kolam.",
+ o:[{t:"Ingatkan santai sambil lewat: 'jangan main HP ya'",w:2},
+    {t:"Tegur tegas saat itu, gantikan posisinya sementara, lakukan pembinaan setelah shift",w:4},
+    {t:"Rampas HP-nya di depan pengunjung sambil memarahi",w:1},
+    {t:"Diamkan — kolam sedang sepi, masih wajar",w:0}]},
+{k:"layanan", t:"Antrean wahana favorit mengular lebih dari 45 menit, pengunjung mulai gerah dan bersuara.",
+ o:[{t:"Kelola aktif: umumkan estimasi, buka jalur/hiburan alternatif, tempatkan petugas khusus komunikasi antrean",w:4},
+    {t:"Umumkan estimasi waktu tunggu saja",w:2},
+    {t:"Tutup antrean baru tanpa penjelasan supaya tidak makin panjang",w:1},
+    {t:"Percepat siklus wahana melebihi batas amannya agar antrean cepat habis",w:0}]},
+{k:"layanan", t:"Listrik padam sekitar 10 menit di jam ramai; sebagian wahana berhenti mendadak.",
+ o:[{t:"Kumpulkan tim di pos menunggu listrik menyala",w:0},
+    {t:"Jalankan prosedur: sebar petugas mengamankan pengunjung di tiap wahana, informasi lewat pengeras suara, koordinasi teknisi",w:4},
+    {t:"Umumkan tutup total dan pulangkan seluruh pengunjung",w:1},
+    {t:"Keliling menangani semuanya sendirian",w:2}]},
+{k:"kom", t:"Kebijakan baru manajemen (pemotongan jam lembur) tidak populer. Tim protes keras kepada Anda.",
+ o:[{t:"Bilang 'saya juga tidak setuju, salahkan manajemen' agar tim tidak membenci Anda",w:1},
+    {t:"Dengarkan aspirasi, jelaskan alasan kebijakan dengan jujur, dan teruskan masukan tim ke atas",w:4},
+    {t:"Minta manager datang menjelaskan langsung ke tim",w:2},
+    {t:"Janjikan diam-diam tidak akan menerapkannya di tim Anda",w:0}]},
+{k:"kom", t:"Anda menemukan cara kerja yang lebih efisien, tetapi berbeda dari SOP yang berlaku.",
+ o:[{t:"Terapkan dulu diam-diam; kalau berhasil baru dilaporkan",w:2},
+    {t:"Langsung terapkan — hasil yang penting, bukan aturan",w:1},
+    {t:"Usulkan resmi ke atasan dengan data pembanding dan minta izin uji coba terbatas",w:4},
+    {t:"Simpan sendiri — mengusulkan hanya menambah masalah",w:0}]},
+{k:"kom", t:"Dalam rapat, manager menyalahkan tim Anda atas kesalahan yang sebenarnya berasal dari divisi lain.",
+ o:[{t:"Sampaikan klarifikasi berdasarkan data dengan sopan di forum itu",w:4},
+    {t:"Diam di rapat, klarifikasi empat mata setelahnya",w:2},
+    {t:"Diam total — melawan atasan berbahaya",w:1},
+    {t:"Balas menyalahkan divisi lain dengan nada emosi",w:0}]},
+{k:"kom", t:"Anak buah curhat berencana resign karena konflik pribadi dengan satu rekan setim. Dia minta dirahasiakan.",
+ o:[{t:"Bilang 'itu urusan pribadi kalian, selesaikan sendiri'",w:1},
+    {t:"Langsung konfrontasi rekan yang dimaksud",w:0},
+    {t:"Gali akar masalahnya, mediasi keduanya dengan cara yang menjaga kerahasiaan sumber",w:4},
+    {t:"Teruskan ke HRD tanpa berbicara dengan siapa pun dulu",w:2}]}
+],
+nalar: [
+{t:"Shift pagi butuh 12 petugas. Yang hadir 9 orang, dan 1 di antaranya izin pulang jam 13.00. Berapa kekurangan petugas SETELAH jam 13.00?", o:["2 orang","3 orang","4 orang","5 orang"], c:2},
+{t:"Harga tiket Rp35.000. Target pendapatan tiket hari ini Rp10.500.000. Minimal berapa pengunjung?", o:["250","300","325","350"], c:1},
+{t:"3 petugas membersihkan 1 kolam dalam 2 jam. Dengan 6 petugas, berapa lama membersihkan 2 kolam?", o:["1 jam","2 jam","3 jam","4 jam"], c:1},
+{t:"Jam kerja 08.00–16.00 dengan istirahat total 1 jam. Berapa jam kerja efektif?", o:["6 jam","6,5 jam","7 jam","8 jam"], c:2},
+{t:"Tiket Rp45.000 didiskon 20%. Berapa harga setelah diskon?", o:["Rp34.000","Rp35.000","Rp36.000","Rp40.000"], c:2},
+{t:"Stok pelampung 120 buah, hasil pengecekan 15% rusak. Berapa yang masih layak pakai?", o:["96","100","102","105"], c:2},
+{t:"Standar pengawasan 1 pool guard untuk maksimal 25 pengunjung di air. Saat ini 180 pengunjung di kolam. Minimal butuh berapa pool guard?", o:["6","7","8","9"], c:2},
+{t:"Lanjutkan pola: 5, 10, 20, 40, ...?", o:["50","60","70","80"], c:3},
+{t:"Shift A: 07.00–15.00. Shift B: 14.00–22.00. Berapa lama kedua shift bertugas bersamaan?", o:["Tidak ada","30 menit","1 jam","2 jam"], c:2},
+{t:"Upah lembur = 1,5 × upah normal. Upah normal Rp20.000/jam. Berapa upah lembur 3 jam?", o:["Rp60.000","Rp80.000","Rp90.000","Rp120.000"], c:2}
+]},
+
+/* ==================== MANAGER ==================== */
+manager: {
+sjt: [
+{k:"orang", t:"SPV terbaik Anda berniat resign karena ditawari gaji lebih tinggi di perusahaan lain.",
+ o:[{t:"Langsung naikkan gajinya menyamai tawaran itu",w:2},
+    {t:"Gali motivasinya secara utuh, tinjau apa yang bisa perusahaan tawarkan (jenjang, peran, bukan hanya uang), dan siapkan rencana suksesi apa pun hasilnya",w:4},
+    {t:"Relakan pergi tanpa perlu berbicara — rezeki orang masing-masing",w:1},
+    {t:"Tahan dia dengan menyinggung soal loyalitas dan balas budi",w:0}]},
+{k:"orang", t:"Dua SPV Anda saling menjatuhkan dan tim mereka ikut terbelah menjadi dua kubu.",
+ o:[{t:"Biarkan bersaing — persaingan bagus untuk kinerja",w:0},
+    {t:"Pisahkan total wilayah kerja keduanya untuk selamanya",w:2},
+    {t:"Pecat salah satunya sebagai contoh",w:1},
+    {t:"Panggil keduanya, tetapkan target bersama yang memaksa kolaborasi, dan evaluasi kemajuannya berkala",w:4}]},
+{k:"orang", t:"Anda melihat staf junior yang sangat menonjol, tetapi SPV-nya tidak pernah mengusulkan namanya untuk berkembang.",
+ o:[{t:"Bicarakan dengan SPV-nya tentang pengembangan kader, lalu beri si staf penugasan silang untuk mengujinya",w:4},
+    {t:"Promosikan langsung melangkahi SPV-nya",w:1},
+    {t:"Minta HRD memproses tanpa melibatkan SPV-nya",w:2},
+    {t:"Abaikan — pengembangan staf sepenuhnya urusan SPV",w:0}]},
+{k:"orang", t:"Evaluasi menunjukkan satu SPV lemah dalam mengelola orang, tetapi sangat kuat teknis dan loyal bertahun-tahun.",
+ o:[{t:"Pertahankan seperti sekarang — loyalitasnya lebih berharga",w:1},
+    {t:"Desain ulang perannya ke jalur spesialis teknis, atau beri pendampingan manajerial terstruktur dengan target waktu",w:4},
+    {t:"Turunkan jabatannya sekarang juga",w:2},
+    {t:"Berhentikan dan cari SPV baru",w:0}]},
+{k:"strategi", t:"Pengunjung hari kerja sepi terus-menerus, sementara akhir pekan membludak sampai banyak komplain.",
+ o:[{t:"Analisis data pengunjung, lalu susun strategi pemerataan: harga/paket khusus weekday (sekolah, instansi) sambil membenahi kapasitas weekend",w:4},
+    {t:"Fokus membenahi pengalaman weekend saja — di sanalah uangnya",w:2},
+    {t:"Berlakukan diskon besar permanen untuk semua hari",w:1},
+    {t:"Tidak ada masalah — memang begitu pola bisnis wisata",w:0}]},
+{k:"strategi", t:"Anggaran tahunan divisi Anda dipotong 20%, dan semua kepala bagian bersikeras anggarannya tak bisa dikurangi.",
+ o:[{t:"Potong rata 20% di semua bagian supaya adil",w:2},
+    {t:"Prioritaskan berdasar dampak ke keselamatan dan pendapatan, potong berbasis data, lalu komunikasikan alasannya terbuka",w:4},
+    {t:"Potong bagian yang paling tidak banyak protes",w:0},
+    {t:"Tunda keputusan selama mungkin sampai dipaksa keadaan",w:1}]},
+{k:"strategi", t:"Kompetitor baru membuka waterpark 30 menit dari lokasi Anda dengan harga tiket lebih murah.",
+ o:[{t:"Langsung banting harga di bawah mereka",w:1},
+    {t:"Tiru semua fasilitas unggulannya secepat mungkin",w:2},
+    {t:"Pelajari mereka, perkuat pembeda Arcelio (pengalaman, kebersihan, layanan), rawat pelanggan setia — hindari perang harga membabi buta",w:4},
+    {t:"Abaikan — pelanggan kami pasti setia",w:0}]},
+{k:"strategi", t:"Ada tawaran kontrak gathering besar dari pabrik, tetapi jadwalnya bentrok dengan hari ramai reguler.",
+ o:[{t:"Terima langsung — rezeki jangan ditolak",w:2},
+    {t:"Tolak langsung — terlalu merepotkan operasional",w:1},
+    {t:"Hitung nilai kontrak vs potensi kehilangan pengunjung reguler dan risiko reputasi, lalu negosiasikan jadwal atau pemisahan area",w:4},
+    {t:"Terima, lalu kurangi kualitas layanan pengunjung reguler diam-diam",w:0}]},
+{k:"tatakelola", t:"Anda menemukan kejanggalan di laporan keuangan yang bila dibuka bisa memalukan divisi Anda sendiri.",
+ o:[{t:"Selesaikan diam-diam di internal, tak perlu ada yang tahu",w:2},
+    {t:"Lakukan audit internal terbuka dan laporkan ke atas apa pun hasilnya",w:4},
+    {t:"Tutup rapat — karena nila setitik rusak susu sebelanga",w:0},
+    {t:"Laporkan hanya jika suatu saat ditanya",w:1}]},
+{k:"tatakelola", t:"Pemilik meminta Anda merekrut kerabatnya yang jelas tidak memenuhi standar untuk sebuah posisi penting.",
+ o:[{t:"Terima langsung — dia pemilik perusahaan",w:1},
+    {t:"Tolak keras tanpa menawarkan jalan keluar",w:2},
+    {t:"Sampaikan penilaian objektif beserta risikonya, lalu tawarkan alternatif: posisi yang sesuai kemampuannya atau pelatihan lebih dulu",w:4},
+    {t:"Terima, lalu diam-diam membuatnya gagal agar keluar sendiri",w:0}]},
+{k:"tatakelola", t:"Seorang SPV memanipulasi laporan agar target timnya tercapai dan bonus tim cair.",
+ o:[{t:"Diamkan — toh angka perusahaan jadi terlihat bagus",w:0},
+    {t:"Investigasi, batalkan bonus yang tidak sah, beri sanksi sesuai aturan, lalu perbaiki sistem kontrolnya",w:4},
+    {t:"Tegur ringan saja — niatnya membela timnya yang kerja keras",w:1},
+    {t:"Pecat saat itu juga tanpa investigasi",w:2}]},
+{k:"tatakelola", t:"Keputusan Anda bulan lalu ternyata keliru dan merugikan. Tim mulai membicarakannya di belakang.",
+ o:[{t:"Akui terbuka di forum tim, jelaskan pembelajarannya dan langkah koreksinya",w:4},
+    {t:"Revisi arah diam-diam tanpa pernah mengakui",w:2},
+    {t:"Pertahankan keputusan demi menjaga wibawa",w:0},
+    {t:"Alihkan pembicaraan tim ke isu lain",w:1}]},
+{k:"bisnis", t:"Pendapatan naik 15%, tetapi biaya operasional naik 25% pada periode yang sama. Langkah PERTAMA Anda?",
+ o:[{t:"Naikkan harga tiket segera untuk menutup selisihnya",w:2},
+    {t:"Bedah struktur biaya: temukan pos kenaikan terbesar dan mana yang tidak produktif",w:4},
+    {t:"Kurangi karyawan sekarang — biaya terbesar biasanya gaji",w:1},
+    {t:"Rayakan — yang penting pendapatan naik",w:0}]},
+{k:"bisnis", t:"71 Kitchen ramai pembeli tetapi marginnya sangat tipis.",
+ o:[{t:"Analisis per menu: HPP tiap item, dorong item bermargin tinggi, evaluasi porsi dan waste",w:4},
+    {t:"Naikkan semua harga 20% serentak",w:2},
+    {t:"Tutup F&B, fokus ke tiket saja",w:1},
+    {t:"Tambah jenis menu sebanyak-banyaknya agar makin ramai",w:0}]},
+{k:"bisnis", t:"Ada usulan investasi wahana baru Rp500 juta dengan estimasi menambah 100 pengunjung/hari. Bagaimana cara Anda menilai kelayakannya?",
+ o:[{t:"Hitung perkiraan balik modal (payback) saja — kalau di bawah 5 tahun, jalan",w:2},
+    {t:"Hitung payback DAN bandingkan dengan alternatif penggunaan dana lain, sambil menguji seberapa realistis estimasi pengunjungnya",w:4},
+    {t:"Langsung eksekusi — wahana baru pasti menarik pengunjung",w:1},
+    {t:"Putuskan berdasar firasat dan tren kompetitor",w:0}]},
+{k:"bisnis", t:"Data parkir dan tiket menunjukkan pengunjung dari luar kota meningkat signifikan.",
+ o:[{t:"Naikkan harga — mereka datang jauh, pasti mau bayar berapa pun",w:1},
+    {t:"Bangun penginapan sendiri secepatnya",w:2},
+    {t:"Jajaki paket kerja sama (hotel, travel, bundling tiket) dan evaluasi jam operasional serta fasilitas untuk pengunjung jarak jauh",w:4},
+    {t:"Tidak relevan — dari mana pun asalnya sama saja",w:0}]},
+{k:"ubah", t:"Manajemen memutuskan sistem tiket beralih penuh ke digital dalam 2 bulan. Tim lapangan resisten.",
+ o:[{t:"Susun rencana perubahan: uji coba bertahap, pelatihan, tunjuk staf 'juara' di tiap tim, jelaskan manfaat, buka jalur masukan",w:4},
+    {t:"Terapkan serentak di hari H — dipaksa nanti juga terbiasa",w:1},
+    {t:"Serahkan sepenuhnya kepada vendor sistemnya",w:2},
+    {t:"Ulur-ulur waktunya diam-diam melebihi tenggat",w:0}]},
+{k:"ubah", t:"Divisi operasional dan marketing saling menyalahkan atas kegagalan sebuah event besar.",
+ o:[{t:"Cari siapa yang paling salah dan jatuhkan sanksi",w:1},
+    {t:"Gelar evaluasi bersama yang berfokus pada proses (bukan orang), lalu perbaiki alur koordinasi dan tetapkan satu PIC untuk event berikutnya",w:4},
+    {t:"Ambil alih sendiri semua koordinasi event selamanya",w:2},
+    {t:"Hentikan program event agar tidak ada konflik lagi",w:0}]},
+{k:"ubah", t:"Anda ingin menerapkan KPI baru; para SPV mengeluh itu menambah beban administrasi.",
+ o:[{t:"Batalkan KPI-nya — kenyamanan tim lebih penting",w:0},
+    {t:"Jalankan penuh apa adanya — namanya juga bekerja",w:1},
+    {t:"Tunda satu tahun sampai suasana kondusif",w:2},
+    {t:"Sederhanakan pengukurannya, mulai dari indikator terpenting, otomasi input datanya, dan jelaskan 'kenapa'-nya",w:4}]},
+{k:"ubah", t:"Prakiraan cuaca menunjukkan musim hujan panjang akan menekan kunjungan 3 bulan ke depan.",
+ o:[{t:"Tutup sementara sampai musim membaik",w:1},
+    {t:"Beroperasi normal tanpa penyesuaian apa pun",w:0},
+    {t:"Siapkan skenario: produk/event ramah hujan, kendalikan biaya variabel, dan jadwalkan perawatan besar justru di masa sepi",w:4},
+    {t:"Langkah pertama: putus karyawan kontrak untuk menekan biaya",w:2}]}
+],
+nalar: [
+{t:"Pendapatan bulan lalu Rp180 juta, bulan ini Rp207 juta. Berapa persen kenaikannya?", o:["12%","15%","18%","27%"], c:1},
+{t:"HPP sebuah menu Rp12.000, dijual Rp20.000. Berapa margin kotornya?", o:["30%","40%","50%","60%"], c:1},
+{t:"Biaya tetap Rp60 juta/bulan. Kontribusi margin per pengunjung Rp25.000. Berapa pengunjung/bulan agar impas (BEP)?", o:["1.800","2.000","2.400","3.000"], c:2},
+{t:"Investasi Rp500 juta menghasilkan tambahan laba bersih Rp12,5 juta/bulan. Berapa lama balik modal?", o:["30 bulan","36 bulan","40 bulan","48 bulan"], c:2},
+{t:"Dari 12 SPV, 3 orang resign dalam setahun. Berapa tingkat turnover-nya?", o:["20%","25%","30%","33%"], c:1},
+{t:"Harga Rp40.000 didiskon 25%, lalu harga hasil diskon dinaikkan 10%. Berapa harga akhirnya?", o:["Rp30.000","Rp32.000","Rp33.000","Rp34.000"], c:2},
+{t:"Rata-rata belanja pengunjung Rp55.000. Target pendapatan Rp16,5 juta/hari. Berapa pengunjung yang dibutuhkan?", o:["275","300","325","350"], c:1},
+{t:"Proyek A: untung Rp30 juta dengan peluang berhasil 80%. Proyek B: untung Rp50 juta dengan peluang 50%. Mana nilai harapannya lebih besar?", o:["Proyek A (Rp24 juta)","Proyek B (Rp25 juta)","Sama besar","Tidak bisa dihitung"], c:1},
+{t:"Total staf pelaksana 40 orang dengan rasio ideal 1 SPV membawahi 8 staf. Berapa SPV yang dibutuhkan?", o:["4","5","6","8"], c:1},
+{t:"Lanjutkan pola: 2, 6, 12, 20, 30, ...?", o:["36","40","42","44"], c:2}
+]}
+};
+
+
+
+/* ============================================================
    ALUR PESERTA
    ============================================================ */
 let tokenRow = null;
+let MODE = "karakter";           // karakter | spv | manager
+let PAGE_SIZE_CUR = PAGE_SIZE;
 let answers = new Array(ITEMS.length).fill(0);
 let page = 0;
-const TOTAL_PAGES = Math.ceil(ITEMS.length / PAGE_SIZE);
+let TOTAL_PAGES = Math.ceil(ITEMS.length / PAGE_SIZE);
 let peserta = {};
 let deadline = 0;          // epoch ms — jangkar dari used_at (server), bukan jam klien
 let timerId = null;
 let submitted = false;
 let saveDirty = false;
+let leaveCount = 0;   // berapa kali peserta meninggalkan layar saat tes
+let lastLeaveTs = 0;
 
 function gate(emo, title, msg){
   $("#gate-emo").textContent = emo;
@@ -352,6 +616,12 @@ function gate(emo, title, msg){
   catch(e){ gate("📡","Gagal terhubung","Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu muat ulang halaman."); return; }
   if (!rows || rows.length === 0) { gate("❌","Tautan tidak valid","Kode undangan tidak ditemukan. Pastikan tautan disalin lengkap, atau hubungi HRD."); return; }
   tokenRow = rows[0];
+  MODE = tokenRow.jenis || "karakter";
+  if (MODE !== "karakter") {
+    answers = new Array(J_BANK[MODE].sjt.length + J_BANK[MODE].nalar.length).fill(0);
+    PAGE_SIZE_CUR = 5;
+    TOTAL_PAGES = Math.ceil(answers.length / PAGE_SIZE_CUR);
+  }
 
   const now = Date.now();
   if (tokenRow.status === "selesai") { gate("✅","Tautan sudah digunakan","Psikotes dengan tautan ini sudah selesai dikerjakan dan terkirim. Tautan hanya berlaku satu kali."); return; }
@@ -369,6 +639,7 @@ function gate(emo, title, msg){
       answers = tokenRow.progress.answers || answers;
       page = tokenRow.progress.page || 0;
       peserta = tokenRow.progress.peserta || {};
+      leaveCount = tokenRow.progress.keluar || 0;
     }
     deadline = dl;
     resumeTest();
@@ -391,7 +662,16 @@ function showStart(){
   $("#txt-durasi").textContent = tokenRow.durasi_menit;
   $("#txt-durasi2").textContent = tokenRow.durasi_menit;
   const sel = $("#in-posisi");
-  if (tokenRow.posisi_key) {
+  if (MODE !== "karakter") {
+    const namaJ = MODE === "spv" ? "Jenjang Supervisor (SPV)" : "Jenjang Manager";
+    sel.innerHTML = `<option value="${MODE}">${namaJ}</option>`;
+    sel.disabled = true;
+    $("#petunjuk-list").innerHTML = `
+      <li>Ini adalah <b>Tes ${namaJ}</b>: <b>${answers.length} soal pilihan ganda</b> — ${J_BANK[MODE].sjt.length} skenario situasi kerja dan ${J_BANK[MODE].nalar.length} soal hitungan praktis.</li>
+      <li>Untuk soal <b>skenario</b>, pilih tindakan yang menurut Anda <b>paling tepat</b> dilakukan pada situasi tersebut.</li>
+      <li>Untuk soal <b>hitungan</b>, pilih jawaban yang benar. Boleh memakai kertas coretan.</li>
+      <li>Kerjakan secara <b>mandiri</b> tanpa bantuan orang lain.</li>`;
+  } else if (tokenRow.posisi_key) {
     const p = POSITIONS.find(x=>x.key===tokenRow.posisi_key);
     sel.innerHTML = `<option value="${p.key}">${p.nama}</option>`;
     sel.disabled = true;
@@ -418,7 +698,9 @@ async function mulaiTes(){
 
   peserta = {
     nama, telepon: telp, usia: $("#in-usia").value.trim(),
-    posisiKey: posKey, posisi: POSITIONS.find(p=>p.key===posKey).nama
+    posisiKey: posKey,
+    posisi: MODE === "karakter" ? POSITIONS.find(p=>p.key===posKey).nama
+            : (MODE === "spv" ? "Jenjang SPV" : "Jenjang Manager")
   };
   // klaim token secara atomik: hanya berhasil jika status masih 'baru'
   const usedAt = new Date().toISOString();
@@ -426,7 +708,7 @@ async function mulaiTes(){
   try {
     claimed = await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}&status=eq.baru`, {
       method:"PATCH",
-      body: JSON.stringify({ status:"dipakai", used_at: usedAt, progress:{ answers, page:0, peserta } })
+      body: JSON.stringify({ status:"dipakai", used_at: usedAt, progress:{ answers, page:0, peserta, keluar:leaveCount } })
     });
   } catch(e){ alert("Gagal memulai — periksa koneksi lalu coba lagi."); return; }
   if(!claimed || claimed.length===0){
@@ -453,6 +735,7 @@ function resumeTest(){
 
 /* ---------- timer (jangkar waktu server: used_at + durasi) ---------- */
 function startTimer(){
+  enableProteksi();
   const tick = ()=>{
     const sisa = Math.max(0, deadline - Date.now());
     const m = Math.floor(sisa/60000), s = Math.floor(sisa%60000/1000);
@@ -470,7 +753,7 @@ function startTimer(){
 async function saveProgress(){
   try {
     await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}&status=eq.dipakai`, {
-      method:"PATCH", body: JSON.stringify({ progress:{ answers, page, peserta } })
+      method:"PATCH", body: JSON.stringify({ progress:{ answers, page, peserta, keluar:leaveCount } })
     });
   } catch(e){ /* koneksi putus — dicoba lagi pada siklus berikutnya */ }
 }
@@ -478,27 +761,46 @@ async function saveProgress(){
 /* ---------- halaman soal ---------- */
 function gotoPage(p){
   page = Math.max(0, Math.min(TOTAL_PAGES-1, p));
-  const start = page*PAGE_SIZE, end = Math.min(start+PAGE_SIZE, ITEMS.length);
+  const start = page*PAGE_SIZE_CUR, end = Math.min(start+PAGE_SIZE_CUR, answers.length);
   const list = $("#item-list");
   list.innerHTML = "";
   for(let i=start;i<end;i++){
     const div = document.createElement("div");
     div.className = "item"; div.dataset.idx = i;
-    div.innerHTML = `
-      <div class="no">PERNYATAAN ${i+1} DARI ${ITEMS.length}</div>
-      <div class="stmt">${ITEMS[i].t}</div>
-      <div class="likert">${[1,2,3,4,5].map(v=>
-        `<button type="button" data-v="${v}" class="${answers[i]===v?"sel":""}" aria-label="Nilai ${v}">${v}</button>`).join("")}</div>
-      <div class="lik-lab"><span>Sangat tidak setuju</span><span>Sangat setuju</span></div>`;
-    div.querySelectorAll(".likert button").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        answers[i] = +b.dataset.v;
-        div.querySelectorAll(".likert button").forEach(x=>x.classList.toggle("sel", x===b));
-        div.classList.remove("unanswered-hl");
-        saveDirty = true;
-        updateProgress();
+    if(MODE === "karakter"){
+      div.innerHTML = `
+        <div class="no">PERNYATAAN ${i+1} DARI ${answers.length}</div>
+        <div class="stmt">${ITEMS[i].t}</div>
+        <div class="likert">${[1,2,3,4,5].map(v=>
+          `<button type="button" data-v="${v}" class="${answers[i]===v?"sel":""}" aria-label="Nilai ${v}">${v}</button>`).join("")}</div>
+        <div class="lik-lab"><span>Sangat tidak setuju</span><span>Sangat setuju</span></div>`;
+      div.querySelectorAll(".likert button").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          answers[i] = +b.dataset.v;
+          div.querySelectorAll(".likert button").forEach(x=>x.classList.toggle("sel", x===b));
+          div.classList.remove("unanswered-hl");
+          saveDirty = true;
+          updateProgress();
+        });
       });
-    });
+    } else {
+      const q = jItem(i);
+      const huruf = ["A","B","C","D"];
+      div.innerHTML = `
+        <div class="no">SOAL ${i+1} DARI ${answers.length}${q.tipe==="nalar"?" · HITUNGAN":" · SKENARIO"}</div>
+        <div class="stmt">${q.t}</div>
+        <div class="opts">${q.o.map((op,oi)=>
+          `<button type="button" data-v="${oi+1}" class="${answers[i]===oi+1?"sel":""}"><b>${huruf[oi]}.</b>${typeof op==="string"?op:op.t}</button>`).join("")}</div>`;
+      div.querySelectorAll(".opts button").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          answers[i] = +b.dataset.v;
+          div.querySelectorAll(".opts button").forEach(x=>x.classList.toggle("sel", x===b));
+          div.classList.remove("unanswered-hl");
+          saveDirty = true;
+          updateProgress();
+        });
+      });
+    }
     list.appendChild(div);
   }
   $("#btn-prev").disabled = page===0;
@@ -510,11 +812,11 @@ function gotoPage(p){
 }
 function updateProgress(){
   const done = answers.filter(a=>a>0).length;
-  $("#prog-count").textContent = `${done} / ${ITEMS.length}`;
-  $("#prog-fill").style.width = (done/ITEMS.length*100)+"%";
+  $("#prog-count").textContent = `${done} / ${answers.length}`;
+  $("#prog-fill").style.width = (done/answers.length*100)+"%";
 }
 function nextPage(){
-  const start = page*PAGE_SIZE, end = Math.min(start+PAGE_SIZE, ITEMS.length);
+  const start = page*PAGE_SIZE_CUR, end = Math.min(start+PAGE_SIZE_CUR, answers.length);
   let ok = true;
   for(let i=start;i<end;i++){
     if(answers[i]===0){ ok=false; document.querySelector(`.item[data-idx="${i}"]`).classList.add("unanswered-hl"); }
@@ -562,12 +864,46 @@ function computeResults(ans){
            pctExtreme, pairDetails, flat:sdAll<0.55, extreme:pctExtreme>=85, tidakDijawab:kosong };
 }
 
+function jItem(i){
+  const b = J_BANK[MODE];
+  return i < b.sjt.length
+    ? { tipe:"sjt", t:b.sjt[i].t, o:b.sjt[i].o, k:b.sjt[i].k }
+    : { tipe:"nalar", t:b.nalar[i-b.sjt.length].t, o:b.nalar[i-b.sjt.length].o, c:b.nalar[i-b.sjt.length].c };
+}
+function computeJenjang(ans){
+  const b = J_BANK[MODE];
+  let kosong = 0, sjtSum = 0;
+  const komp = {}, kompMax = {};
+  b.sjt.forEach((q,i)=>{
+    const a = ans[i];
+    const w = a ? q.o[a-1].w : 0;
+    if(!a) kosong++;
+    sjtSum += w;
+    komp[q.k] = (komp[q.k]||0) + w;
+    kompMax[q.k] = (kompMax[q.k]||0) + 4;
+  });
+  let benar = 0;
+  b.nalar.forEach((q,j)=>{
+    const a = ans[b.sjt.length+j];
+    if(!a) kosong++;
+    else if(a-1 === q.c) benar++;
+  });
+  const sjtPct = Math.round(sjtSum/(b.sjt.length*4)*100);
+  const nalarPct = Math.round(benar/b.nalar.length*100);
+  const kompPct = {};
+  for(const k in komp) kompPct[k] = Math.round(komp[k]/kompMax[k]*100);
+  return { jenis:MODE, skor:Math.round(0.7*sjtPct + 0.3*nalarPct),
+           sjtPct, nalarPct, benarNalar:benar, komp:kompPct, tidakDijawab:kosong };
+}
+
 async function submitTest(waktuHabis){
   if(submitted) return;
   submitted = true;
   clearInterval(timerId);
-  const r = computeResults(answers);
+  const r = MODE === "karakter" ? computeResults(answers) : computeJenjang(answers);
+  r.keluarLayar = leaveCount;
   const row = {
+    jenis: MODE,
     token: tokenRow.token,
     nama: peserta.nama || "(tanpa nama)",
     telepon: peserta.telepon || "",
@@ -595,6 +931,46 @@ async function submitTest(waktuHabis){
   if(waktuHabis) $("#done-msg").innerHTML = "Waktu pengerjaan telah habis — jawaban yang sudah terisi <b>terkirim otomatis</b>.<br><b>Lembar jawaban hanya dapat diakses oleh HRD.</b><br>Anda boleh menutup halaman ini.";
   $("#screen-done").classList.remove("hidden");
   window.scrollTo(0,0);
+}
+
+
+/* ---------- proteksi soal: anti-copy, deteksi keluar layar, watermark ---------- */
+let proteksiAktif = false;
+function enableProteksi(){
+  if(proteksiAktif) return;
+  proteksiAktif = true;
+
+  // watermark identitas peserta di seluruh layar tes
+  const wm = document.getElementById("wm");
+  const label = `${peserta.nama || "PESERTA"} · ${peserta.telepon || ""} · ARCELIO`;
+  wm.innerHTML = Array.from({length:60}, ()=>`<span>${label}</span>`).join("");
+  wm.classList.remove("hidden");
+
+  // blokir salin/klik kanan/seleksi/cetak
+  const stop = e => { e.preventDefault(); return false; };
+  ["contextmenu","copy","cut","dragstart","selectstart"].forEach(ev=>document.addEventListener(ev, stop));
+  document.addEventListener("keydown", e=>{
+    const k = e.key.toLowerCase();
+    if((e.ctrlKey||e.metaKey) && ["c","x","s","p","u","a"].includes(k)) return stop(e);
+    if(e.key === "PrintScreen") { try{ navigator.clipboard.writeText(""); }catch(_){} catatKeluar("printscreen"); }
+  });
+
+  // deteksi meninggalkan layar (pindah aplikasi, minimize, layar mati)
+  document.addEventListener("visibilitychange", ()=>{ if(document.hidden) catatKeluar("pindah"); });
+  window.addEventListener("blur", ()=>catatKeluar("blur"));
+}
+function catatKeluar(){
+  if(submitted) return;
+  const now = Date.now();
+  if(now - lastLeaveTs < 1500) return;   // satu kejadian = satu catatan
+  lastLeaveTs = now;
+  leaveCount++;
+  saveDirty = true;
+  const t = document.getElementById("toast-fokus");
+  t.textContent = `⚠️ Perpindahan layar tercatat (${leaveCount}×) dan akan dilaporkan ke HRD`;
+  t.style.display = "block";
+  clearTimeout(catatKeluar._h);
+  catatKeluar._h = setTimeout(()=>{ t.style.display = "none"; }, 3500);
 }
 
 /* waktu habis saat peserta sedang tidak membuka halaman */

@@ -232,12 +232,19 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
         <h2>Buat Token Undangan</h2>
         <p class="small">Setiap pelamar mendapat satu token sekali pakai. Kirimkan tautannya via WhatsApp.</p>
         <div class="tok-grid">
-          <div><label class="f">Posisi</label><select id="tk-posisi"></select></div>
+          <div><label class="f">Jenis tes</label>
+            <select id="tk-jenis">
+              <option value="karakter" selected>Psikotes Karakter (80 item)</option>
+              <option value="spv">Tes Jenjang SPV (30 soal)</option>
+              <option value="manager">Tes Jenjang Manager (30 soal)</option>
+            </select></div>
+          <div id="tk-posisi-wrap"><label class="f">Posisi</label><select id="tk-posisi"></select></div>
           <div><label class="f">Durasi tes</label>
             <select id="tk-durasi">
               <option value="20">20 menit</option>
               <option value="25" selected>25 menit (disarankan)</option>
               <option value="30">30 menit</option>
+              <option value="35">35 menit (tes jenjang)</option>
               <option value="40">40 menit</option>
             </select></div>
           <div><label class="f">Link berlaku</label>
@@ -543,6 +550,14 @@ const FLAG_RULES = [
     baik:["Kendala teknis yang masuk akal dan jumlah kosong sedikit","Mengakui kurang cepat dan menjelaskan wajar"],
     buruk:["Banyak soal kosong tanpa alasan jelas","Menyalahkan sistem tanpa dasar"],
     rekom:"Jika soal kosong lebih dari 15, pertimbangkan tes ulang dengan token baru. Jika sedikit, lanjutkan tapi baca profil dengan hati-hati." },
+  { id:"keluar-layar", level:"yellow", cond:r=>(r.keluarLayar||0)>=3,
+    title:"Sering Meninggalkan Layar Saat Tes",
+    indikator:r=>`Peserta terdeteksi meninggalkan layar/berpindah aplikasi ${r.keluarLayar} kali selama pengerjaan.`,
+    risiko:"Bisa berarti mencari jawaban, berdiskusi dengan orang lain, memotret soal, atau sekadar terganggu notifikasi. Apa pun sebabnya, keseriusan dan kemandirian jawabannya perlu diverifikasi.",
+    tanya:["\u201CSistem mencatat Anda beberapa kali berpindah layar saat tes — boleh cerita apa yang terjadi?\u201D (sampaikan datar, tanpa menuduh)","Ambil 3\u20134 pernyataan acak dari tes, bacakan, dan minta peserta menjawab lisan spontan \u2014 bandingkan dengan jawaban tertulisnya.","Cek konteks pengerjaan: di mana, jam berapa, pakai HP siapa, ada orang lain atau tidak."],
+    baik:["Penjelasan wajar dan spesifik (notifikasi telepon masuk, dipanggil orang tua, sinyal putus)","Jawaban lisan konsisten dengan hasil tes","Terbuka dan tidak defensif saat ditanya"],
+    buruk:["Penjelasan berubah-ubah atau menyangkal padahal tercatat","Jawaban lisan bertolak belakang dengan profil tes","Gugup berlebihan ketika topik ini disinggung"],
+    rekom:"Jangan langsung menggugurkan \u2014 gangguan nyata sering terjadi saat tes dari rumah. Namun jika dikombinasikan dengan flag lain (faking good / inkonsisten), pertimbangkan tes ulang yang diawasi langsung di lokasi." },
   { id:"turnover", level:"yellow", cond:r=>r.dims.S<=30&&r.dims.N>=60,
     title:"Risiko Tidak Betah / Turnover (S Rendah + N Cukup Tinggi)",
     indikator:r=>`Steadiness ${r.dims.S}/100 dan Neuroticism ${r.dims.N}/100 — mudah bosan sekaligus mudah tertekan.`,
@@ -570,9 +585,281 @@ const FLAG_RULES = [
 ];
 
 /* ============================================================
+   BANK SOAL TES JENJANG SPV & MANAGER
+   SJT: setiap opsi berbobot w (4=terbaik, 2=cukup, 1=kurang, 0=berbahaya)
+   Nalar: c = indeks jawaban benar (0-3)
+   ============================================================ */
+const KOMPETENSI = {
+  tim:"Kepemimpinan Tim", prio:"Keputusan & Prioritas", integ:"Integritas",
+  layanan:"Pelayanan & Keselamatan", kom:"Komunikasi",
+  orang:"Kepemimpinan & Pengembangan Orang", strategi:"Keputusan Strategis",
+  tatakelola:"Integritas & Tata Kelola", bisnis:"Orientasi Bisnis", ubah:"Manajemen Perubahan"
+};
+
+const J_BANK = {
+/* ==================== SPV ==================== */
+spv: {
+sjt: [
+{k:"tim", t:"Hari Minggu ramai. Dua anak buah Anda bertengkar hebat di depan pengunjung soal pembagian area kerja. Apa yang Anda lakukan PERTAMA?",
+ o:[{t:"Panggil keduanya ke kantor saat itu juga untuk mediasi sampai tuntas",w:2},
+    {t:"Pisahkan segera, tugaskan ke area berjauhan, bahas masalahnya setelah jam operasional",w:4},
+    {t:"Tegur keras keduanya di tempat agar jadi pelajaran bagi yang lain",w:1},
+    {t:"Biarkan dulu — mereka orang dewasa, bisa selesai sendiri",w:0}]},
+{k:"tim", t:"Anak buah paling senior (lebih tua dari Anda) sering mengabaikan instruksi Anda dan bekerja dengan caranya sendiri.",
+ o:[{t:"Tegur di depan tim agar wibawa Anda sebagai SPV terjaga",w:1},
+    {t:"Laporkan ke manager dan minta dia dipindah dari tim Anda",w:2},
+    {t:"Ajak bicara empat mata: dengarkan pandangannya, hargai pengalamannya, lalu tegaskan pembagian peran",w:4},
+    {t:"Diamkan saja — dia lebih senior, tidak enak menegur",w:0}]},
+{k:"tim", t:"Performa salah satu anggota tim turun drastis dua minggu terakhir: sering melamun, kerja lambat.",
+ o:[{t:"Ajak bicara empat mata untuk mencari tahu apa yang sedang terjadi sebelum menilai",w:4},
+    {t:"Langsung beri surat peringatan agar dia sadar",w:1},
+    {t:"Kurangi jam shiftnya diam-diam supaya dampaknya kecil",w:2},
+    {t:"Tunggu sebulan lagi — mungkin nanti normal sendiri",w:0}]},
+{k:"tim", t:"Hari libur ramai, dua anggota tim mendadak sakit. Tim Anda kekurangan orang.",
+ o:[{t:"Minta yang sakit tetap masuk setengah hari — darurat",w:0},
+    {t:"Minta semua kerja rangkap tanpa penjelasan, yang penting jalan",w:2},
+    {t:"Susun ulang penempatan: prioritaskan titik kritis, turun tangan ikut bekerja, laporkan kondisi ke manager",w:4},
+    {t:"Tutup sebagian area sendiri tanpa koordinasi agar beban ringan",w:1}]},
+{k:"prio", t:"Bersamaan terjadi: pengunjung komplain keras di front desk, ada laporan pecahan kaca di area kolam anak, dan manager memanggil Anda rapat.",
+ o:[{t:"Hadiri rapat dulu — panggilan atasan nomor satu",w:1},
+    {t:"Tangani komplain dulu karena pengunjung sudah marah",w:2},
+    {t:"Amankan pecahan kaca dulu (risiko keselamatan), delegasikan komplain ke staf senior, kabari manager Anda menyusul",w:4},
+    {t:"Minta semuanya menunggu sampai Anda selesai satu per satu sesuai urutan kejadian",w:0}]},
+{k:"prio", t:"Anda sedang menyusun jadwal shift bulan depan (tenggat sore ini), lalu diminta gudang membantu hitung stok hari ini juga.",
+ o:[{t:"Tinggalkan jadwal, bantu gudang dulu — mereka minta tolong",w:2},
+    {t:"Kerjakan dua-duanya buru-buru, hasilnya asal jadi",w:1},
+    {t:"Bicarakan prioritas: sepakati mana yang bisa digeser tenggatnya, atau delegasikan salah satunya",w:4},
+    {t:"Tolak mentah-mentah — bukan tugas saya",w:0}]},
+{k:"prio", t:"Pompa utama berbunyi kasar tidak normal di tengah jam operasional yang ramai.",
+ o:[{t:"Lanjutkan operasional sampai benar-benar rusak — sayang kalau tutup saat ramai",w:0},
+    {t:"Lapor teknisi segera, pantau ketat, dan siapkan skenario penutupan sebagian bila memburuk",w:4},
+    {t:"Langsung matikan semua wahana demi aman",w:2},
+    {t:"Catat saja, laporkan nanti setelah jam tutup",w:1}]},
+{k:"prio", t:"Manager minta laporan mingguan dikirim sekarang; di saat yang sama anak buah butuh keputusan penempatan segera karena antrean menumpuk.",
+ o:[{t:"Putuskan penempatan dulu (operasional berjalan), lalu kirim laporan sambil beri kabar singkat ke manager",w:4},
+    {t:"Kerjakan laporan dulu — perintah atasan",w:1},
+    {t:"Delegasikan keputusan penempatan ke staf paling senior dengan arahan singkat, lalu kerjakan laporan",w:2},
+    {t:"Abaikan salah satunya, nanti juga dimaklumi",w:0}]},
+{k:"integ", t:"Anda memergoki anak buah kesayangan Anda meloloskan temannya masuk tanpa tiket.",
+ o:[{t:"Pura-pura tidak melihat — dia anak buah terbaik Anda",w:0},
+    {t:"Tegur ringan secara pribadi, tidak perlu dilaporkan",w:2},
+    {t:"Minta dia langsung dipecat tanpa klarifikasi",w:1},
+    {t:"Tegur, proses sesuai aturan, dan laporkan — justru karena dia terbaik, standarnya harus dijaga",w:4}]},
+{k:"integ", t:"Manager meminta Anda ikut menandatangani rekap kehadiran yang Anda tahu ada manipulasi kecil di dalamnya.",
+ o:[{t:"Tanda tangan — itu perintah atasan, tanggung jawab di dia",w:0},
+    {t:"Tolak dengan sopan: minta datanya dibetulkan dulu, sampaikan risikonya bagi semua pihak",w:4},
+    {t:"Tanda tangan tapi simpan bukti percakapan untuk jaga diri",w:2},
+    {t:"Tolak lalu ceritakan ke seluruh tim agar semua tahu",w:1}]},
+{k:"integ", t:"Setelah pengadaan barang, vendor menyelipkan amplop 'uang terima kasih' pribadi untuk Anda.",
+ o:[{t:"Terima saja — Anda tidak memintanya",w:0},
+    {t:"Terima lalu bagikan ke tim biar adil",w:1},
+    {t:"Tolak diam-diam, tidak perlu ada yang tahu",w:2},
+    {t:"Tolak dan laporkan/catat ke atasan agar hubungan vendor tetap bersih",w:4}]},
+{k:"integ", t:"Anda sendiri salah input yang membuat laporan shift keliru. Belum ada yang menyadarinya.",
+ o:[{t:"Laporkan dan koreksi secara terbuka ke atasan",w:4},
+    {t:"Perbaiki diam-diam, toh hasil akhirnya benar",w:2},
+    {t:"Biarkan — selisihnya kecil, tidak penting",w:0},
+    {t:"Siapkan alasan bahwa sistemnya yang bermasalah",w:1}]},
+{k:"layanan", t:"Anak pengunjung terpeleset (luka ringan). Orang tuanya marah dan mengancam memviralkan di media sosial.",
+ o:[{t:"Tangani anaknya dulu (P3K), dampingi orang tua dengan empati, catat kronologi, segera lapor manager",w:4},
+    {t:"Minta maaf dan beri kompensasi sesuai batas wewenang Anda, lalu laporkan",w:2},
+    {t:"Berdebat menjelaskan bahwa itu kelalaian pengunjung sendiri",w:0},
+    {t:"Janjikan kompensasi besar apa pun agar tidak viral, urusan wewenang belakangan",w:1}]},
+{k:"layanan", t:"Anda memergoki pool guard bermain HP saat bertugas mengawasi kolam.",
+ o:[{t:"Ingatkan santai sambil lewat: 'jangan main HP ya'",w:2},
+    {t:"Tegur tegas saat itu, gantikan posisinya sementara, lakukan pembinaan setelah shift",w:4},
+    {t:"Rampas HP-nya di depan pengunjung sambil memarahi",w:1},
+    {t:"Diamkan — kolam sedang sepi, masih wajar",w:0}]},
+{k:"layanan", t:"Antrean wahana favorit mengular lebih dari 45 menit, pengunjung mulai gerah dan bersuara.",
+ o:[{t:"Kelola aktif: umumkan estimasi, buka jalur/hiburan alternatif, tempatkan petugas khusus komunikasi antrean",w:4},
+    {t:"Umumkan estimasi waktu tunggu saja",w:2},
+    {t:"Tutup antrean baru tanpa penjelasan supaya tidak makin panjang",w:1},
+    {t:"Percepat siklus wahana melebihi batas amannya agar antrean cepat habis",w:0}]},
+{k:"layanan", t:"Listrik padam sekitar 10 menit di jam ramai; sebagian wahana berhenti mendadak.",
+ o:[{t:"Kumpulkan tim di pos menunggu listrik menyala",w:0},
+    {t:"Jalankan prosedur: sebar petugas mengamankan pengunjung di tiap wahana, informasi lewat pengeras suara, koordinasi teknisi",w:4},
+    {t:"Umumkan tutup total dan pulangkan seluruh pengunjung",w:1},
+    {t:"Keliling menangani semuanya sendirian",w:2}]},
+{k:"kom", t:"Kebijakan baru manajemen (pemotongan jam lembur) tidak populer. Tim protes keras kepada Anda.",
+ o:[{t:"Bilang 'saya juga tidak setuju, salahkan manajemen' agar tim tidak membenci Anda",w:1},
+    {t:"Dengarkan aspirasi, jelaskan alasan kebijakan dengan jujur, dan teruskan masukan tim ke atas",w:4},
+    {t:"Minta manager datang menjelaskan langsung ke tim",w:2},
+    {t:"Janjikan diam-diam tidak akan menerapkannya di tim Anda",w:0}]},
+{k:"kom", t:"Anda menemukan cara kerja yang lebih efisien, tetapi berbeda dari SOP yang berlaku.",
+ o:[{t:"Terapkan dulu diam-diam; kalau berhasil baru dilaporkan",w:2},
+    {t:"Langsung terapkan — hasil yang penting, bukan aturan",w:1},
+    {t:"Usulkan resmi ke atasan dengan data pembanding dan minta izin uji coba terbatas",w:4},
+    {t:"Simpan sendiri — mengusulkan hanya menambah masalah",w:0}]},
+{k:"kom", t:"Dalam rapat, manager menyalahkan tim Anda atas kesalahan yang sebenarnya berasal dari divisi lain.",
+ o:[{t:"Sampaikan klarifikasi berdasarkan data dengan sopan di forum itu",w:4},
+    {t:"Diam di rapat, klarifikasi empat mata setelahnya",w:2},
+    {t:"Diam total — melawan atasan berbahaya",w:1},
+    {t:"Balas menyalahkan divisi lain dengan nada emosi",w:0}]},
+{k:"kom", t:"Anak buah curhat berencana resign karena konflik pribadi dengan satu rekan setim. Dia minta dirahasiakan.",
+ o:[{t:"Bilang 'itu urusan pribadi kalian, selesaikan sendiri'",w:1},
+    {t:"Langsung konfrontasi rekan yang dimaksud",w:0},
+    {t:"Gali akar masalahnya, mediasi keduanya dengan cara yang menjaga kerahasiaan sumber",w:4},
+    {t:"Teruskan ke HRD tanpa berbicara dengan siapa pun dulu",w:2}]}
+],
+nalar: [
+{t:"Shift pagi butuh 12 petugas. Yang hadir 9 orang, dan 1 di antaranya izin pulang jam 13.00. Berapa kekurangan petugas SETELAH jam 13.00?", o:["2 orang","3 orang","4 orang","5 orang"], c:2},
+{t:"Harga tiket Rp35.000. Target pendapatan tiket hari ini Rp10.500.000. Minimal berapa pengunjung?", o:["250","300","325","350"], c:1},
+{t:"3 petugas membersihkan 1 kolam dalam 2 jam. Dengan 6 petugas, berapa lama membersihkan 2 kolam?", o:["1 jam","2 jam","3 jam","4 jam"], c:1},
+{t:"Jam kerja 08.00–16.00 dengan istirahat total 1 jam. Berapa jam kerja efektif?", o:["6 jam","6,5 jam","7 jam","8 jam"], c:2},
+{t:"Tiket Rp45.000 didiskon 20%. Berapa harga setelah diskon?", o:["Rp34.000","Rp35.000","Rp36.000","Rp40.000"], c:2},
+{t:"Stok pelampung 120 buah, hasil pengecekan 15% rusak. Berapa yang masih layak pakai?", o:["96","100","102","105"], c:2},
+{t:"Standar pengawasan 1 pool guard untuk maksimal 25 pengunjung di air. Saat ini 180 pengunjung di kolam. Minimal butuh berapa pool guard?", o:["6","7","8","9"], c:2},
+{t:"Lanjutkan pola: 5, 10, 20, 40, ...?", o:["50","60","70","80"], c:3},
+{t:"Shift A: 07.00–15.00. Shift B: 14.00–22.00. Berapa lama kedua shift bertugas bersamaan?", o:["Tidak ada","30 menit","1 jam","2 jam"], c:2},
+{t:"Upah lembur = 1,5 × upah normal. Upah normal Rp20.000/jam. Berapa upah lembur 3 jam?", o:["Rp60.000","Rp80.000","Rp90.000","Rp120.000"], c:2}
+]},
+
+/* ==================== MANAGER ==================== */
+manager: {
+sjt: [
+{k:"orang", t:"SPV terbaik Anda berniat resign karena ditawari gaji lebih tinggi di perusahaan lain.",
+ o:[{t:"Langsung naikkan gajinya menyamai tawaran itu",w:2},
+    {t:"Gali motivasinya secara utuh, tinjau apa yang bisa perusahaan tawarkan (jenjang, peran, bukan hanya uang), dan siapkan rencana suksesi apa pun hasilnya",w:4},
+    {t:"Relakan pergi tanpa perlu berbicara — rezeki orang masing-masing",w:1},
+    {t:"Tahan dia dengan menyinggung soal loyalitas dan balas budi",w:0}]},
+{k:"orang", t:"Dua SPV Anda saling menjatuhkan dan tim mereka ikut terbelah menjadi dua kubu.",
+ o:[{t:"Biarkan bersaing — persaingan bagus untuk kinerja",w:0},
+    {t:"Pisahkan total wilayah kerja keduanya untuk selamanya",w:2},
+    {t:"Pecat salah satunya sebagai contoh",w:1},
+    {t:"Panggil keduanya, tetapkan target bersama yang memaksa kolaborasi, dan evaluasi kemajuannya berkala",w:4}]},
+{k:"orang", t:"Anda melihat staf junior yang sangat menonjol, tetapi SPV-nya tidak pernah mengusulkan namanya untuk berkembang.",
+ o:[{t:"Bicarakan dengan SPV-nya tentang pengembangan kader, lalu beri si staf penugasan silang untuk mengujinya",w:4},
+    {t:"Promosikan langsung melangkahi SPV-nya",w:1},
+    {t:"Minta HRD memproses tanpa melibatkan SPV-nya",w:2},
+    {t:"Abaikan — pengembangan staf sepenuhnya urusan SPV",w:0}]},
+{k:"orang", t:"Evaluasi menunjukkan satu SPV lemah dalam mengelola orang, tetapi sangat kuat teknis dan loyal bertahun-tahun.",
+ o:[{t:"Pertahankan seperti sekarang — loyalitasnya lebih berharga",w:1},
+    {t:"Desain ulang perannya ke jalur spesialis teknis, atau beri pendampingan manajerial terstruktur dengan target waktu",w:4},
+    {t:"Turunkan jabatannya sekarang juga",w:2},
+    {t:"Berhentikan dan cari SPV baru",w:0}]},
+{k:"strategi", t:"Pengunjung hari kerja sepi terus-menerus, sementara akhir pekan membludak sampai banyak komplain.",
+ o:[{t:"Analisis data pengunjung, lalu susun strategi pemerataan: harga/paket khusus weekday (sekolah, instansi) sambil membenahi kapasitas weekend",w:4},
+    {t:"Fokus membenahi pengalaman weekend saja — di sanalah uangnya",w:2},
+    {t:"Berlakukan diskon besar permanen untuk semua hari",w:1},
+    {t:"Tidak ada masalah — memang begitu pola bisnis wisata",w:0}]},
+{k:"strategi", t:"Anggaran tahunan divisi Anda dipotong 20%, dan semua kepala bagian bersikeras anggarannya tak bisa dikurangi.",
+ o:[{t:"Potong rata 20% di semua bagian supaya adil",w:2},
+    {t:"Prioritaskan berdasar dampak ke keselamatan dan pendapatan, potong berbasis data, lalu komunikasikan alasannya terbuka",w:4},
+    {t:"Potong bagian yang paling tidak banyak protes",w:0},
+    {t:"Tunda keputusan selama mungkin sampai dipaksa keadaan",w:1}]},
+{k:"strategi", t:"Kompetitor baru membuka waterpark 30 menit dari lokasi Anda dengan harga tiket lebih murah.",
+ o:[{t:"Langsung banting harga di bawah mereka",w:1},
+    {t:"Tiru semua fasilitas unggulannya secepat mungkin",w:2},
+    {t:"Pelajari mereka, perkuat pembeda Arcelio (pengalaman, kebersihan, layanan), rawat pelanggan setia — hindari perang harga membabi buta",w:4},
+    {t:"Abaikan — pelanggan kami pasti setia",w:0}]},
+{k:"strategi", t:"Ada tawaran kontrak gathering besar dari pabrik, tetapi jadwalnya bentrok dengan hari ramai reguler.",
+ o:[{t:"Terima langsung — rezeki jangan ditolak",w:2},
+    {t:"Tolak langsung — terlalu merepotkan operasional",w:1},
+    {t:"Hitung nilai kontrak vs potensi kehilangan pengunjung reguler dan risiko reputasi, lalu negosiasikan jadwal atau pemisahan area",w:4},
+    {t:"Terima, lalu kurangi kualitas layanan pengunjung reguler diam-diam",w:0}]},
+{k:"tatakelola", t:"Anda menemukan kejanggalan di laporan keuangan yang bila dibuka bisa memalukan divisi Anda sendiri.",
+ o:[{t:"Selesaikan diam-diam di internal, tak perlu ada yang tahu",w:2},
+    {t:"Lakukan audit internal terbuka dan laporkan ke atas apa pun hasilnya",w:4},
+    {t:"Tutup rapat — karena nila setitik rusak susu sebelanga",w:0},
+    {t:"Laporkan hanya jika suatu saat ditanya",w:1}]},
+{k:"tatakelola", t:"Pemilik meminta Anda merekrut kerabatnya yang jelas tidak memenuhi standar untuk sebuah posisi penting.",
+ o:[{t:"Terima langsung — dia pemilik perusahaan",w:1},
+    {t:"Tolak keras tanpa menawarkan jalan keluar",w:2},
+    {t:"Sampaikan penilaian objektif beserta risikonya, lalu tawarkan alternatif: posisi yang sesuai kemampuannya atau pelatihan lebih dulu",w:4},
+    {t:"Terima, lalu diam-diam membuatnya gagal agar keluar sendiri",w:0}]},
+{k:"tatakelola", t:"Seorang SPV memanipulasi laporan agar target timnya tercapai dan bonus tim cair.",
+ o:[{t:"Diamkan — toh angka perusahaan jadi terlihat bagus",w:0},
+    {t:"Investigasi, batalkan bonus yang tidak sah, beri sanksi sesuai aturan, lalu perbaiki sistem kontrolnya",w:4},
+    {t:"Tegur ringan saja — niatnya membela timnya yang kerja keras",w:1},
+    {t:"Pecat saat itu juga tanpa investigasi",w:2}]},
+{k:"tatakelola", t:"Keputusan Anda bulan lalu ternyata keliru dan merugikan. Tim mulai membicarakannya di belakang.",
+ o:[{t:"Akui terbuka di forum tim, jelaskan pembelajarannya dan langkah koreksinya",w:4},
+    {t:"Revisi arah diam-diam tanpa pernah mengakui",w:2},
+    {t:"Pertahankan keputusan demi menjaga wibawa",w:0},
+    {t:"Alihkan pembicaraan tim ke isu lain",w:1}]},
+{k:"bisnis", t:"Pendapatan naik 15%, tetapi biaya operasional naik 25% pada periode yang sama. Langkah PERTAMA Anda?",
+ o:[{t:"Naikkan harga tiket segera untuk menutup selisihnya",w:2},
+    {t:"Bedah struktur biaya: temukan pos kenaikan terbesar dan mana yang tidak produktif",w:4},
+    {t:"Kurangi karyawan sekarang — biaya terbesar biasanya gaji",w:1},
+    {t:"Rayakan — yang penting pendapatan naik",w:0}]},
+{k:"bisnis", t:"71 Kitchen ramai pembeli tetapi marginnya sangat tipis.",
+ o:[{t:"Analisis per menu: HPP tiap item, dorong item bermargin tinggi, evaluasi porsi dan waste",w:4},
+    {t:"Naikkan semua harga 20% serentak",w:2},
+    {t:"Tutup F&B, fokus ke tiket saja",w:1},
+    {t:"Tambah jenis menu sebanyak-banyaknya agar makin ramai",w:0}]},
+{k:"bisnis", t:"Ada usulan investasi wahana baru Rp500 juta dengan estimasi menambah 100 pengunjung/hari. Bagaimana cara Anda menilai kelayakannya?",
+ o:[{t:"Hitung perkiraan balik modal (payback) saja — kalau di bawah 5 tahun, jalan",w:2},
+    {t:"Hitung payback DAN bandingkan dengan alternatif penggunaan dana lain, sambil menguji seberapa realistis estimasi pengunjungnya",w:4},
+    {t:"Langsung eksekusi — wahana baru pasti menarik pengunjung",w:1},
+    {t:"Putuskan berdasar firasat dan tren kompetitor",w:0}]},
+{k:"bisnis", t:"Data parkir dan tiket menunjukkan pengunjung dari luar kota meningkat signifikan.",
+ o:[{t:"Naikkan harga — mereka datang jauh, pasti mau bayar berapa pun",w:1},
+    {t:"Bangun penginapan sendiri secepatnya",w:2},
+    {t:"Jajaki paket kerja sama (hotel, travel, bundling tiket) dan evaluasi jam operasional serta fasilitas untuk pengunjung jarak jauh",w:4},
+    {t:"Tidak relevan — dari mana pun asalnya sama saja",w:0}]},
+{k:"ubah", t:"Manajemen memutuskan sistem tiket beralih penuh ke digital dalam 2 bulan. Tim lapangan resisten.",
+ o:[{t:"Susun rencana perubahan: uji coba bertahap, pelatihan, tunjuk staf 'juara' di tiap tim, jelaskan manfaat, buka jalur masukan",w:4},
+    {t:"Terapkan serentak di hari H — dipaksa nanti juga terbiasa",w:1},
+    {t:"Serahkan sepenuhnya kepada vendor sistemnya",w:2},
+    {t:"Ulur-ulur waktunya diam-diam melebihi tenggat",w:0}]},
+{k:"ubah", t:"Divisi operasional dan marketing saling menyalahkan atas kegagalan sebuah event besar.",
+ o:[{t:"Cari siapa yang paling salah dan jatuhkan sanksi",w:1},
+    {t:"Gelar evaluasi bersama yang berfokus pada proses (bukan orang), lalu perbaiki alur koordinasi dan tetapkan satu PIC untuk event berikutnya",w:4},
+    {t:"Ambil alih sendiri semua koordinasi event selamanya",w:2},
+    {t:"Hentikan program event agar tidak ada konflik lagi",w:0}]},
+{k:"ubah", t:"Anda ingin menerapkan KPI baru; para SPV mengeluh itu menambah beban administrasi.",
+ o:[{t:"Batalkan KPI-nya — kenyamanan tim lebih penting",w:0},
+    {t:"Jalankan penuh apa adanya — namanya juga bekerja",w:1},
+    {t:"Tunda satu tahun sampai suasana kondusif",w:2},
+    {t:"Sederhanakan pengukurannya, mulai dari indikator terpenting, otomasi input datanya, dan jelaskan 'kenapa'-nya",w:4}]},
+{k:"ubah", t:"Prakiraan cuaca menunjukkan musim hujan panjang akan menekan kunjungan 3 bulan ke depan.",
+ o:[{t:"Tutup sementara sampai musim membaik",w:1},
+    {t:"Beroperasi normal tanpa penyesuaian apa pun",w:0},
+    {t:"Siapkan skenario: produk/event ramah hujan, kendalikan biaya variabel, dan jadwalkan perawatan besar justru di masa sepi",w:4},
+    {t:"Langkah pertama: putus karyawan kontrak untuk menekan biaya",w:2}]}
+],
+nalar: [
+{t:"Pendapatan bulan lalu Rp180 juta, bulan ini Rp207 juta. Berapa persen kenaikannya?", o:["12%","15%","18%","27%"], c:1},
+{t:"HPP sebuah menu Rp12.000, dijual Rp20.000. Berapa margin kotornya?", o:["30%","40%","50%","60%"], c:1},
+{t:"Biaya tetap Rp60 juta/bulan. Kontribusi margin per pengunjung Rp25.000. Berapa pengunjung/bulan agar impas (BEP)?", o:["1.800","2.000","2.400","3.000"], c:2},
+{t:"Investasi Rp500 juta menghasilkan tambahan laba bersih Rp12,5 juta/bulan. Berapa lama balik modal?", o:["30 bulan","36 bulan","40 bulan","48 bulan"], c:2},
+{t:"Dari 12 SPV, 3 orang resign dalam setahun. Berapa tingkat turnover-nya?", o:["20%","25%","30%","33%"], c:1},
+{t:"Harga Rp40.000 didiskon 25%, lalu harga hasil diskon dinaikkan 10%. Berapa harga akhirnya?", o:["Rp30.000","Rp32.000","Rp33.000","Rp34.000"], c:2},
+{t:"Rata-rata belanja pengunjung Rp55.000. Target pendapatan Rp16,5 juta/hari. Berapa pengunjung yang dibutuhkan?", o:["275","300","325","350"], c:1},
+{t:"Proyek A: untung Rp30 juta dengan peluang berhasil 80%. Proyek B: untung Rp50 juta dengan peluang 50%. Mana nilai harapannya lebih besar?", o:["Proyek A (Rp24 juta)","Proyek B (Rp25 juta)","Sama besar","Tidak bisa dihitung"], c:1},
+{t:"Total staf pelaksana 40 orang dengan rasio ideal 1 SPV membawahi 8 staf. Berapa SPV yang dibutuhkan?", o:["4","5","6","8"], c:1},
+{t:"Lanjutkan pola: 2, 6, 12, 20, 30, ...?", o:["36","40","42","44"], c:2}
+]}
+};
+
+/* ---------- wawancara khusus tes jenjang ---------- */
+const IV_JENJANG = {
+  spv: [
+    { q:"Ceritakan pengalaman Anda memimpin orang — sekecil apa pun (ketua shift, ketua panitia, kapten tim). Apa keputusan tersulit yang pernah Anda ambil di posisi itu?", dig:"Bukti kepemimpinan nyata — dengarkan siapa yang bertanggung jawab saat hasilnya buruk." },
+    { q:"Bayangkan besok Anda dilantik jadi SPV atas rekan-rekan yang hari ini selevel dengan Anda. Apa yang berubah dari cara Anda bersikap, dan apa yang TIDAK boleh berubah?", dig:"Kesadaran transisi peran (Leadership Pipeline) — dari mengerjakan sendiri ke menggerakkan orang." },
+    { q:"Anak buah Anda berkinerja buruk tapi dia teman dekat Anda sejak lama. Bagaimana Anda menegurnya? Peragakan kalimat pembukanya.", dig:"Keberanian percakapan sulit — kalimat konkret lebih jujur daripada teori." },
+    { q:"Apa yang akan Anda lakukan di 30 hari pertama sebagai SPV?", dig:"Cara berpikir terstruktur — mengenal tim & masalah dulu vs langsung mengubah-ubah." },
+    { q:"Ceritakan saat Anda tidak setuju dengan atasan. Apa yang Anda lakukan, dan bagaimana akhirnya?", dig:"Keseimbangan berani bersuara vs menghormati keputusan final." },
+  ],
+  manager: [
+    { q:"Ceritakan pencapaian yang Anda raih MELALUI orang lain, bukan dengan tangan Anda sendiri. Apa peran persis Anda di situ?", dig:"Inti manajer: hasil lewat orang — waspadai yang semua ceritanya 'saya yang mengerjakan'." },
+    { q:"Bagaimana Anda memutuskan sesuatu ketika data tidak lengkap dan waktu mendesak? Beri contoh nyata beserta hasilnya.", dig:"Judgment di ketidakpastian — proses berpikirnya, bukan kebetulan hasilnya." },
+    { q:"Pernahkah Anda harus menyampaikan keputusan tidak populer kepada tim (efisiensi, rotasi, pemotongan)? Bagaimana caranya dan apa dampaknya?", dig:"Keberanian + cara memanusiakan keputusan pahit." },
+    { q:"Kalau diberi anggaran terbatas untuk 3 bulan pertama mengelola Arcelio, ke mana Anda mengalokasikannya dan mengapa?", dig:"Orientasi bisnis & prioritas — dengar apakah menyebut keselamatan, pengalaman pengunjung, atau data." },
+    { q:"Bagaimana Anda menumbuhkan SPV di bawah Anda? Ceritakan orang yang pernah Anda kembangkan sampai naik level.", dig:"Pengembangan kader — manajer sejati meninggalkan penerus, bukan ketergantungan." },
+  ]
+};
+
+/* ============================================================
    LOGIKA DASHBOARD
    ============================================================ */
 function posOf(k){ return POSITIONS.find(p=>p.key===k); }
+function jenisNama(j){ return !j||j==="karakter" ? "Psikotes Karakter" : (j==="spv" ? "Tes Jenjang SPV" : "Tes Jenjang Manager"); }
+function namaPosisiIv(){
+  if(ivState.posisiKey==="jenjang-spv") return "Supervisor (Tes Jenjang)";
+  if(ivState.posisiKey==="jenjang-manager") return "Manager (Tes Jenjang)";
+  return posOf(ivState.posisiKey).nama;
+}
 function matchScore(pos, dims){
   let num=0, den=0;
   for(const d in pos.ideal){ num += pos.w[d]*Math.abs(dims[d]-pos.ideal[d]); den += pos.w[d]; }
@@ -615,7 +902,13 @@ function copyText(txt, btn, orig){
   $("#h-posisi").innerHTML = '<option value="">Semua posisi</option>' +
     POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
   $("#f-posisi").innerHTML = '<option value="">Semua posisi</option>' +
-    POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
+    POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("") +
+    '<option value="jenjang-spv">SPV (Tes Jenjang)</option><option value="jenjang-manager">Manager (Tes Jenjang)</option>';
+  $("#tk-jenis").addEventListener("change", ()=>{
+    const j = $("#tk-jenis").value;
+    if(j === "karakter"){ $("#tk-durasi").value = "25"; $("#tk-posisi").disabled = false; }
+    else { $("#tk-durasi").value = "35"; $("#tk-posisi").disabled = true; }
+  });
   $("#btn-buat-token").addEventListener("click", buatToken);
   $("#btn-tk-refresh").addEventListener("click", loadTokens);
   $("#tk-filter").addEventListener("change", renderTokens);
@@ -652,13 +945,14 @@ function genCode(){
   return "ARC-"+s;
 }
 async function buatToken(){
-  const posisi = $("#tk-posisi").value || null;
+  const jenis = $("#tk-jenis").value;
+  const posisi = jenis === "karakter" ? ($("#tk-posisi").value || null) : null;
   const durasi = +$("#tk-durasi").value;
   const hari = +$("#tk-berlaku").value;
   const jumlah = +$("#tk-jumlah").value;
   const expires = new Date(Date.now() + hari*86400000).toISOString();
   const rows = Array.from({length:jumlah}, ()=>({
-    token: genCode(), posisi_key: posisi, durasi_menit: durasi, expires_at: expires
+    token: genCode(), jenis, posisi_key: posisi, durasi_menit: durasi, expires_at: expires
   }));
   const btn = $("#btn-buat-token");
   btn.disabled = true; btn.textContent = "Membuat…";
@@ -685,7 +979,7 @@ async function buatToken(){
   btn.disabled = false; btn.textContent = "＋ Buat Token";
 }
 function waHref(t){
-  const msg = `Halo! Berikut tautan Psikotes Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Berlaku sampai ${fmtTgl(t.expires_at)}\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
+  const msg = `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Berlaku sampai ${fmtTgl(t.expires_at)}\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
   return "https://wa.me/?text="+encodeURIComponent(msg);
 }
 async function loadTokens(){
@@ -707,7 +1001,7 @@ function renderTokens(){
     return `<div class="tok-row">
       <div>
         <div class="code">${t.token} <span class="badge b-${st}">${lbl[st]}</span></div>
-        <div class="meta">${t.posisi_key ? posOf(t.posisi_key).nama : "Posisi bebas"} · ${t.durasi_menit} mnt · berlaku s/d ${fmtTgl(t.expires_at)}</div>
+        <div class="meta">${jenisNama(t.jenis)} · ${t.jenis&&t.jenis!=="karakter" ? "Level " + (t.jenis==="spv"?"SPV":"Manager") : (t.posisi_key ? posOf(t.posisi_key).nama : "Posisi bebas")} · ${t.durasi_menit} mnt · berlaku s/d ${fmtTgl(t.expires_at)}</div>
       </div>
       <div class="acts">
         ${st==="baru" ? `
@@ -742,6 +1036,22 @@ function renderHasilList(){
   if(list.length===0){ $("#hasil-list").innerHTML = '<p class="small" style="margin-top:10px">Belum ada hasil tes masuk.</p>'; return; }
   $("#hasil-list").innerHTML = list.map(h=>{
     const r = h.hasil;
+    if(h.jenis && h.jenis !== "karakter"){
+      const chipsJ = [
+        `<span class="chip c-teal">🧭 ${jenisNama(h.jenis)} · ${r.skor}%</span>`,
+        h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
+        (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
+        h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
+      ].join("");
+      return `<div class="hasil-row">
+        <div>
+          <div class="hn">${h.nama}</div>
+          <div class="hm">${fmtTgl(h.created_at)} · <a class="wa" href="https://wa.me/${(h.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${h.telepon||"—"}</a>${h.usia?` · ${h.usia} th`:""}</div>
+          <div class="chips">${chipsJ}</div>
+        </div>
+        <button class="btn small-btn" onclick="bukaHasil('${h.id}')">Buka →</button>
+      </div>`;
+    }
     const fl = flagsOf(r);
     const red = fl.filter(f=>f.level==="red").length, yel = fl.filter(f=>f.level==="yellow").length;
     const v = matchScore(posOf(h.posisi_key), r.dims);
@@ -750,6 +1060,7 @@ function renderHasilList(){
       red?`<span class="chip c-red">🔴 ${red} red flag</span>`:"",
       yel?`<span class="chip c-amber">🟡 ${yel} perlu digali</span>`:"",
       h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
+      (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
       h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
     ].join("");
     return `<div class="hasil-row">
@@ -778,6 +1089,7 @@ function tutupDetail(){
 }
 
 function renderDetail(){
+  if(cur.jenis && cur.jenis !== "karakter"){ renderDetailJenjang(); return; }
   const r = cur.hasil;
   const dims = r.dims;
   const posApplied = posOf(cur.posisi_key);
@@ -840,6 +1152,9 @@ function renderDetail(){
         <div class="vbox"><div class="vt">Soal terjawab</div>
           <div class="vv ${r.tidakDijawab>0?"warn":"ok"}">${80-(r.tidakDijawab||0)} <small>/ 80</small></div>
           <div class="vd">${r.tidakDijawab>0?"Sebagian kosong karena waktu habis":"Semua soal terjawab"}</div></div>
+        <div class="vbox"><div class="vt">Fokus layar</div>
+          <div class="vv ${(r.keluarLayar||0)===0?"ok":((r.keluarLayar||0)<3?"warn":"bad")}">${r.keluarLayar||0} <small>kali keluar</small></div>
+          <div class="vd">${(r.keluarLayar||0)===0?"Tidak pernah meninggalkan layar selama tes":((r.keluarLayar||0)<3?"Sesekali berpindah layar — masih wajar":"Sering meninggalkan layar — dalami di wawancara")}</div></div>
       </div>
     </div>
 
@@ -852,6 +1167,9 @@ function renderDetail(){
         <div><h4>Perlu diwaspadai</h4><ul>${arch.awas.map(x=>`<li>${x}</li>`).join("")}</ul></div>
       </div>
     </div>
+
+    ${kartuTemperamen(dims)}
+    ${kartuPotensi(dims, r)}
 
     <div class="card"><h2>Profil DISC</h2>${["D","I","S","C"].map(bar).join("")}</div>
     <div class="card"><h2>Profil Big Five (OCEAN)</h2>${["O","Co","E","A","N"].map(bar).join("")}</div>
@@ -987,7 +1305,7 @@ async function hitungWawancara(){
   ivState.pctIv = Math.round(sum/(ivState.scores.length*5)*100);
   ivState.final = Math.round(W_TES*ivState.pctTes + W_IV*ivState.pctIv);
   ivState.done = true;
-  const wawancara = { posisiKey:ivState.posisiKey, posisi:posOf(ivState.posisiKey).nama,
+  const wawancara = { posisiKey:ivState.posisiKey, posisi:namaPosisiIv(),
     scores:ivState.scores, pctTes:ivState.pctTes, pctIv:ivState.pctIv, final:ivState.final,
     catatan:$("#iv-notes").value.trim(), pada:new Date().toISOString() };
   try {
@@ -997,7 +1315,7 @@ async function hitungWawancara(){
   tampilkanHasilWawancara();
 }
 function tampilkanHasilWawancara(){
-  const pos = posOf(ivState.posisiKey);
+  const pos = { nama: namaPosisiIv() };
   const lab = matchLabel(ivState.final);
   const rec = ivState.final>=80 ? "Layak direkomendasikan — prioritaskan."
     : ivState.final>=65 ? "Layak direkomendasikan dengan catatan — bandingkan dengan kandidat lain."
@@ -1027,7 +1345,7 @@ function tampilkanHasilWawancara(){
 }
 async function rekomendasikan(){
   const rekomendasi = { pada:new Date().toISOString(), posisiKey:ivState.posisiKey,
-    posisi:posOf(ivState.posisiKey).nama, final:ivState.final, pctTes:ivState.pctTes, pctIv:ivState.pctIv };
+    posisi:namaPosisiIv(), final:ivState.final, pctTes:ivState.pctTes, pctIv:ivState.pctIv };
   try {
     await sb(`psikotes_hasil?id=eq.${cur.id}`, { method:"PATCH", body: JSON.stringify({ rekomendasi }) });
     cur.rekomendasi = rekomendasi;
@@ -1049,6 +1367,13 @@ async function hapusHasil(){
   tutupDetail();
 }
 function copyJSON(){
+  if(cur.jenis && cur.jenis !== "karakter"){
+    const dj = { jenis:jenisNama(cur.jenis),
+      peserta:{nama:cur.nama, telepon:cur.telepon, usia:cur.usia, tanggal:cur.created_at},
+      hasil:cur.hasil, wawancara:cur.wawancara||null, rekomendasi:cur.rekomendasi||null, jawabanMentah:cur.jawaban };
+    copyText(JSON.stringify(dj,null,2), $("#btn-json"), "📋 Salin Data (JSON)");
+    return;
+  }
   const data = { peserta:{nama:cur.nama, telepon:cur.telepon, usia:cur.usia, posisi:cur.posisi, tanggal:cur.created_at},
     skor:cur.hasil.dims, validitas:{konsistensi:cur.hasil.consist, socialDesirability:cur.hasil.sd,
       polaDatar:cur.hasil.flat, polaEkstrem:cur.hasil.extreme, tidakDijawab:cur.hasil.tidakDijawab},
@@ -1058,6 +1383,235 @@ function copyJSON(){
     flags:flagsOf(cur.hasil).map(f=>({level:f.level, judul:f.title})),
     wawancara:cur.wawancara||null, rekomendasi:cur.rekomendasi||null, jawabanMentah:cur.jawaban };
   copyText(JSON.stringify(data,null,2), $("#btn-json"), "📋 Salin Data (JSON)");
+}
+
+
+/* ============================================================
+   TEMPERAMEN KLASIK & INDIKASI POTENSI JENJANG (lembar karakter)
+   ============================================================ */
+function kartuTemperamen(dims){
+  const map = [
+    {k:"D", nama:"Koleris",    d:"tegas, dominan, berorientasi hasil"},
+    {k:"I", nama:"Sanguinis",  d:"ceria, ekspresif, persuasif"},
+    {k:"S", nama:"Plegmatis",  d:"tenang, sabar, setia"},
+    {k:"C", nama:"Melankolis", d:"teliti, analitis, perfeksionis"},
+  ];
+  const tot = dims.D + dims.I + dims.S + dims.C || 1;
+  const rows = map.map(m=>({...m, pct: Math.round(dims[m.k]/tot*100)})).sort((a,b)=>b.pct-a.pct);
+  const tipe = rows[1].pct >= 22 ? `${rows[0].nama}-${rows[1].nama}` : rows[0].nama;
+  const catatan = [];
+  if(dims.C>=60 && dims.N>=60) catatan.push("Sisi Melankolis-nya disertai kecemasan tinggi (N) — perfeksionis yang mudah tertekan, bukan sekadar teliti.");
+  if(dims.C>=60 && dims.N<=30) catatan.push("Melankolis yang sehat: teliti sekaligus stabil secara emosi.");
+  if(dims.I>=60 && dims.E<=40) catatan.push("Skor Sanguinis tinggi tetapi energi sosial (E) rendah — keramahannya mungkin situasional, bukan kebutuhan bergaul.");
+  if(dims.S>=60 && dims.N<=30) catatan.push("Plegmatis sejati: ketenangannya asli, bukan sekadar pasif.");
+  if(dims.D>=60 && dims.N>=60) catatan.push("Koleris yang mudah tersulut (N tinggi) — ketegasannya bisa berubah menjadi ledakan di bawah tekanan.");
+  return `<div class="card">
+    <h2>Temperamen Klasik</h2>
+    <p class="small">Pemetaan DISC ke empat temperamen Hippocrates: Koleris=D · Sanguinis=I · Plegmatis=S · Melankolis=C.</p>
+    ${rows.map(m=>`<div class="bar-row">
+      <div class="bl">${m.nama}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${m.pct}%"></div></div>
+      <div class="bar-val">${m.pct}%</div>
+      <div class="bar-note">${m.d}</div></div>`).join("")}
+    <div class="note-info">Tipe temperamen: <b>${tipe}</b>${catatan.length?`<br>${catatan.map(c=>"• "+c).join("<br>")}`:""}</div>
+  </div>`;
+}
+
+function hitungPotensi(dims){
+  const people = (dims.I + dims.E + Math.min(dims.A,75)) / 3;
+  let skor = 0.30*(100-dims.N) + 0.25*dims.Co + 0.20*dims.D + 0.15*dims.O + 0.10*people;
+  if(dims.N >= 70) skor = Math.min(skor, 55);
+  if(dims.Co <= 35) skor = Math.min(skor, 50);
+  return Math.round(skor);
+}
+function kartuPotensi(dims, r){
+  const skor = hitungPotensi(dims);
+  const band = skor>=75 ? {t:"Berpotensi Manager-track", c:"var(--green)",
+      d:"Kombinasi stabil, andal, berani memimpin, dan terbuka belajar — layak masuk kaderisasi jangka panjang dan diuji dengan tanggung jawab nyata secara bertahap."}
+    : skor>=60 ? {t:"Berpotensi SPV", c:"var(--teal)",
+      d:"Ada bahan mentah kepemimpinan lini. Uji dengan tanggung jawab kecil dulu (ketua shift, PIC acara) dan amati 3 bulan sebelum promosi."}
+    : {t:"Kuat sebagai Staff / Pelaksana", c:"var(--amber)",
+      d:"Jalur berkembangnya lewat penajaman keahlian, bukan memimpin orang. Ini bukan kekurangan — organisasi runtuh tanpa pelaksana hebat yang betah."};
+  const catatan = [];
+  if(dims.D>=65 && dims.A<=40) catatan.push("Ketegasan tinggi tetapi kepedulian rendah — latih memimpin tanpa menabrak orang sebelum diberi tim.");
+  if(dims.O<=40) catatan.push("Keterbukaan rendah — andal memimpin operasi yang stabil; hati-hati menempatkannya memimpin perubahan.");
+  if(dims.N>=55 && dims.N<70) catatan.push("Pengelolaan tekanan perlu dikembangkan sebelum tanggung jawab ditambah.");
+  if(dims.N>=70) catatan.push("Stabilitas emosi menjadi pembatas utama saat ini (skor dibatasi otomatis).");
+  if(dims.Co<=35) catatan.push("Keandalan dasar (disiplin) menjadi pembatas utama saat ini (skor dibatasi otomatis).");
+  if(dims.D<=35 && skor>=60) catatan.push("Fondasi bagus tetapi keberanian memimpin rendah — mulai dari peran PIC kecil untuk menumbuhkannya.");
+  if(dims.Co>=70 && dims.D>=60 && dims.N<=35) catatan.push("Kombinasi andal + tegas + stabil — segera beri kesempatan tanggung jawab nyata agar tidak diambil perusahaan lain.");
+  const validitasBuruk = r.sd>=4.25 || r.consist>=1.5;
+  return `<div class="card" style="border:2px solid ${band.c}">
+    <h2>Indikasi Potensi Jenjang</h2>
+    <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <div style="font-size:44px;font-weight:800;color:${band.c};font-variant-numeric:tabular-nums">${skor}</div>
+      <div><div style="font-weight:800;font-size:16px;color:${band.c}">${band.t}</div>
+      <p class="small" style="max-width:52ch">${band.d}</p></div>
+    </div>
+    ${catatan.length?`<div class="note-info" style="margin-top:12px">${catatan.map(c=>"• "+c).join("<br>")}</div>`:""}
+    ${validitasBuruk?`<div class="note-info" style="background:var(--coral-soft);margin-top:8px">⚠️ Validitas jawaban bermasalah (pencitraan/inkonsisten) — keyakinan atas indikasi ini RENDAH. Verifikasi lewat wawancara dan observasi.</div>`:""}
+    <p class="small" style="margin-top:10px">Dihitung dari stabilitas emosi (30%), keandalan (25%), keberanian memimpin (20%), keterbukaan belajar (15%), dan kecakapan orang (10%). Ini <b>indikasi awal</b> untuk memilih siapa yang layak diberi kesempatan — bukan vonis plafon karir. Untuk kandidat SPV/Manager sungguhan, gunakan Tes Jenjang.</p>
+  </div>`;
+}
+
+/* ============================================================
+   LEMBAR HASIL TES JENJANG (SPV / MANAGER)
+   ============================================================ */
+function renderDetailJenjang(){
+  const r = cur.hasil;
+  const b = J_BANK[cur.jenis];
+  const jn = jenisNama(cur.jenis);
+  const lab = matchLabel(r.skor);
+  const band = r.skor>=80 ? "Sangat siap — prioritaskan"
+    : r.skor>=65 ? "Siap dengan pendampingan"
+    : r.skor>=50 ? "Perlu pengembangan sebelum dipromosikan"
+    : "Belum siap untuk level ini";
+
+  // jawaban SJT berisiko (bobot <=1) + kunci pembanding
+  const risiko = [];
+  b.sjt.forEach((q,i)=>{
+    const a = (cur.jawaban||[])[i];
+    if(!a) return;
+    const w = q.o[a-1].w;
+    if(w <= 1){
+      const best = q.o.find(o=>o.w===4);
+      risiko.push({no:i+1, t:q.t, pilih:q.o[a-1].t, w, best:best.t, k:KOMPETENSI[q.k]});
+    }
+  });
+  // nalar yang salah
+  const salahNalar = [];
+  b.nalar.forEach((q,j)=>{
+    const a = (cur.jawaban||[])[b.sjt.length+j];
+    if(a && a-1 !== q.c) salahNalar.push({no:b.sjt.length+j+1, t:q.t, pilih:q.o[a-1], benar:q.o[q.c]});
+  });
+
+  const ivKey = cur.jenis === "spv" ? "jenjang-spv" : "jenjang-manager";
+
+  $("#hasil-detail").innerHTML = `
+    <button class="btn ghost small-btn no-print" onclick="tutupDetail()" style="margin-top:16px">&larr; Kembali ke daftar</button>
+    <div class="card">
+      <span class="confid">Rahasia — Internal HRD</span>
+      <h2 style="font-size:20px">Lembar Hasil ${jn}</h2>
+      <div class="id-grid" style="margin-top:12px">
+        <div><b>Nama</b>${cur.nama}</div>
+        <div><b>Jenis tes</b>${jn}</div>
+        <div><b>Telepon / WA</b><a class="wa" href="https://wa.me/${(cur.telepon||"").replace(/^0/,"62")}" target="_blank">${cur.telepon||"—"}</a></div>
+        <div><b>Usia</b>${cur.usia||"—"}</div>
+        <div><b>Tanggal &amp; waktu tes</b>${fmtTgl(cur.created_at)}</div>
+        <div><b>Token</b>${cur.token||"—"}</div>
+      </div>
+      ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu habis — ${cur.tidak_dijawab} soal tidak terjawab (bernilai 0).</div>`:""}
+    </div>
+
+    <div class="hl-match" style="border-color:${lab.c}">
+      <div class="pct" style="color:${lab.c}">${r.skor}%<small style="color:${lab.c}">${lab.t}</small></div>
+      <div>
+        <h2>Skor Kesiapan ${cur.jenis==="spv"?"Supervisor":"Manager"}</h2>
+        <p><b>${band}.</b> Gabungan skenario penilaian situasional (bobot 70%: ${r.sjtPct}%) dan penalaran praktis (bobot 30%: ${r.nalarPct}% — benar ${r.benarNalar}/${b.nalar.length}).</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Validitas Pengerjaan</h2>
+      <div class="validity">
+        <div class="vbox"><div class="vt">Soal terjawab</div>
+          <div class="vv ${r.tidakDijawab>0?"warn":"ok"}">${b.sjt.length+b.nalar.length-(r.tidakDijawab||0)} <small>/ ${b.sjt.length+b.nalar.length}</small></div>
+          <div class="vd">${r.tidakDijawab>0?"Sebagian kosong karena waktu habis":"Semua soal terjawab"}</div></div>
+        <div class="vbox"><div class="vt">Fokus layar</div>
+          <div class="vv ${(r.keluarLayar||0)===0?"ok":((r.keluarLayar||0)<3?"warn":"bad")}">${r.keluarLayar||0} <small>kali keluar</small></div>
+          <div class="vd">${(r.keluarLayar||0)===0?"Tidak pernah meninggalkan layar":((r.keluarLayar||0)<3?"Sesekali berpindah layar — wajar":"Sering keluar layar — verifikasi kemandirian jawaban dgn tanya lisan")}</div></div>
+        <div class="vbox"><div class="vt">Penalaran praktis</div>
+          <div class="vv ${r.nalarPct>=70?"ok":(r.nalarPct>=50?"warn":"bad")}">${r.benarNalar} <small>/ ${b.nalar.length} benar</small></div>
+          <div class="vd">${r.nalarPct>=70?"Hitungan operasional kuat":(r.nalarPct>=50?"Cukup — dalami dengan studi kasus hitungan":"Lemah — risiko untuk peran yang mengelola angka")}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Skor per Kompetensi (Skenario)</h2>
+      ${Object.keys(r.komp).map(k=>{
+        const v = r.komp[k]; const l = matchLabel(v);
+        return `<div class="bar-row">
+          <div class="bl" style="font-size:12.5px">${KOMPETENSI[k]}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${l.c}"></div></div>
+          <div class="bar-val">${v}</div></div>`;
+      }).join("")}
+      <p class="small" style="margin-top:10px">Dua kompetensi terendah adalah bahan utama pendalaman wawancara di bawah.</p>
+    </div>
+
+    <div class="card">
+      <h2>Jawaban Skenario Berisiko — Tanyakan Alasannya</h2>
+      ${risiko.length===0?`<p class="small">✅ Tidak ada pilihan berbobot rendah/berbahaya. Seluruh jawaban skenario berada di kategori cukup–terbaik.</p>`
+        : `<p class="small">Peserta memilih tindakan berbobot rendah pada ${risiko.length} skenario. Bacakan skenarionya di wawancara dan minta ia menjelaskan alasannya — kadang ada logika yang valid di baliknya.</p>` +
+          risiko.map(x=>`<div class="pair-box pair-bad">
+            <div class="small" style="font-weight:800">SOAL ${x.no} · ${x.k}</div>
+            <div style="margin-top:4px">${x.t}</div>
+            <div style="margin-top:6px">Dipilih: <span class="pv bad">${x.pilih}</span> <b class="bad">(${x.w===0?"berbahaya":"kurang tepat"})</b></div>
+            <div class="small" style="margin-top:4px">Pembanding terbaik: ${x.best}</div>
+          </div>`).join("")}
+    </div>
+
+    ${salahNalar.length?`<div class="card">
+      <h2>Hitungan yang Keliru</h2>
+      ${salahNalar.map(x=>`<div class="pair-box">
+        <div class="small" style="font-weight:800">SOAL ${x.no}</div>
+        <div style="margin-top:4px">${x.t}</div>
+        <div class="small" style="margin-top:4px">Dijawab: <b class="bad">${x.pilih}</b> · Benar: <b class="ok">${x.benar}</b></div>
+      </div>`).join("")}
+    </div>`:""}
+
+    <div class="card">
+      <h2>🎤 Wawancara Jenjang &amp; Penilaian</h2>
+      <div class="note-info" id="iv-fit-note"></div>
+      <div id="iv-questions"></div>
+      <label class="f">Catatan pewawancara (opsional)</label>
+      <textarea id="iv-notes" placeholder="Kesan umum, jawaban atas skenario berisiko, dsb."></textarea>
+      <p class="err" id="err-iv">Masih ada pertanyaan yang belum dinilai.</p>
+      <button class="btn no-print" id="btn-iv-hitung">Hitung &amp; Simpan Hasil Wawancara</button>
+    </div>
+    <div id="iv-result-wrap"></div>
+
+    <div class="card no-print">
+      <h2>Aksi</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn small-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        <button class="btn small-btn ghost" id="btn-json">📋 Salin Data (JSON)</button>
+        <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
+      </div>
+    </div>`;
+
+  $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
+  $("#btn-json").addEventListener("click", copyJSON);
+  $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
+  setupInterviewJenjang(ivKey, cur.wawancara);
+  if(cur.wawancara) tampilkanHasilWawancara();
+}
+
+function setupInterviewJenjang(ivKey, saved){
+  const qs = [...IV_JENJANG[cur.jenis], ...IV_UNIVERSAL];
+  ivState = { posisiKey:ivKey, pctTes:cur.hasil.skor,
+    scores: saved && saved.posisiKey===ivKey ? [...saved.scores] : new Array(qs.length).fill(0),
+    done:false, pctIv:0, final:0 };
+  if(saved && saved.posisiKey===ivKey){ ivState.pctIv=saved.pctIv; ivState.final=saved.final; ivState.done=true; }
+  $("#iv-fit-note").innerHTML = `Panduan wawancara <b>${namaPosisiIv()}</b> — skor tes ${cur.hasil.skor}%. Nilai setiap jawaban 1–5. <b>1</b> = buruk/menghindar · <b>3</b> = cukup, kurang contoh nyata · <b>5</b> = sangat baik dengan bukti konkret. Jangan lupa bahas <b>jawaban skenario berisiko</b> di atas.`;
+  $("#iv-questions").innerHTML = qs.map((q,i)=>`
+    <div class="iv-q" data-qi="${i}">
+      <div class="qt">${i+1}. ${q.q}</div>
+      <div class="dig"><b>Yang digali:</b> ${q.dig}</div>
+      <div class="iv-score">${[1,2,3,4,5].map(v=>`<button type="button" data-v="${v}" class="${ivState.scores[i]===v?"sel":""}">${v}</button>`).join("")}</div>
+      <div class="anchor"><span>Buruk</span><span>Cukup</span><span>Sangat baik</span></div>
+    </div>`).join("");
+  document.querySelectorAll(".iv-q").forEach(div=>{
+    const qi = +div.dataset.qi;
+    div.querySelectorAll(".iv-score button").forEach(bt=>{
+      bt.addEventListener("click", ()=>{
+        ivState.scores[qi] = +bt.dataset.v;
+        div.querySelectorAll(".iv-score button").forEach(x=>x.classList.toggle("sel", x===bt));
+        div.style.borderColor = "var(--line)";
+      });
+    });
+  });
+  if(saved && saved.catatan) $("#iv-notes").value = saved.catatan;
+  $("#err-iv").style.display = "none";
 }
 
 /* ============================================================
@@ -1093,14 +1647,14 @@ function renderRankTable(){
       const rk = x.rekomendasi;
       const lab = matchLabel(rk.final);
       const tgl = new Date(rk.pada).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
-      const fl = flagsOf(x.hasil);
+      const fl = x.hasil.dims ? flagsOf(x.hasil) : [];
       const red = fl.filter(f=>f.level==="red").length, yel = fl.filter(f=>f.level==="yellow").length;
       const flg = (red?`🔴${red} `:"")+(yel?`🟡${yel}`:"")||"—";
       const beda = rk.posisi!==x.posisi ? `<div class="small">melamar: ${x.posisi}</div>` : "";
       const cat = x.wawancara&&x.wawancara.catatan?`<div class="small">📝 ${x.wawancara.catatan}</div>`:"";
       return `<tr class="${i===0?"rk1":""}">
         <td>${i+1}</td>
-        <td><b>${x.nama}</b><div class="small">${x.usia?x.usia+" th · ":""}${archetypeOf(x.hasil.dims).nama} · <a class="wa" href="https://wa.me/${(x.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${x.telepon||"—"}</a></div>${cat}</td>
+        <td><b>${x.nama}</b><div class="small">${x.usia?x.usia+" th · ":""}${x.hasil.dims?archetypeOf(x.hasil.dims).nama:jenisNama(x.jenis)+" "+x.hasil.skor+"%"} · <a class="wa" href="https://wa.me/${(x.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${x.telepon||"—"}</a></div>${cat}</td>
         <td>${rk.posisi}${beda}</td>
         <td>${tgl}</td>
         <td>${rk.pctTes}%</td>
