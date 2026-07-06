@@ -244,8 +244,8 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
               <option value="20">20 menit</option>
               <option value="25" selected>25 menit (disarankan)</option>
               <option value="30">30 menit</option>
-              <option value="35">35 menit (tes jenjang)</option>
-              <option value="40">40 menit</option>
+              <option value="35">35 menit</option>
+              <option value="40">40 menit (tes jenjang)</option>
             </select></div>
           <div><label class="f">Link berlaku</label>
             <select id="tk-berlaku">
@@ -589,244 +589,302 @@ const FLAG_RULES = [
    SJT: setiap opsi berbobot w (4=terbaik, 2=cukup, 1=kurang, 0=berbahaya)
    Nalar: c = indeks jawaban benar (0-3)
    ============================================================ */
+/* ============================================================
+   BANK SOAL TES JENJANG v2 — FORMAT GANDA (ANTI-TEBAK)
+   Setiap skenario: peserta memilih PALING TEPAT dan PALING KELIRU.
+   q = kualitas opsi: 4=terbaik, 3=pengecoh kuat, 2=lemah, 1=terburuk
+   (semua opsi ditulis agar terdengar masuk akal — pembedanya judgment)
+   Skor/skenario: tepat(q4=4,q3=2,q2=1,q1=0) + keliru(q1=4,q2=2,q3=1,q4=0), maks 8
+   8 kategori x 3 skenario = 24 SJT + 8 nalar per level
+   ============================================================ */
 const KOMPETENSI = {
-  tim:"Kepemimpinan Tim", prio:"Keputusan & Prioritas", integ:"Integritas",
-  layanan:"Pelayanan & Keselamatan", kom:"Komunikasi",
-  orang:"Kepemimpinan & Pengembangan Orang", strategi:"Keputusan Strategis",
-  tatakelola:"Integritas & Tata Kelola", bisnis:"Orientasi Bisnis", ubah:"Manajemen Perubahan"
+  kep:"Kepemimpinan", dis:"Disiplin", int:"Integritas", kom:"Komunikasi",
+  ps:"Problem Solving & Keputusan", tim:"Pengembangan Tim", ino:"Inovasi", adm:"Administrasi & Pelaporan"
 };
 
 const J_BANK = {
 /* ==================== SPV ==================== */
 spv: {
 sjt: [
-{k:"tim", t:"Hari Minggu ramai. Dua anak buah Anda bertengkar hebat di depan pengunjung soal pembagian area kerja. Apa yang Anda lakukan PERTAMA?",
- o:[{t:"Panggil keduanya ke kantor saat itu juga untuk mediasi sampai tuntas",w:2},
-    {t:"Pisahkan segera, tugaskan ke area berjauhan, bahas masalahnya setelah jam operasional",w:4},
-    {t:"Tegur keras keduanya di tempat agar jadi pelajaran bagi yang lain",w:1},
-    {t:"Biarkan dulu — mereka orang dewasa, bisa selesai sendiri",w:0}]},
-{k:"tim", t:"Anak buah paling senior (lebih tua dari Anda) sering mengabaikan instruksi Anda dan bekerja dengan caranya sendiri.",
- o:[{t:"Tegur di depan tim agar wibawa Anda sebagai SPV terjaga",w:1},
-    {t:"Laporkan ke manager dan minta dia dipindah dari tim Anda",w:2},
-    {t:"Ajak bicara empat mata: dengarkan pandangannya, hargai pengalamannya, lalu tegaskan pembagian peran",w:4},
-    {t:"Diamkan saja — dia lebih senior, tidak enak menegur",w:0}]},
-{k:"tim", t:"Performa salah satu anggota tim turun drastis dua minggu terakhir: sering melamun, kerja lambat.",
- o:[{t:"Ajak bicara empat mata untuk mencari tahu apa yang sedang terjadi sebelum menilai",w:4},
-    {t:"Langsung beri surat peringatan agar dia sadar",w:1},
-    {t:"Kurangi jam shiftnya diam-diam supaya dampaknya kecil",w:2},
-    {t:"Tunggu sebulan lagi — mungkin nanti normal sendiri",w:0}]},
-{k:"tim", t:"Hari libur ramai, dua anggota tim mendadak sakit. Tim Anda kekurangan orang.",
- o:[{t:"Minta yang sakit tetap masuk setengah hari — darurat",w:0},
-    {t:"Minta semua kerja rangkap tanpa penjelasan, yang penting jalan",w:2},
-    {t:"Susun ulang penempatan: prioritaskan titik kritis, turun tangan ikut bekerja, laporkan kondisi ke manager",w:4},
-    {t:"Tutup sebagian area sendiri tanpa koordinasi agar beban ringan",w:1}]},
-{k:"prio", t:"Bersamaan terjadi: pengunjung komplain keras di front desk, ada laporan pecahan kaca di area kolam anak, dan manager memanggil Anda rapat.",
- o:[{t:"Hadiri rapat dulu — panggilan atasan nomor satu",w:1},
-    {t:"Tangani komplain dulu karena pengunjung sudah marah",w:2},
-    {t:"Amankan pecahan kaca dulu (risiko keselamatan), delegasikan komplain ke staf senior, kabari manager Anda menyusul",w:4},
-    {t:"Minta semuanya menunggu sampai Anda selesai satu per satu sesuai urutan kejadian",w:0}]},
-{k:"prio", t:"Anda sedang menyusun jadwal shift bulan depan (tenggat sore ini), lalu diminta gudang membantu hitung stok hari ini juga.",
- o:[{t:"Tinggalkan jadwal, bantu gudang dulu — mereka minta tolong",w:2},
-    {t:"Kerjakan dua-duanya buru-buru, hasilnya asal jadi",w:1},
-    {t:"Bicarakan prioritas: sepakati mana yang bisa digeser tenggatnya, atau delegasikan salah satunya",w:4},
-    {t:"Tolak mentah-mentah — bukan tugas saya",w:0}]},
-{k:"prio", t:"Pompa utama berbunyi kasar tidak normal di tengah jam operasional yang ramai.",
- o:[{t:"Lanjutkan operasional sampai benar-benar rusak — sayang kalau tutup saat ramai",w:0},
-    {t:"Lapor teknisi segera, pantau ketat, dan siapkan skenario penutupan sebagian bila memburuk",w:4},
-    {t:"Langsung matikan semua wahana demi aman",w:2},
-    {t:"Catat saja, laporkan nanti setelah jam tutup",w:1}]},
-{k:"prio", t:"Manager minta laporan mingguan dikirim sekarang; di saat yang sama anak buah butuh keputusan penempatan segera karena antrean menumpuk.",
- o:[{t:"Putuskan penempatan dulu (operasional berjalan), lalu kirim laporan sambil beri kabar singkat ke manager",w:4},
-    {t:"Kerjakan laporan dulu — perintah atasan",w:1},
-    {t:"Delegasikan keputusan penempatan ke staf paling senior dengan arahan singkat, lalu kerjakan laporan",w:2},
-    {t:"Abaikan salah satunya, nanti juga dimaklumi",w:0}]},
-{k:"integ", t:"Anda memergoki anak buah kesayangan Anda meloloskan temannya masuk tanpa tiket.",
- o:[{t:"Pura-pura tidak melihat — dia anak buah terbaik Anda",w:0},
-    {t:"Tegur ringan secara pribadi, tidak perlu dilaporkan",w:2},
-    {t:"Minta dia langsung dipecat tanpa klarifikasi",w:1},
-    {t:"Tegur, proses sesuai aturan, dan laporkan — justru karena dia terbaik, standarnya harus dijaga",w:4}]},
-{k:"integ", t:"Manager meminta Anda ikut menandatangani rekap kehadiran yang Anda tahu ada manipulasi kecil di dalamnya.",
- o:[{t:"Tanda tangan — itu perintah atasan, tanggung jawab di dia",w:0},
-    {t:"Tolak dengan sopan: minta datanya dibetulkan dulu, sampaikan risikonya bagi semua pihak",w:4},
-    {t:"Tanda tangan tapi simpan bukti percakapan untuk jaga diri",w:2},
-    {t:"Tolak lalu ceritakan ke seluruh tim agar semua tahu",w:1}]},
-{k:"integ", t:"Setelah pengadaan barang, vendor menyelipkan amplop 'uang terima kasih' pribadi untuk Anda.",
- o:[{t:"Terima saja — Anda tidak memintanya",w:0},
-    {t:"Terima lalu bagikan ke tim biar adil",w:1},
-    {t:"Tolak diam-diam, tidak perlu ada yang tahu",w:2},
-    {t:"Tolak dan laporkan/catat ke atasan agar hubungan vendor tetap bersih",w:4}]},
-{k:"integ", t:"Anda sendiri salah input yang membuat laporan shift keliru. Belum ada yang menyadarinya.",
- o:[{t:"Laporkan dan koreksi secara terbuka ke atasan",w:4},
-    {t:"Perbaiki diam-diam, toh hasil akhirnya benar",w:2},
-    {t:"Biarkan — selisihnya kecil, tidak penting",w:0},
-    {t:"Siapkan alasan bahwa sistemnya yang bermasalah",w:1}]},
-{k:"layanan", t:"Anak pengunjung terpeleset (luka ringan). Orang tuanya marah dan mengancam memviralkan di media sosial.",
- o:[{t:"Tangani anaknya dulu (P3K), dampingi orang tua dengan empati, catat kronologi, segera lapor manager",w:4},
-    {t:"Minta maaf dan beri kompensasi sesuai batas wewenang Anda, lalu laporkan",w:2},
-    {t:"Berdebat menjelaskan bahwa itu kelalaian pengunjung sendiri",w:0},
-    {t:"Janjikan kompensasi besar apa pun agar tidak viral, urusan wewenang belakangan",w:1}]},
-{k:"layanan", t:"Anda memergoki pool guard bermain HP saat bertugas mengawasi kolam.",
- o:[{t:"Ingatkan santai sambil lewat: 'jangan main HP ya'",w:2},
-    {t:"Tegur tegas saat itu, gantikan posisinya sementara, lakukan pembinaan setelah shift",w:4},
-    {t:"Rampas HP-nya di depan pengunjung sambil memarahi",w:1},
-    {t:"Diamkan — kolam sedang sepi, masih wajar",w:0}]},
-{k:"layanan", t:"Antrean wahana favorit mengular lebih dari 45 menit, pengunjung mulai gerah dan bersuara.",
- o:[{t:"Kelola aktif: umumkan estimasi, buka jalur/hiburan alternatif, tempatkan petugas khusus komunikasi antrean",w:4},
-    {t:"Umumkan estimasi waktu tunggu saja",w:2},
-    {t:"Tutup antrean baru tanpa penjelasan supaya tidak makin panjang",w:1},
-    {t:"Percepat siklus wahana melebihi batas amannya agar antrean cepat habis",w:0}]},
-{k:"layanan", t:"Listrik padam sekitar 10 menit di jam ramai; sebagian wahana berhenti mendadak.",
- o:[{t:"Kumpulkan tim di pos menunggu listrik menyala",w:0},
-    {t:"Jalankan prosedur: sebar petugas mengamankan pengunjung di tiap wahana, informasi lewat pengeras suara, koordinasi teknisi",w:4},
-    {t:"Umumkan tutup total dan pulangkan seluruh pengunjung",w:1},
-    {t:"Keliling menangani semuanya sendirian",w:2}]},
-{k:"kom", t:"Kebijakan baru manajemen (pemotongan jam lembur) tidak populer. Tim protes keras kepada Anda.",
- o:[{t:"Bilang 'saya juga tidak setuju, salahkan manajemen' agar tim tidak membenci Anda",w:1},
-    {t:"Dengarkan aspirasi, jelaskan alasan kebijakan dengan jujur, dan teruskan masukan tim ke atas",w:4},
-    {t:"Minta manager datang menjelaskan langsung ke tim",w:2},
-    {t:"Janjikan diam-diam tidak akan menerapkannya di tim Anda",w:0}]},
-{k:"kom", t:"Anda menemukan cara kerja yang lebih efisien, tetapi berbeda dari SOP yang berlaku.",
- o:[{t:"Terapkan dulu diam-diam; kalau berhasil baru dilaporkan",w:2},
-    {t:"Langsung terapkan — hasil yang penting, bukan aturan",w:1},
-    {t:"Usulkan resmi ke atasan dengan data pembanding dan minta izin uji coba terbatas",w:4},
-    {t:"Simpan sendiri — mengusulkan hanya menambah masalah",w:0}]},
-{k:"kom", t:"Dalam rapat, manager menyalahkan tim Anda atas kesalahan yang sebenarnya berasal dari divisi lain.",
- o:[{t:"Sampaikan klarifikasi berdasarkan data dengan sopan di forum itu",w:4},
-    {t:"Diam di rapat, klarifikasi empat mata setelahnya",w:2},
-    {t:"Diam total — melawan atasan berbahaya",w:1},
-    {t:"Balas menyalahkan divisi lain dengan nada emosi",w:0}]},
-{k:"kom", t:"Anak buah curhat berencana resign karena konflik pribadi dengan satu rekan setim. Dia minta dirahasiakan.",
- o:[{t:"Bilang 'itu urusan pribadi kalian, selesaikan sendiri'",w:1},
-    {t:"Langsung konfrontasi rekan yang dimaksud",w:0},
-    {t:"Gali akar masalahnya, mediasi keduanya dengan cara yang menjaga kerahasiaan sumber",w:4},
-    {t:"Teruskan ke HRD tanpa berbicara dengan siapa pun dulu",w:2}]}
+/* --- KEPEMIMPINAN --- */
+{k:"kep", t:"Tim shift sore kehilangan semangat setelah dua bulan target tak tercapai. Mulai muncul saling menyalahkan secara halus.",
+ o:[{t:"Ajak bicara anggota satu per satu untuk memahami keluhan masing-masing sebelum mengambil langkah apa pun",q:3},
+    {t:"Kumpulkan tim, akui kondisi dengan jujur, pecah target besar menjadi kemenangan kecil mingguan, dan rayakan progres pertama",q:4},
+    {t:"Tunjukkan keteladanan: ambil sendiri beban kerja paling berat agar tim tergerak mengikuti",q:1},
+    {t:"Ajukan ke manajemen agar target diturunkan sementara supaya tim bisa bernafas",q:2}]},
+{k:"kep", t:"Anda baru dilantik menjadi SPV atas mantan rekan selevel. Sahabat dekat Anda mulai sering meminta keringanan jadwal lewat jalur pribadi.",
+ o:[{t:"Beri kelonggaran sekali ini sambil menegaskan bahwa berikutnya tidak bisa lagi",q:2},
+    {t:"Berlakukan sistem pengajuan jadwal tertulis untuk semua orang agar tidak ada yang lewat jalur pribadi",q:3},
+    {t:"Bicara empat mata: tegaskan pertemanan tidak berubah, tetapi dalam jadwal ia diperlakukan sama seperti yang lain, dan jelaskan alasannya",q:4},
+    {t:"Minta manager yang menyampaikan penolakan agar hubungan pertemanan Anda tidak rusak",q:1}]},
+{k:"kep", t:"Saat briefing pagi, seorang anggota menantang keputusan Anda di depan seluruh tim — dan sebagian argumennya memang benar.",
+ o:[{t:"Akui bagian yang benar dari argumennya, jelaskan pertimbangan yang belum ia ketahui, lalu ajak melanjutkan detailnya setelah briefing",q:4},
+    {t:"Jawab tegas bahwa keputusan sudah final dan briefing bukan forum debat, lalu lanjutkan agenda",q:1},
+    {t:"Tampung sebagai poin menarik dan ajak membahasnya berdua setelah briefing selesai",q:3},
+    {t:"Persilakan seluruh tim memberi pendapat, lalu putuskan bersama lewat suara terbanyak",q:2}]},
+/* --- DISIPLIN --- */
+{k:"dis", t:"Anggota dengan kinerja terbaik di tim mulai rutin terlambat 10–15 menit, sementara anggota yang biasa-biasa saja justru selalu tepat waktu.",
+ o:[{t:"Gali dulu penyebabnya lewat obrolan santai, tanpa menyebut kata teguran, agar ia tidak merasa diserang",q:3},
+    {t:"Umumkan penegasan aturan jam masuk ke seluruh tim tanpa menunjuk nama siapa pun",q:2},
+    {t:"Beri toleransi karena kontribusinya jauh di atas rata-rata — yang terpenting adalah hasil kerja",q:1},
+    {t:"Tegur secara pribadi dengan standar yang sama seperti kepada siapa pun, sekaligus gali penyebab keterlambatannya",q:4}]},
+{k:"dis", t:"Checklist kebersihan hari ini terisi lengkap \u201COK\u201D, padahal Anda melihat sendiri dua titik belum dikerjakan.",
+ o:[{t:"Minta petugasnya mengerjakan ulang titik yang terlewat dan awasi pengisian checklist beberapa hari ke depan",q:3},
+    {t:"Kerjakan sendiri dua titik itu dan ingatkan dengan santai, demi menjaga suasana tim tetap nyaman",q:1},
+    {t:"Panggil petugasnya, tunjukkan temuan, minta dikerjakan sekarang, dan catat sebagai pembinaan — checklist palsu adalah pelanggaran serius",q:4},
+    {t:"Perketat sistemnya: mulai besok checklist wajib disertai foto per titik",q:2}]},
+{k:"dis", t:"Dua anggota bertukar shift diam-diam tanpa lapor, sehingga serah terima area menjadi kacau.",
+ o:[{t:"Tegur keduanya, jelaskan dampaknya pada serah terima, lalu tetapkan aturan tukar shift wajib persetujuan tertulis SPV",q:4},
+    {t:"Cabut hak tukar shift untuk semua anggota agar kejadian serupa tidak terulang",q:1},
+    {t:"Maklumi kali ini karena area tetap terjaga, namun minta mereka melapor lain kali",q:2},
+    {t:"Terbitkan aturan tukar shift wajib izin mulai sekarang, tanpa perlu mengungkit kejadian kemarin",q:3}]},
+/* --- INTEGRITAS --- */
+{k:"int", t:"Saat menghitung setoran kasir, Anda menemukan kelebihan uang Rp150.000 yang tidak tercatat di sistem.",
+ o:[{t:"Simpan dalam amplop terpisah dengan catatan, dan laporkan bila selisihnya tidak kunjung ditemukan",q:3},
+    {t:"Masukkan ke kas kecil tim untuk kebutuhan operasional mendadak — toh bukan untuk kantong pribadi",q:1},
+    {t:"Catat kelebihan itu secara resmi, laporkan ke atasan/keuangan, dan telusuri sumbernya bersama kasir",q:4},
+    {t:"Kembalikan ke laci kasir agar besok tercatat sebagai koreksi harian",q:2}]},
+{k:"int", t:"Manager meminta insiden kecil (pengunjung terpeleset, luka ringan) tidak usah ditulis di laporan, \u201Cbiar catatan keselamatan bulan ini bersih.\u201D",
+ o:[{t:"Ikuti permintaan manager — beliau yang menanggung risikonya, dan menjaga hubungan baik itu penting",q:1},
+    {t:"Tetap tulis laporan sesuai prosedur, lalu sampaikan kepada manager dengan sopan bahwa ini demi perlindungan semua pihak",q:4},
+    {t:"Usulkan jalan tengah: catat sebagai \u201Ccatatan pengawasan\u201D, bukan insiden",q:2},
+    {t:"Tulis laporannya tetapi simpan sebagai arsip pribadi dulu, serahkan bila kelak diminta pihak berwenang",q:3}]},
+{k:"int", t:"Anda melihat kertas password akun POS milik SPV shift lain tertempel di laci, dan kasir kadang memakai akun itu ketika akunnya sendiri logout.",
+ o:[{t:"Ambil kertas password itu, simpan, dan beri tahu pemiliknya nanti",q:2},
+    {t:"Ingatkan kasir agar berhenti memakai akun milik orang lain",q:3},
+    {t:"Itu di luar area tanggung jawab Anda — cukup pastikan tim Anda sendiri tertib",q:1},
+    {t:"Amankan: minta password segera diganti, tegur praktik pinjam akun, dan laporkan celah ini agar dibuatkan aturan",q:4}]},
+/* --- KOMUNIKASI --- */
+{k:"kom", t:"Harga tiket naik 20% mulai besok. Anda harus menyiapkan tim front desk yang akan menghadapi protes pengunjung.",
+ o:[{t:"Gelar briefing khusus: jelaskan alasan kenaikan, latih 2–3 kalimat jawaban standar untuk protes, dan tetapkan jalur eskalasi",q:4},
+    {t:"Minta tim mengarahkan semua pertanyaan soal harga langsung kepada Anda agar jawaban seragam",q:1},
+    {t:"Kirim pengumuman tertulis lengkap dengan tanya-jawab di grup agar semua terdokumentasi",q:3},
+    {t:"Sampaikan singkat di briefing pagi dan minta tim menjawab protes dengan bijak",q:2}]},
+{k:"kom", t:"Beredar rumor akan ada pengurangan karyawan, dan produktivitas mulai turun. Anda sendiri belum tahu kebenarannya.",
+ o:[{t:"Tenangkan tim: \u201Cfokus bekerja saja, rumor tidak perlu dipikirkan\u201D",q:2},
+    {t:"Akui kepada tim bahwa Anda belum punya informasi resmi, janjikan mencari kejelasan, dan tepati dengan pembaruan berkala meski jawabannya \u201Cbelum ada keputusan\u201D",q:4},
+    {t:"Yakinkan tim bahwa tidak akan ada pengurangan, supaya suasana kembali tenang",q:1},
+    {t:"Cari tahu dulu diam-diam ke manajemen, dan baru bicara ke tim setelah memegang jawaban pasti",q:3}]},
+{k:"kom", t:"Laporan mingguan Anda dikritik manager: \u201Cterlalu panjang, saya tidak sempat membacanya.\u201D Padahal menurut Anda semua datanya penting.",
+ o:[{t:"Pertahankan format karena data lengkap melindungi tim bila terjadi masalah, namun tandai bagian penting dengan sorotan",q:2},
+    {t:"Buat ringkasan poin-poin di halaman depan, sisanya tetap seperti biasa",q:3},
+    {t:"Tanyakan format yang ia butuhkan, lalu susun ringkasan satu halaman dengan lampiran data lengkap bagi yang perlu detail",q:4},
+    {t:"Kirim data mentahnya saja dan persilakan manager mengolah sesuai kebutuhan beliau",q:1}]},
+/* --- PROBLEM SOLVING --- */
+{k:"ps", t:"Sabtu ramai, sistem tiket online error. Antrean gerbang membludak dan teknisi vendor baru tiba dua jam lagi.",
+ o:[{t:"Tutup loket sementara dan minta pengunjung bersabar hingga teknisi datang, demi mencegah kekacauan pencatatan uang",q:1},
+    {t:"Aktifkan mode manual yang terkontrol (nota bernomor + petugas pencatat), pisahkan jalur online dan onsite, umumkan estimasi, dan laporkan ke manager",q:4},
+    {t:"Prioritaskan yang sudah membayar online untuk masuk lebih dulu; sisanya menunggu sistem pulih",q:2},
+    {t:"Buka pencatatan manual sederhana di buku dan lakukan rekonsiliasi setelah sistem kembali normal",q:3}]},
+{k:"ps", t:"Dua masalah datang bersamaan: seluncuran macet berjalan lambat (masih aman tetapi antrean memanjang) dan gazebo VIP bocor tepat di atas tamu rombongan.",
+ o:[{t:"Tangani berurutan sesuai laporan yang masuk lebih dulu, agar adil dan tidak ada yang terlewat",q:1},
+    {t:"Prioritaskan penanganan seluncuran sampai tuntas karena menyangkut wahana; tamu VIP dimohon menunggu",q:3},
+    {t:"Kerjakan paralel: teknisi ke seluncuran (potensi keselamatan), Anda atau staf senior memindahkan tamu VIP dengan kompensasi kecil",q:4},
+    {t:"Prioritaskan tamu VIP karena nilai bisnisnya besar; operasi seluncuran diperlambat sementara",q:2}]},
+{k:"ps", t:"Pengeluaran bahan pembersih tim Anda naik 40% dua bulan berturut-turut, padahal tidak ada penambahan area.",
+ o:[{t:"Ganti merek bahan ke yang lebih murah agar anggaran kembali normal",q:1},
+    {t:"Kumpulkan tim, minta semua lebih hemat mulai minggu ini, dan pantau perkembangannya",q:3},
+    {t:"Telusuri datanya dulu: bandingkan pemakaian per area dan per shift, cocokkan stok fisik dengan catatan, baru simpulkan penyebabnya (boros, bocor, atau salah catat)",q:4},
+    {t:"Perketat kontrol: bahan hanya boleh diambil dengan persetujuan Anda setiap hari",q:2}]},
+/* --- PENGEMBANGAN TIM --- */
+{k:"tim", t:"Anggota senior yang paling mahir teknis selalu menolak mengajari junior: \u201Cdulu saya juga belajar sendiri.\u201D",
+ o:[{t:"Hormati gayanya — orang hebat tidak selalu bisa mengajar; biarkan junior belajar dengan mengamati",q:1},
+    {t:"Ajak bicara: gali keberatannya, tunjukkan bahwa nilainya justru naik sebagai mentor, beri peran resmi dan pengakuan, mulai dari satu junior dulu",q:4},
+    {t:"Jadikan kegiatan membimbing junior sebagai bagian penilaian kinerja seluruh senior",q:3},
+    {t:"Pasangkan junior dengan senior lain yang lebih terbuka untuk mengajar",q:2}]},
+{k:"tim", t:"Anda mendapat jatah anggaran pelatihan hanya untuk 2 dari 10 anggota tim.",
+ o:[{t:"Kirim dua anggota berkinerja terbaik sebagai bentuk penghargaan",q:3},
+    {t:"Kirim dua yang kinerjanya paling lemah agar terangkat oleh pelatihan",q:1},
+    {t:"Pilih berdasar gabungan kebutuhan operasional, potensi berkembang, dan kesediaan menularkan ilmu; umumkan kriterianya terbuka dan wajibkan sesi berbagi sepulang pelatihan",q:4},
+    {t:"Gilir atau undi agar semua anggota merasa diperlakukan adil",q:2}]},
+{k:"tim", t:"Anggota paling berbakat mengeluh bosan karena pekerjaannya terlalu mudah, dan mulai sering izin.",
+ o:[{t:"Beri penugasan menantang yang bermakna (PIC perbaikan antrean, mentor junior) dengan target jelas dan jalur diskusi rutin",q:4},
+    {t:"Tambah beban kerja hariannya karena kapasitasnya memang lebih besar",q:2},
+    {t:"Nasihati bahwa setiap pekerjaan ada masa bosannya, dan kesabaran adalah kunci karir",q:1},
+    {t:"Rekomendasikan namanya ke manager untuk rotasi atau promosi pada kesempatan berikutnya",q:3}]},
+/* --- INOVASI --- */
+{k:"ino", t:"Kasir junior mengusulkan sistem antrean bernomor via WhatsApp. Idenya menarik, tetapi menurut Anda belum matang.",
+ o:[{t:"Apresiasi terbuka, ajak dia mematangkannya bersama, lalu usulkan uji coba kecil di satu loket pada hari sepi dengan ukuran keberhasilan yang jelas",q:4},
+    {t:"Simpan dulu sampai musim ramai lewat, baru dibahas dengan kepala dingin",q:2},
+    {t:"Sempurnakan sendiri konsepnya lalu presentasikan sebagai program tim",q:1},
+    {t:"Teruskan usulan itu apa adanya ke manager atas nama si kasir",q:3}]},
+{k:"ino", t:"SOP pembersihan wahana memakan 45 menit. Anda menemukan urutan kerja baru yang sama amannya tetapi hanya 30 menit.",
+ o:[{t:"Terapkan dulu di tim sendiri sambil menyusun usulan resminya",q:3},
+    {t:"Dokumentasikan temuan beserta buktinya, lalu usulkan resmi uji coba terbatas dengan pengawasan sebelum dijadikan SOP baru",q:4},
+    {t:"Tetap gunakan SOP lama — penghematan 15 menit tidak sebanding risiko menyalahi prosedur",q:1},
+    {t:"Bagikan sebagai \u201Ctips pribadi\u201D ke tim tanpa menyentuh SOP resmi",q:2}]},
+{k:"ino", t:"Manajemen menantang setiap SPV mengusulkan satu ide penghematan. Ide termudah Anda: mengurangi frekuensi penggantian air fitur mini — masih di ambang aman regulasi.",
+ o:[{t:"Usulkan ide air itu dengan lampiran data ambang aman dan rencana pemantauan ketat",q:3},
+    {t:"Gabungkan beberapa penghematan kecil agar setidaknya ada usulan yang disetor",q:2},
+    {t:"Usulkan pemangkasan jam kerja karyawan harian, karena dampak angkanya paling besar",q:1},
+    {t:"Cari alternatif yang tidak menyentuh margin keselamatan atau kualitas (penjadwalan pompa, timer lampu, penataan lembur), meski butuh usaha lebih",q:4}]},
+/* --- ADMINISTRASI --- */
+{k:"adm", t:"Laporan harian shift Anda sering telat karena data serah terima dari shift sebelumnya selalu terlambat masuk.",
+ o:[{t:"Tunggu data lengkap agar laporan akurat meski telat — akurasi di atas kecepatan",q:2},
+    {t:"Benahi akarnya: sepakati format dan jam serah terima dengan SPV shift sebelumnya, eskalasi bila tak membaik, dan catat waktu terima sebagai bukti",q:4},
+    {t:"Isi bagian shift sebelumnya berdasarkan kondisi yang Anda lihat sendiri saat masuk",q:1},
+    {t:"Kirim laporan tepat waktu dengan kolom shift sebelumnya ditandai \u201Cmenunggu data\u201D, lalu susulkan revisinya",q:3}]},
+{k:"adm", t:"Anda diminta membuat rekap bulanan untuk pertama kali, tetapi datanya tersebar di buku tulis, WhatsApp, dan file Excel dengan format berbeda-beda.",
+ o:[{t:"Rapikan dulu seluruh data lama ke satu format sebelum menyusun rekap, agar hasilnya sempurna",q:3},
+    {t:"Rekap bulan ini apa adanya dengan mencantumkan catatan sumber, lalu bangun satu format tunggal untuk bulan depan agar masalah tak berulang",q:4},
+    {t:"Minta tiap anggota menyetor rekap versinya masing-masing lalu Anda gabungkan",q:1},
+    {t:"Rekap dari sumber yang paling lengkap saja (Excel), sisanya diabaikan",q:2}]},
+{k:"adm", t:"Audit internal menemukan selisih catatan stok tiket gelang sebanyak 25 pcs pada catatan Anda dua minggu lalu.",
+ o:[{t:"Laporkan langsung sebagai kehilangan agar prosedur penggantian segera berjalan",q:3},
+    {t:"Telusuri jejaknya (serah terima, pembatalan, penjualan manual saat sistem error), lalu laporkan temuan apa adanya berikut perbaikan pencatatannya",q:4},
+    {t:"Sampaikan ke auditor bahwa kemungkinan salah catat oleh shift lain, karena buku memang dipakai bergantian",q:1},
+    {t:"Koreksi catatan periode ini dengan keterangan \u201Cpenyesuaian\u201D agar saldo kembali sesuai fisik",q:2}]}
 ],
 nalar: [
 {t:"Shift pagi butuh 12 petugas. Yang hadir 9 orang, dan 1 di antaranya izin pulang jam 13.00. Berapa kekurangan petugas SETELAH jam 13.00?", o:["2 orang","3 orang","4 orang","5 orang"], c:2},
 {t:"Harga tiket Rp35.000. Target pendapatan tiket hari ini Rp10.500.000. Minimal berapa pengunjung?", o:["250","300","325","350"], c:1},
-{t:"3 petugas membersihkan 1 kolam dalam 2 jam. Dengan 6 petugas, berapa lama membersihkan 2 kolam?", o:["1 jam","2 jam","3 jam","4 jam"], c:1},
-{t:"Jam kerja 08.00–16.00 dengan istirahat total 1 jam. Berapa jam kerja efektif?", o:["6 jam","6,5 jam","7 jam","8 jam"], c:2},
 {t:"Tiket Rp45.000 didiskon 20%. Berapa harga setelah diskon?", o:["Rp34.000","Rp35.000","Rp36.000","Rp40.000"], c:2},
 {t:"Stok pelampung 120 buah, hasil pengecekan 15% rusak. Berapa yang masih layak pakai?", o:["96","100","102","105"], c:2},
 {t:"Standar pengawasan 1 pool guard untuk maksimal 25 pengunjung di air. Saat ini 180 pengunjung di kolam. Minimal butuh berapa pool guard?", o:["6","7","8","9"], c:2},
-{t:"Lanjutkan pola: 5, 10, 20, 40, ...?", o:["50","60","70","80"], c:3},
 {t:"Shift A: 07.00–15.00. Shift B: 14.00–22.00. Berapa lama kedua shift bertugas bersamaan?", o:["Tidak ada","30 menit","1 jam","2 jam"], c:2},
-{t:"Upah lembur = 1,5 × upah normal. Upah normal Rp20.000/jam. Berapa upah lembur 3 jam?", o:["Rp60.000","Rp80.000","Rp90.000","Rp120.000"], c:2}
+{t:"Upah lembur = 1,5 × upah normal. Upah normal Rp20.000/jam. Berapa upah lembur 3 jam?", o:["Rp60.000","Rp80.000","Rp90.000","Rp120.000"], c:2},
+{t:"Lanjutkan pola: 5, 10, 20, 40, ...?", o:["50","60","70","80"], c:3}
 ]},
 
 /* ==================== MANAGER ==================== */
 manager: {
 sjt: [
-{k:"orang", t:"SPV terbaik Anda berniat resign karena ditawari gaji lebih tinggi di perusahaan lain.",
- o:[{t:"Langsung naikkan gajinya menyamai tawaran itu",w:2},
-    {t:"Gali motivasinya secara utuh, tinjau apa yang bisa perusahaan tawarkan (jenjang, peran, bukan hanya uang), dan siapkan rencana suksesi apa pun hasilnya",w:4},
-    {t:"Relakan pergi tanpa perlu berbicara — rezeki orang masing-masing",w:1},
-    {t:"Tahan dia dengan menyinggung soal loyalitas dan balas budi",w:0}]},
-{k:"orang", t:"Dua SPV Anda saling menjatuhkan dan tim mereka ikut terbelah menjadi dua kubu.",
- o:[{t:"Biarkan bersaing — persaingan bagus untuk kinerja",w:0},
-    {t:"Pisahkan total wilayah kerja keduanya untuk selamanya",w:2},
-    {t:"Pecat salah satunya sebagai contoh",w:1},
-    {t:"Panggil keduanya, tetapkan target bersama yang memaksa kolaborasi, dan evaluasi kemajuannya berkala",w:4}]},
-{k:"orang", t:"Anda melihat staf junior yang sangat menonjol, tetapi SPV-nya tidak pernah mengusulkan namanya untuk berkembang.",
- o:[{t:"Bicarakan dengan SPV-nya tentang pengembangan kader, lalu beri si staf penugasan silang untuk mengujinya",w:4},
-    {t:"Promosikan langsung melangkahi SPV-nya",w:1},
-    {t:"Minta HRD memproses tanpa melibatkan SPV-nya",w:2},
-    {t:"Abaikan — pengembangan staf sepenuhnya urusan SPV",w:0}]},
-{k:"orang", t:"Evaluasi menunjukkan satu SPV lemah dalam mengelola orang, tetapi sangat kuat teknis dan loyal bertahun-tahun.",
- o:[{t:"Pertahankan seperti sekarang — loyalitasnya lebih berharga",w:1},
-    {t:"Desain ulang perannya ke jalur spesialis teknis, atau beri pendampingan manajerial terstruktur dengan target waktu",w:4},
-    {t:"Turunkan jabatannya sekarang juga",w:2},
-    {t:"Berhentikan dan cari SPV baru",w:0}]},
-{k:"strategi", t:"Pengunjung hari kerja sepi terus-menerus, sementara akhir pekan membludak sampai banyak komplain.",
- o:[{t:"Analisis data pengunjung, lalu susun strategi pemerataan: harga/paket khusus weekday (sekolah, instansi) sambil membenahi kapasitas weekend",w:4},
-    {t:"Fokus membenahi pengalaman weekend saja — di sanalah uangnya",w:2},
-    {t:"Berlakukan diskon besar permanen untuk semua hari",w:1},
-    {t:"Tidak ada masalah — memang begitu pola bisnis wisata",w:0}]},
-{k:"strategi", t:"Anggaran tahunan divisi Anda dipotong 20%, dan semua kepala bagian bersikeras anggarannya tak bisa dikurangi.",
- o:[{t:"Potong rata 20% di semua bagian supaya adil",w:2},
-    {t:"Prioritaskan berdasar dampak ke keselamatan dan pendapatan, potong berbasis data, lalu komunikasikan alasannya terbuka",w:4},
-    {t:"Potong bagian yang paling tidak banyak protes",w:0},
-    {t:"Tunda keputusan selama mungkin sampai dipaksa keadaan",w:1}]},
-{k:"strategi", t:"Kompetitor baru membuka waterpark 30 menit dari lokasi Anda dengan harga tiket lebih murah.",
- o:[{t:"Langsung banting harga di bawah mereka",w:1},
-    {t:"Tiru semua fasilitas unggulannya secepat mungkin",w:2},
-    {t:"Pelajari mereka, perkuat pembeda Arcelio (pengalaman, kebersihan, layanan), rawat pelanggan setia — hindari perang harga membabi buta",w:4},
-    {t:"Abaikan — pelanggan kami pasti setia",w:0}]},
-{k:"strategi", t:"Ada tawaran kontrak gathering besar dari pabrik, tetapi jadwalnya bentrok dengan hari ramai reguler.",
- o:[{t:"Terima langsung — rezeki jangan ditolak",w:2},
-    {t:"Tolak langsung — terlalu merepotkan operasional",w:1},
-    {t:"Hitung nilai kontrak vs potensi kehilangan pengunjung reguler dan risiko reputasi, lalu negosiasikan jadwal atau pemisahan area",w:4},
-    {t:"Terima, lalu kurangi kualitas layanan pengunjung reguler diam-diam",w:0}]},
-{k:"tatakelola", t:"Anda menemukan kejanggalan di laporan keuangan yang bila dibuka bisa memalukan divisi Anda sendiri.",
- o:[{t:"Selesaikan diam-diam di internal, tak perlu ada yang tahu",w:2},
-    {t:"Lakukan audit internal terbuka dan laporkan ke atas apa pun hasilnya",w:4},
-    {t:"Tutup rapat — karena nila setitik rusak susu sebelanga",w:0},
-    {t:"Laporkan hanya jika suatu saat ditanya",w:1}]},
-{k:"tatakelola", t:"Pemilik meminta Anda merekrut kerabatnya yang jelas tidak memenuhi standar untuk sebuah posisi penting.",
- o:[{t:"Terima langsung — dia pemilik perusahaan",w:1},
-    {t:"Tolak keras tanpa menawarkan jalan keluar",w:2},
-    {t:"Sampaikan penilaian objektif beserta risikonya, lalu tawarkan alternatif: posisi yang sesuai kemampuannya atau pelatihan lebih dulu",w:4},
-    {t:"Terima, lalu diam-diam membuatnya gagal agar keluar sendiri",w:0}]},
-{k:"tatakelola", t:"Seorang SPV memanipulasi laporan agar target timnya tercapai dan bonus tim cair.",
- o:[{t:"Diamkan — toh angka perusahaan jadi terlihat bagus",w:0},
-    {t:"Investigasi, batalkan bonus yang tidak sah, beri sanksi sesuai aturan, lalu perbaiki sistem kontrolnya",w:4},
-    {t:"Tegur ringan saja — niatnya membela timnya yang kerja keras",w:1},
-    {t:"Pecat saat itu juga tanpa investigasi",w:2}]},
-{k:"tatakelola", t:"Keputusan Anda bulan lalu ternyata keliru dan merugikan. Tim mulai membicarakannya di belakang.",
- o:[{t:"Akui terbuka di forum tim, jelaskan pembelajarannya dan langkah koreksinya",w:4},
-    {t:"Revisi arah diam-diam tanpa pernah mengakui",w:2},
-    {t:"Pertahankan keputusan demi menjaga wibawa",w:0},
-    {t:"Alihkan pembicaraan tim ke isu lain",w:1}]},
-{k:"bisnis", t:"Pendapatan naik 15%, tetapi biaya operasional naik 25% pada periode yang sama. Langkah PERTAMA Anda?",
- o:[{t:"Naikkan harga tiket segera untuk menutup selisihnya",w:2},
-    {t:"Bedah struktur biaya: temukan pos kenaikan terbesar dan mana yang tidak produktif",w:4},
-    {t:"Kurangi karyawan sekarang — biaya terbesar biasanya gaji",w:1},
-    {t:"Rayakan — yang penting pendapatan naik",w:0}]},
-{k:"bisnis", t:"71 Kitchen ramai pembeli tetapi marginnya sangat tipis.",
- o:[{t:"Analisis per menu: HPP tiap item, dorong item bermargin tinggi, evaluasi porsi dan waste",w:4},
-    {t:"Naikkan semua harga 20% serentak",w:2},
-    {t:"Tutup F&B, fokus ke tiket saja",w:1},
-    {t:"Tambah jenis menu sebanyak-banyaknya agar makin ramai",w:0}]},
-{k:"bisnis", t:"Ada usulan investasi wahana baru Rp500 juta dengan estimasi menambah 100 pengunjung/hari. Bagaimana cara Anda menilai kelayakannya?",
- o:[{t:"Hitung perkiraan balik modal (payback) saja — kalau di bawah 5 tahun, jalan",w:2},
-    {t:"Hitung payback DAN bandingkan dengan alternatif penggunaan dana lain, sambil menguji seberapa realistis estimasi pengunjungnya",w:4},
-    {t:"Langsung eksekusi — wahana baru pasti menarik pengunjung",w:1},
-    {t:"Putuskan berdasar firasat dan tren kompetitor",w:0}]},
-{k:"bisnis", t:"Data parkir dan tiket menunjukkan pengunjung dari luar kota meningkat signifikan.",
- o:[{t:"Naikkan harga — mereka datang jauh, pasti mau bayar berapa pun",w:1},
-    {t:"Bangun penginapan sendiri secepatnya",w:2},
-    {t:"Jajaki paket kerja sama (hotel, travel, bundling tiket) dan evaluasi jam operasional serta fasilitas untuk pengunjung jarak jauh",w:4},
-    {t:"Tidak relevan — dari mana pun asalnya sama saja",w:0}]},
-{k:"ubah", t:"Manajemen memutuskan sistem tiket beralih penuh ke digital dalam 2 bulan. Tim lapangan resisten.",
- o:[{t:"Susun rencana perubahan: uji coba bertahap, pelatihan, tunjuk staf 'juara' di tiap tim, jelaskan manfaat, buka jalur masukan",w:4},
-    {t:"Terapkan serentak di hari H — dipaksa nanti juga terbiasa",w:1},
-    {t:"Serahkan sepenuhnya kepada vendor sistemnya",w:2},
-    {t:"Ulur-ulur waktunya diam-diam melebihi tenggat",w:0}]},
-{k:"ubah", t:"Divisi operasional dan marketing saling menyalahkan atas kegagalan sebuah event besar.",
- o:[{t:"Cari siapa yang paling salah dan jatuhkan sanksi",w:1},
-    {t:"Gelar evaluasi bersama yang berfokus pada proses (bukan orang), lalu perbaiki alur koordinasi dan tetapkan satu PIC untuk event berikutnya",w:4},
-    {t:"Ambil alih sendiri semua koordinasi event selamanya",w:2},
-    {t:"Hentikan program event agar tidak ada konflik lagi",w:0}]},
-{k:"ubah", t:"Anda ingin menerapkan KPI baru; para SPV mengeluh itu menambah beban administrasi.",
- o:[{t:"Batalkan KPI-nya — kenyamanan tim lebih penting",w:0},
-    {t:"Jalankan penuh apa adanya — namanya juga bekerja",w:1},
-    {t:"Tunda satu tahun sampai suasana kondusif",w:2},
-    {t:"Sederhanakan pengukurannya, mulai dari indikator terpenting, otomasi input datanya, dan jelaskan 'kenapa'-nya",w:4}]},
-{k:"ubah", t:"Prakiraan cuaca menunjukkan musim hujan panjang akan menekan kunjungan 3 bulan ke depan.",
- o:[{t:"Tutup sementara sampai musim membaik",w:1},
-    {t:"Beroperasi normal tanpa penyesuaian apa pun",w:0},
-    {t:"Siapkan skenario: produk/event ramah hujan, kendalikan biaya variabel, dan jadwalkan perawatan besar justru di masa sepi",w:4},
-    {t:"Langkah pertama: putus karyawan kontrak untuk menekan biaya",w:2}]}
+/* --- KEPEMIMPINAN --- */
+{k:"kep", t:"Dua SPV Anda bergaya bertolak belakang: yang satu keras — hasil bagus tetapi timnya sering resign; yang satu lunak — timnya betah tetapi target kerap meleset.",
+ o:[{t:"Pertemukan keduanya secara rutin agar saling belajar dari gaya masing-masing",q:3},
+    {t:"Biarkan keduanya dengan gayanya — keberagaman gaya itu sehat selama masing-masing punya sisi kuat",q:1},
+    {t:"Tetapkan standar ganda yang eksplisit bagi keduanya: hasil DAN kesehatan tim (turnover, kepuasan) sama-sama masuk penilaian, lalu dampingi sesuai kelemahan masing-masing",q:4},
+    {t:"Rotasi silang sebagian anggota tim mereka agar dua gaya itu saling menyeimbangkan",q:2}]},
+{k:"kep", t:"Anda harus mengumumkan pembekuan kenaikan gaji tahun ini karena kondisi keuangan — tepat setelah tahun kerja terberat tim.",
+ o:[{t:"Sampaikan langsung tatap muka: kondisi apa adanya secukupnya, akui kontribusi tim, jelaskan apa yang tetap diupayakan perusahaan di luar gaji, dan kapan keputusan ini ditinjau ulang",q:4},
+    {t:"Sampaikan bertahap: kabarkan dulu bahwa \u201Csedang diperjuangkan\u201D, umumkan pembekuannya bulan depan agar tidak berbenturan dengan momen lelah",q:1},
+    {t:"Terbitkan surat resmi yang menjelaskan kondisi keuangan secara rinci demi transparansi penuh",q:3},
+    {t:"Bekali tiap SPV dengan panduan tertulis untuk menyampaikannya ke tim masing-masing",q:2}]},
+{k:"kep", t:"Program unggulan yang Anda perjuangkan setahun dibatalkan direksi. Tim yang mengerjakannya sedang menunggu kabar.",
+ o:[{t:"Sampaikan bahwa program \u201Cditunda untuk evaluasi\u201D agar semangat tim tidak langsung jatuh",q:2},
+    {t:"Sampaikan sendiri secepatnya: keputusan beserta alasannya, akui rasa kecewa, tegaskan nilai kerja mereka, lalu arahkan energi ke prioritas baru",q:4},
+    {t:"Tunggu dokumen keputusan resmi terbit dulu agar informasi yang Anda bawa akurat",q:3},
+    {t:"Ajak tim menyusun argumen banding ke direksi — kerja setahun layak diperjuangkan sampai akhir",q:1}]},
+/* --- DISIPLIN --- */
+{k:"dis", t:"Data kehadiran menunjukkan SPV paling senior sering pulang lebih awal — tetapi kinerja divisinya justru yang terbaik.",
+ o:[{t:"Kelola lewat target, bukan jam: selama divisinya terbaik, jam kerja fleksibel adalah cara kerja modern",q:2},
+    {t:"Bicarakan langsung: konfirmasi datanya, tegaskan bahwa standar kehadiran bagi pemimpin justru lebih ketat karena menjadi teladan, dan sepakati perbaikan",q:4},
+    {t:"Titipkan teguran melalui SPV lain yang dekat dengannya agar tidak terkesan konfrontatif",q:1},
+    {t:"Terapkan absensi digital yang ketat untuk semua level tanpa perlu membahas individu tertentu",q:3}]},
+{k:"dis", t:"Tenggat laporan bulanan ke pusat selalu Anda penuhi — tetapi caranya dengan mengejar para SPV hingga larut malam di dua hari terakhir, setiap bulan.",
+ o:[{t:"Bongkar jadwalnya: majukan tenggat internal SPV ke pertengahan bulan dengan data berjalan, sisakan waktu cadangan, dan otomasi bagian yang berulang",q:4},
+    {t:"Ajukan ke pusat agar tenggat dimundurkan, mengingat beban kerja lapangan",q:2},
+    {t:"Pertahankan pola sekarang namun berikan kompensasi lembur yang layak untuk dua hari itu",q:3},
+    {t:"Jadikan ketahanan bekerja di bawah tekanan tenggat sebagai bagian dari budaya divisi — dunia kerja memang demikian",q:1}]},
+{k:"dis", t:"Anda menyadari kebiasaan buruk sendiri: tiga bulan terakhir dokumen persetujuan vendor Anda tandatangani menumpuk tanpa sempat dibaca detail.",
+ o:[{t:"Hentikan polanya: jadwalkan slot review mingguan, wajibkan ringkasan satu halaman dari pengusul, dan delegasikan verifikasi teknis dengan tanggung jawab yang jelas",q:4},
+    {t:"Mulai sekarang baca sendiri seluruh detail dokumen, walaupun menyita waktu operasional",q:3},
+    {t:"Percayakan pada SPV pengusul — selama ini toh tidak pernah ada masalah",q:1},
+    {t:"Minta admin membubuhkan paraf verifikasi lebih dulu, sehingga Anda cukup mempercayai paraf itu",q:2}]},
+/* --- INTEGRITAS --- */
+{k:"int", t:"Auditor menemukan SPV kepercayaan Anda memakai fasilitas venue untuk acara keluarganya tanpa membayar — tiga kali. Ia pernah berjasa besar menyelamatkan karir Anda.",
+ o:[{t:"Proses sesuai aturan tanpa pengecualian; sampaikan langsung kepadanya bahwa justru karena kedekatan itu Anda tidak boleh mengintervensi, dan laporkan lengkap",q:4},
+    {t:"Minta ia mengganti seluruh biaya secara diam-diam disertai peringatan pribadi yang keras",q:2},
+    {t:"Serahkan penanganannya sepenuhnya kepada HRD karena Anda punya konflik kepentingan",q:3},
+    {t:"Tunda prosesnya hingga momen penilaian tahunan agar bisa ditangani sebagai bagian evaluasi menyeluruh",q:1}]},
+{k:"int", t:"Calon vendor besar menawarkan \u201Cprogram loyalitas\u201D: cashback pribadi 2% dari nilai kontrak. Katanya, \u201Cini standar industri, semua manager menerima.\u201D",
+ o:[{t:"Tolak untuk diri sendiri, lalu lanjutkan proses seleksi vendor seperti biasa seolah tidak terjadi apa-apa",q:3},
+    {t:"Terima, tetapi salurkan seluruhnya untuk kesejahteraan karyawan secara terbuka",q:1},
+    {t:"Minta cashback itu dialihkan resmi menjadi tambahan diskon pada kontrak perusahaan",q:2},
+    {t:"Tolak tegas, dokumentasikan tawarannya, laporkan ke manajemen, dan pertimbangkan ulang kelayakan vendor tersebut dalam seleksi",q:4}]},
+{k:"int", t:"Kunjungan bulan ini di bawah target. Staf admin menunjukkan: bila 300 tiket komplimen sponsor digeser ke kategori \u201Cberbayar promo\u201D, target tercapai di atas kertas.",
+ o:[{t:"Tolak; laporkan angka apa adanya disertai analisis penyebab dan rencana perbaikan — kredibilitas data adalah aset jangka panjang",q:4},
+    {t:"Tanyakan dulu pendapat atasan apakah penggeseran semacam ini dapat diterima",q:1},
+    {t:"Laporkan apa adanya, namun tampilkan juga angka \u201Ctermasuk komplimen\u201D sebagai pembanding konteks",q:3},
+    {t:"Gunakan penggeseran itu sekali ini saja, sambil menyiapkan perbaikan riil untuk bulan depan",q:2}]},
+/* --- KOMUNIKASI --- */
+{k:"kom", t:"Konflik divisi operasional vs marketing memanas di grup WhatsApp kerja — saling sindir terbaca oleh semua karyawan.",
+ o:[{t:"Hubungi kedua kepala divisi secara pribadi tanpa menyentuh grup, agar masalah tidak membesar",q:3},
+    {t:"Redakan di grup dengan satu pesan tenang yang menegaskan norma, lalu pertemukan kedua kepala divisi hari itu juga untuk menyelesaikan akarnya",q:4},
+    {t:"Diamkan sampai reda sendiri — pemimpin yang ikut menanggapi justru membesarkan masalah",q:1},
+    {t:"Bubarkan grup gabungan dan pisahkan kanal komunikasi per divisi",q:2}]},
+{k:"kom", t:"Anda akan mempresentasikan kinerja divisi ke direksi. Datanya campuran: tiga indikator bagus, dua indikator buruk.",
+ o:[{t:"Fokuskan presentasi pada tiga yang bagus; siapkan jawaban untuk dua yang buruk hanya bila ditanya",q:2},
+    {t:"Tampilkan keduanya secara proporsional; untuk yang buruk sertakan diagnosis dan rencana perbaikan bertenggat — kendalikan narasi lewat kejujuran",q:4},
+    {t:"Minta staf menyusun ulang penyajian agar dua indikator buruk tampil dengan pembanding yang membuatnya terlihat wajar",q:1},
+    {t:"Buka dengan yang bagus, letakkan yang buruk di bagian akhir dengan porsi lebih ringkas",q:3}]},
+{k:"kom", t:"Di townhall, kebijakan baru Anda ditolak keras oleh karyawan senior yang vokal — disambut tepuk tangan sebagian hadirin.",
+ o:[{t:"Ingatkan forum bahwa townhall bukan tempat memperdebatkan kebijakan, dan arahkan keberatan ke jalur resmi",q:1},
+    {t:"Persilakan ia bicara sampai tuntas, lalu lanjutkan agenda tanpa membuka perdebatan",q:2},
+    {t:"Catat seluruh keberatannya dan janjikan jawaban tertulis yang lengkap dalam seminggu",q:3},
+    {t:"Tanggapi saat itu juga dengan tenang: hargai keberaniannya, jawab yang bisa dijawab, akui yang perlu dikaji, dan janjikan forum lanjutan — lalu tepati",q:4}]},
+/* --- PROBLEM SOLVING --- */
+{k:"ps", t:"Besok long weekend diprediksi rekor pengunjung; prakiraan sore: hujan petir 60%. Event musik outdoor bersponsor sudah dibayar penuh.",
+ o:[{t:"Susun dua skenario sekarang: rencana A outdoor dengan titik keputusan cuaca yang jelas (jam dan indikatornya), rencana B pindah indoor/ubah susunan acara — dan komunikasikan ke sponsor hari ini juga",q:4},
+    {t:"Jalankan sesuai rencana; bila hujan datang barulah evakuasi — panitia sudah berpengalaman",q:2},
+    {t:"Serahkan keputusan kepada sponsor karena mereka pemilik acaranya",q:1},
+    {t:"Sepakati dengan sponsor untuk memindahkan acara ke indoor sejak awal demi kepastian",q:3}]},
+{k:"ps", t:"Laba bulan ini anjlok. Tim keuangan menyodorkan tiga dugaan: kebocoran tiket, kenaikan biaya listrik, atau turunnya belanja per pengunjung. Data lengkap baru siap dua minggu lagi.",
+ o:[{t:"Bentuk tim investigasi khusus dengan mandat menyeluruh selama satu bulan",q:2},
+    {t:"Jalankan pemeriksaan cepat berbiaya murah pada ketiganya minggu ini (uji petik gerbang, pembacaan meter, sampling struk) untuk mempersempit dugaan, sambil data lengkap disiapkan",q:4},
+    {t:"Tunggu data lengkap dua minggu agar keputusan tidak salah arah",q:3},
+    {t:"Eksekusi dulu yang paling terkendali: gerakan hemat listrik serentak di semua area",q:1}]},
+{k:"ps", t:"Wahana andalan wajib overhaul 3 minggu — jadwalnya bertepatan puncak liburan sekolah. Menunda berarti melanggar jadwal pabrikan; menjalankan berarti kehilangan pendapatan puncak.",
+ o:[{t:"Kumpulkan fakta teknis dulu: konsultasikan toleransi dan opsi mitigasi ke pabrikan (inspeksi ekstra, overhaul parsial bertahap malam hari), hitung risiko-biaya tiap opsi, lalu putuskan dengan keselamatan sebagai batas",q:4},
+    {t:"Tunda tiga minggu sampai liburan usai, dengan pengawasan teknisi internal yang diperketat",q:1},
+    {t:"Jalankan overhaul penuh sesuai jadwal — keselamatan tidak bisa ditawar, relakan pendapatan puncaknya",q:3},
+    {t:"Overhaul hanya komponen yang tampak aus, agar wahana tetap bisa beroperasi sebagian",q:2}]},
+/* --- PENGEMBANGAN TIM --- */
+{k:"tim", t:"Seorang SPV Anda sangat bergantung: semua keputusan kecil dikonsultasikan dulu, padahal sudah dua tahun menjabat.",
+ o:[{t:"Ubah pola responsnya: tiap kali ia bertanya, balikkan \u201Cmenurutmu bagaimana? jalankan itu\u201D; beri batas wewenang tertulis, dan tinjau keputusannya berkala — bukan per kasus",q:4},
+    {t:"Tegur bahwa di levelnya seharusnya tidak lagi menanyakan hal-hal kecil",q:1},
+    {t:"Layani terus konsultasinya — lebih baik ia bertanya daripada membuat kesalahan yang mahal",q:2},
+    {t:"Kirim ia mengikuti pelatihan pengambilan keputusan untuk pemimpin",q:3}]},
+{k:"tim", t:"Program kaderisasi macet. Seorang SPV berterus terang: \u201Ckalau penggantinya sudah siap, posisi saya justru terancam.\u201D",
+ o:[{t:"Yakinkan lewat forum bahwa perusahaan tidak akan menggeser SPV yang loyal",q:1},
+    {t:"Wajibkan tiap SPV menyetorkan satu nama kader beserta rencana pembinaan setiap semester",q:2},
+    {t:"Rombak insentifnya: jadikan keberhasilan mencetak kader sebagai syarat promosi SPV, dan tunjukkan contoh nyata SPV yang justru naik karena penerusnya siap",q:4},
+    {t:"Ambil alih kaderisasi ke level Anda: Anda sendiri yang memilih dan membina talenta secara langsung",q:3}]},
+{k:"tim", t:"Survei internal: karyawan menilai jenjang karir di perusahaan \u201Cgelap, tergantung kedekatan.\u201D",
+ o:[{t:"Perbaiki diam-diam pada promosi-promosi berikutnya — biar hasil yang berbicara",q:2},
+    {t:"Bangun dan umumkan kriteria promosi yang transparan (kompetensi terukur + rekam jejak), lalu jalankan promosi berikutnya persis sesuai kriteria itu sebagai pembuktian",q:4},
+    {t:"Telusuri siapa sumber persepsi tersebut untuk diluruskan secara langsung",q:1},
+    {t:"Gelar sosialisasi yang menjelaskan bahwa selama ini promosi sudah berdasarkan kinerja",q:3}]},
+/* --- INOVASI --- */
+{k:"ino", t:"Kompetitor meluncurkan aplikasi tiket berfitur lengkap. Tim Anda mengusulkan meniru persis, sementara anggaran terbatas.",
+ o:[{t:"Amati dan pelajari 6 bulan dulu: lihat fitur mana yang benar-benar dipakai pengguna mereka",q:3},
+    {t:"Alokasikan anggaran besar sekaligus agar aplikasi kita selengkap milik kompetitor — jangan tanggung-tanggung",q:1},
+    {t:"Petakan dulu masalah pelanggan sendiri dari data (antrean? kunjungan ulang?), pilih 1–2 fitur berdampak terbesar untuk pasar Arcelio, rilis kecil-cepat lalu sempurnakan bertahap",q:4},
+    {t:"Tiru fitur intinya saja dalam versi sederhana agar cepat sejajar",q:2}]},
+{k:"ino", t:"Ide karyawan selama ini masuk kotak saran dan nyaris tak pernah ditindaklanjuti — orang pun berhenti mengusulkan.",
+ o:[{t:"Bangun ulang alurnya: forum ide berkala dengan keputusan cepat (jalan/tidak + alasannya), anggaran uji coba kecil, dan kredit terbuka bagi pengusul yang idenya berjalan",q:4},
+    {t:"Turun tangan pribadi: Anda baca sendiri semua saran dan balas satu per satu",q:2},
+    {t:"Sediakan hadiah menarik untuk ide terbaik setiap bulan",q:3},
+    {t:"Ganti kotak saran dengan survei tahunan terstruktur yang lebih mudah dianalisis",q:1}]},
+{k:"ino", t:"Uji coba inovasi Anda (gelang cashless) tersandung di bulan pertama: antrean top-up mengular dan komplain naik.",
+ o:[{t:"Hentikan dulu, kembalikan sistem lama, dan susun ulang rencana yang lebih matang sebelum mencoba lagi",q:3},
+    {t:"Evaluasi cepat dari data keluhan, perbaiki titik macetnya (tambah titik top-up, sediakan opsi campuran), komunikasikan perbaikannya terbuka, dan lanjutkan dengan target ukur ulang",q:4},
+    {t:"Telusuri siapa yang salah menghitung kapasitas top-up untuk dimintai pertanggungjawaban",q:1},
+    {t:"Pertahankan sistem berjalan apa adanya — masa adaptasi memang selalu ada gejolaknya",q:2}]},
+/* --- ADMINISTRASI --- */
+{k:"adm", t:"Setiap divisi memakai format laporan berbeda; menyatukannya untuk rekap direksi menghabiskan 3 hari kerja Anda tiap bulan.",
+ o:[{t:"Standardisasi bertahap: rancang satu template dengan masukan para SPV agar sesuai lapangan, uji sebulan berdampingan, lalu berlakukan penuh",q:4},
+    {t:"Wajibkan semua divisi pindah ke template baru bulan depan, tanpa masa transisi yang berlarut",q:2},
+    {t:"Tugaskan satu staf admin khusus yang pekerjaannya menyatukan format setiap bulan",q:3},
+    {t:"Ajukan ke direksi agar menerima laporan per divisi apa adanya, karena penyatuan format menghabiskan sumber daya",q:1}]},
+{k:"adm", t:"Keputusan penting 6 bulan lalu (perubahan jam operasional) ternyata tak terdokumentasi — tak ada notulen maupun persetujuan tertulis. Kini muncul sengketa dengan tenant soal itu.",
+ o:[{t:"Fokus selesaikan sengketa tenant lewat negosiasi dulu; pembenahan dokumentasi menyusul setelah keadaan tenang",q:3},
+    {t:"Rekonstruksi jejak yang masih bisa dikumpulkan (email, chat, kesaksian) secara jujur untuk sengketa itu, dan tegakkan disiplin baru: keputusan penting wajib ternotulen dan tersimpan terpusat",q:4},
+    {t:"Susun dokumen keputusan bertanggal mundur berdasarkan ingatan bersama, agar posisi hukum perusahaan kuat",q:1},
+    {t:"Serahkan sengketanya ke bagian legal dan lanjutkan operasional seperti biasa",q:2}]},
+{k:"adm", t:"Dashboard laporan pagi yang Anda andalkan ternyata diisi entri manual oleh staf — dan angkanya sering berbeda dengan sistem POS.",
+ o:[{t:"Terbitkan SOP entri manual berlapis: input oleh dua orang dan pencocokan setiap hari",q:3},
+    {t:"Audit alur datanya: temukan titik-titik entri manual, sambungkan metrik utama langsung ke sumber (POS), dan tandai mana angka otomatis vs manual selama masa transisi",q:4},
+    {t:"Beri sanksi kepada staf yang angkanya sering meleset agar lebih teliti",q:1},
+    {t:"Tinggalkan dashboard dan gunakan langsung laporan mentah dari POS",q:2}]}
 ],
 nalar: [
 {t:"Pendapatan bulan lalu Rp180 juta, bulan ini Rp207 juta. Berapa persen kenaikannya?", o:["12%","15%","18%","27%"], c:1},
 {t:"HPP sebuah menu Rp12.000, dijual Rp20.000. Berapa margin kotornya?", o:["30%","40%","50%","60%"], c:1},
 {t:"Biaya tetap Rp60 juta/bulan. Kontribusi margin per pengunjung Rp25.000. Berapa pengunjung/bulan agar impas (BEP)?", o:["1.800","2.000","2.400","3.000"], c:2},
 {t:"Investasi Rp500 juta menghasilkan tambahan laba bersih Rp12,5 juta/bulan. Berapa lama balik modal?", o:["30 bulan","36 bulan","40 bulan","48 bulan"], c:2},
-{t:"Dari 12 SPV, 3 orang resign dalam setahun. Berapa tingkat turnover-nya?", o:["20%","25%","30%","33%"], c:1},
 {t:"Harga Rp40.000 didiskon 25%, lalu harga hasil diskon dinaikkan 10%. Berapa harga akhirnya?", o:["Rp30.000","Rp32.000","Rp33.000","Rp34.000"], c:2},
-{t:"Rata-rata belanja pengunjung Rp55.000. Target pendapatan Rp16,5 juta/hari. Berapa pengunjung yang dibutuhkan?", o:["275","300","325","350"], c:1},
-{t:"Proyek A: untung Rp30 juta dengan peluang berhasil 80%. Proyek B: untung Rp50 juta dengan peluang 50%. Mana nilai harapannya lebih besar?", o:["Proyek A (Rp24 juta)","Proyek B (Rp25 juta)","Sama besar","Tidak bisa dihitung"], c:1},
+{t:"Proyek A: untung Rp30 juta dengan peluang berhasil 80%. Proyek B: untung Rp50 juta dengan peluang 50%. Mana nilai harapannya lebih besar?", o:["Proyek A (Rp24 juta)","Proyek B (Rp25 juta)","Sama besar","Tidak dapat dihitung"], c:1},
 {t:"Total staf pelaksana 40 orang dengan rasio ideal 1 SPV membawahi 8 staf. Berapa SPV yang dibutuhkan?", o:["4","5","6","8"], c:1},
 {t:"Lanjutkan pola: 2, 6, 12, 20, 30, ...?", o:["36","40","42","44"], c:2}
 ]}
@@ -907,7 +965,7 @@ function copyText(txt, btn, orig){
   $("#tk-jenis").addEventListener("change", ()=>{
     const j = $("#tk-jenis").value;
     if(j === "karakter"){ $("#tk-durasi").value = "25"; $("#tk-posisi").disabled = false; }
-    else { $("#tk-durasi").value = "35"; $("#tk-posisi").disabled = true; }
+    else { $("#tk-durasi").value = "40"; $("#tk-posisi").disabled = true; }
   });
   $("#btn-buat-token").addEventListener("click", buatToken);
   $("#btn-tk-refresh").addEventListener("click", loadTokens);
@@ -1462,28 +1520,34 @@ function renderDetailJenjang(){
   const b = J_BANK[cur.jenis];
   const jn = jenisNama(cur.jenis);
   const lab = matchLabel(r.skor);
-  const band = r.skor>=80 ? "Sangat siap — prioritaskan"
-    : r.skor>=65 ? "Siap dengan pendampingan"
-    : r.skor>=50 ? "Perlu pengembangan sebelum dipromosikan"
+  const band = r.skor>=75 ? "Sangat siap — prioritaskan"
+    : r.skor>=60 ? "Siap dengan pendampingan"
+    : r.skor>=45 ? "Perlu pengembangan sebelum dipromosikan"
     : "Belum siap untuk level ini";
+  const versiLama = Object.keys(r.komp||{}).some(k=>!KOMPETENSI[k]);
 
-  // jawaban SJT berisiko (bobot <=1) + kunci pembanding
+  // analisis jawaban ganda yang janggal
   const risiko = [];
-  b.sjt.forEach((q,i)=>{
-    const a = (cur.jawaban||[])[i];
-    if(!a) return;
-    const w = q.o[a-1].w;
-    if(w <= 1){
-      const best = q.o.find(o=>o.w===4);
-      risiko.push({no:i+1, t:q.t, pilih:q.o[a-1].t, w, best:best.t, k:KOMPETENSI[q.k]});
-    }
+  if(!versiLama) b.sjt.forEach((q,i)=>{
+    const a = (cur.jawaban||[])[i] || 0;
+    const bi = Math.floor(a/10), wi = a % 10;
+    if(!bi || !wi) return;
+    const qb = q.o[bi-1].q, qw = q.o[wi-1].q;
+    const issues = [];
+    if(qb <= 2) issues.push(`Memilih tindakan ${qb===1?"PALING KELIRU":"yang lemah"} sebagai “paling tepat”: “${q.o[bi-1].t}”`);
+    if(qw >= 3) issues.push(`Menandai tindakan ${qw===4?"TERBAIK":"yang baik"} sebagai “paling keliru”: “${q.o[wi-1].t}”`);
+    if(issues.length) risiko.push({ no:i+1, t:q.t, k:KOMPETENSI[q.k]||q.k, issues,
+      best:q.o.find(o=>o.q===4).t, worst:q.o.find(o=>o.q===1).t });
   });
-  // nalar yang salah
   const salahNalar = [];
-  b.nalar.forEach((q,j)=>{
+  if(!versiLama) b.nalar.forEach((q,j)=>{
     const a = (cur.jawaban||[])[b.sjt.length+j];
     if(a && a-1 !== q.c) salahNalar.push({no:b.sjt.length+j+1, t:q.t, pilih:q.o[a-1], benar:q.o[q.c]});
   });
+
+  // dua kategori terlemah
+  const katUrut = Object.keys(r.komp||{}).map(k=>({k, v:r.komp[k]})).sort((a,x)=>a.v-x.v);
+  const lemah = katUrut.slice(0,2).map(x=>KOMPETENSI[x.k]||x.k).join(" dan ");
 
   const ivKey = cur.jenis === "spv" ? "jenjang-spv" : "jenjang-manager";
 
@@ -1500,23 +1564,24 @@ function renderDetailJenjang(){
         <div><b>Tanggal &amp; waktu tes</b>${fmtTgl(cur.created_at)}</div>
         <div><b>Token</b>${cur.token||"—"}</div>
       </div>
-      ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu habis — ${cur.tidak_dijawab} soal tidak terjawab (bernilai 0).</div>`:""}
+      ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu habis — ${cur.tidak_dijawab} soal tidak lengkap terjawab (bernilai 0).</div>`:""}
+      ${versiLama?`<div class="note-info" style="background:var(--amber-soft)">⚠️ Hasil ini berasal dari versi bank soal lama — rincian per soal tidak dapat ditampilkan. Skor tetap valid untuk versinya.</div>`:""}
     </div>
 
     <div class="hl-match" style="border-color:${lab.c}">
       <div class="pct" style="color:${lab.c}">${r.skor}%<small style="color:${lab.c}">${lab.t}</small></div>
       <div>
         <h2>Skor Kesiapan ${cur.jenis==="spv"?"Supervisor":"Manager"}</h2>
-        <p><b>${band}.</b> Gabungan skenario penilaian situasional (bobot 70%: ${r.sjtPct}%) dan penalaran praktis (bobot 30%: ${r.nalarPct}% — benar ${r.benarNalar}/${b.nalar.length}).</p>
+        <p><b>${band}.</b> Gabungan skenario format ganda tepat/keliru (bobot 70%: ${r.sjtPct}%) dan penalaran praktis (bobot 30%: ${r.nalarPct}% — benar ${r.benarNalar}/${b.nalar.length}). Format ganda sengaja sulit ditebak — skor 60–70% sudah tergolong baik.</p>
       </div>
     </div>
 
     <div class="card">
       <h2>Validitas Pengerjaan</h2>
       <div class="validity">
-        <div class="vbox"><div class="vt">Soal terjawab</div>
+        <div class="vbox"><div class="vt">Soal terjawab lengkap</div>
           <div class="vv ${r.tidakDijawab>0?"warn":"ok"}">${b.sjt.length+b.nalar.length-(r.tidakDijawab||0)} <small>/ ${b.sjt.length+b.nalar.length}</small></div>
-          <div class="vd">${r.tidakDijawab>0?"Sebagian kosong karena waktu habis":"Semua soal terjawab"}</div></div>
+          <div class="vd">${r.tidakDijawab>0?"Sebagian tidak lengkap karena waktu habis":"Semua soal terjawab lengkap"}</div></div>
         <div class="vbox"><div class="vt">Fokus layar</div>
           <div class="vv ${(r.keluarLayar||0)===0?"ok":((r.keluarLayar||0)<3?"warn":"bad")}">${r.keluarLayar||0} <small>kali keluar</small></div>
           <div class="vd">${(r.keluarLayar||0)===0?"Tidak pernah meninggalkan layar":((r.keluarLayar||0)<3?"Sesekali berpindah layar — wajar":"Sering keluar layar — verifikasi kemandirian jawaban dgn tanya lisan")}</div></div>
@@ -1527,27 +1592,29 @@ function renderDetailJenjang(){
     </div>
 
     <div class="card">
-      <h2>Skor per Kompetensi (Skenario)</h2>
-      ${Object.keys(r.komp).map(k=>{
+      <h2>Kekuatan per Kategori</h2>
+      <p class="small">Persentase kekuatan pada 8 kategori kompetensi (masing-masing 3 skenario, skor maksimal 8/skenario).</p>
+      ${Object.keys(r.komp||{}).map(k=>{
         const v = r.komp[k]; const l = matchLabel(v);
         return `<div class="bar-row">
-          <div class="bl" style="font-size:12.5px">${KOMPETENSI[k]}</div>
+          <div class="bl" style="font-size:12px">${KOMPETENSI[k]||k}</div>
           <div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${l.c}"></div></div>
           <div class="bar-val">${v}</div></div>`;
       }).join("")}
-      <p class="small" style="margin-top:10px">Dua kompetensi terendah adalah bahan utama pendalaman wawancara di bawah.</p>
+      ${lemah?`<div class="note-info">Kategori terlemah: <b>${lemah}</b> — jadikan fokus utama pendalaman wawancara di bawah.</div>`:""}
     </div>
 
     <div class="card">
-      <h2>Jawaban Skenario Berisiko — Tanyakan Alasannya</h2>
-      ${risiko.length===0?`<p class="small">✅ Tidak ada pilihan berbobot rendah/berbahaya. Seluruh jawaban skenario berada di kategori cukup–terbaik.</p>`
-        : `<p class="small">Peserta memilih tindakan berbobot rendah pada ${risiko.length} skenario. Bacakan skenarionya di wawancara dan minta ia menjelaskan alasannya — kadang ada logika yang valid di baliknya.</p>` +
-          risiko.map(x=>`<div class="pair-box pair-bad">
-            <div class="small" style="font-weight:800">SOAL ${x.no} · ${x.k}</div>
-            <div style="margin-top:4px">${x.t}</div>
-            <div style="margin-top:6px">Dipilih: <span class="pv bad">${x.pilih}</span> <b class="bad">(${x.w===0?"berbahaya":"kurang tepat"})</b></div>
-            <div class="small" style="margin-top:4px">Pembanding terbaik: ${x.best}</div>
-          </div>`).join("")}
+      <h2>Jawaban Janggal — Tanyakan Alasannya di Wawancara</h2>
+      ${versiLama?`<p class="small">Tidak tersedia untuk hasil versi lama.</p>`
+      : risiko.length===0?`<p class="small">✅ Tidak ada kejanggalan berarti — pilihan “paling tepat” dan “paling keliru” peserta konsisten dengan kunci.</p>`
+      : `<p class="small">Ditemukan ${risiko.length} skenario dengan judgment janggal. Bacakan skenarionya di wawancara dan minta peserta menjelaskan alasannya — kadang ada logika valid yang layak didengar.</p>` +
+        risiko.map(x=>`<div class="pair-box pair-bad">
+          <div class="small" style="font-weight:800">SOAL ${x.no} · ${x.k}</div>
+          <div style="margin-top:4px">${x.t}</div>
+          ${x.issues.map(i2=>`<div style="margin-top:6px" class="small">⚠️ <span class="bad" style="font-weight:700">${i2}</span></div>`).join("")}
+          <div class="small" style="margin-top:6px">Kunci — terbaik: “${x.best}” · terburuk: “${x.worst}”</div>
+        </div>`).join("")}
     </div>
 
     ${salahNalar.length?`<div class="card">
@@ -1564,7 +1631,7 @@ function renderDetailJenjang(){
       <div class="note-info" id="iv-fit-note"></div>
       <div id="iv-questions"></div>
       <label class="f">Catatan pewawancara (opsional)</label>
-      <textarea id="iv-notes" placeholder="Kesan umum, jawaban atas skenario berisiko, dsb."></textarea>
+      <textarea id="iv-notes" placeholder="Kesan umum, jawaban atas skenario janggal, dsb."></textarea>
       <p class="err" id="err-iv">Masih ada pertanyaan yang belum dinilai.</p>
       <button class="btn no-print" id="btn-iv-hitung">Hitung &amp; Simpan Hasil Wawancara</button>
     </div>
