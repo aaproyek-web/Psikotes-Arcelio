@@ -173,6 +173,11 @@ table.rank tr:nth-child(even) td{background:#F7FBFB}
 .badge-final{font-weight:800;font-variant-numeric:tabular-nums}
 .del-btn{border:0;background:none;color:var(--coral);cursor:pointer;font-size:15px}
 a.wa{color:var(--green);font-weight:700;text-decoration:none}
+.foto-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.foto-item{margin:0;cursor:pointer;text-align:center}
+.foto-item img{width:110px;border-radius:10px;border:1.5px solid var(--line);display:block;transition:width .15s ease}
+.foto-item.big img{width:min(420px,86vw);border-color:var(--teal)}
+.foto-item figcaption{font-size:11px;color:var(--muted);font-weight:700;margin-top:4px}
 
 @media print{
   body{background:#fff;font-size:12px}
@@ -241,10 +246,10 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
           <div id="tk-posisi-wrap"><label class="f">Posisi</label><select id="tk-posisi"></select></div>
           <div><label class="f">Durasi tes</label>
             <select id="tk-durasi">
-              <option value="20">20 menit</option>
-              <option value="25" selected>25 menit (disarankan)</option>
-              <option value="30">30 menit</option>
-              <option value="35">35 menit</option>
+              <option value="15">15 menit</option>
+              <option value="18" selected>18 menit (disarankan)</option>
+              <option value="21">21 menit</option>
+              <option value="24">24 menit</option>
               <option value="40">40 menit (tes jenjang)</option>
             </select></div>
           <div><label class="f">Link berlaku</label>
@@ -964,7 +969,7 @@ function copyText(txt, btn, orig){
     '<option value="jenjang-spv">SPV (Tes Jenjang)</option><option value="jenjang-manager">Manager (Tes Jenjang)</option>';
   $("#tk-jenis").addEventListener("change", ()=>{
     const j = $("#tk-jenis").value;
-    if(j === "karakter"){ $("#tk-durasi").value = "25"; $("#tk-posisi").disabled = false; }
+    if(j === "karakter"){ $("#tk-durasi").value = "18"; $("#tk-posisi").disabled = false; }
     else { $("#tk-durasi").value = "40"; $("#tk-posisi").disabled = true; }
   });
   $("#btn-buat-token").addEventListener("click", buatToken);
@@ -1146,6 +1151,28 @@ function tutupDetail(){
   loadHasil();
 }
 
+async function muatFoto(token){
+  const el = $("#foto-grid");
+  if(!el) return;
+  try{
+    const rows = await sb(`psikotes_foto?token=eq.${encodeURIComponent(token||"")}&select=tahap,foto,created_at&order=created_at.asc`);
+    if(!rows || rows.length === 0){
+      el.innerHTML = '<h2>📷 Foto Verifikasi</h2><p class="small">Tidak ada foto untuk sesi ini — kemungkinan tes berlangsung sebelum fitur kamera aktif, atau kamera bermasalah di perangkat peserta.</p>';
+      return;
+    }
+    const lbl = { mulai:"▶️ Mulai", acak1:"🎲 Acak", acak2:"🎲 Acak", selesai:"🏁 Selesai" };
+    el.innerHTML = `<h2>📷 Foto Verifikasi (${rows.length})</h2>
+      <p class="small">Pastikan wajah <b>sama</b> di semua foto dan tidak tampak orang lain membantu. Cocokkan dengan wajah kandidat saat wawancara. Klik foto untuk memperbesar.</p>
+      <div class="foto-row">${rows.map(f=>`
+        <figure class="foto-item" onclick="this.classList.toggle('big')">
+          <img src="${f.foto}" alt="foto verifikasi" loading="lazy">
+          <figcaption>${lbl[f.tahap]||f.tahap} · ${new Date(f.created_at).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</figcaption>
+        </figure>`).join("")}</div>`;
+  }catch(e){
+    el.innerHTML = '<h2>📷 Foto Verifikasi</h2><p class="small">Gagal memuat foto: '+e.message+'. Pastikan update_kamera.sql sudah dijalankan di Supabase.</p>';
+  }
+}
+
 function renderDetail(){
   if(cur.jenis && cur.jenis !== "karakter"){ renderDetailJenjang(); return; }
   const r = cur.hasil;
@@ -1186,6 +1213,8 @@ function renderDetail(){
       ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu pengerjaan habis — ${cur.tidak_dijawab} soal tidak terjawab (dihitung netral).</div>`:""}
     </div>
 
+
+    <div class="card" id="foto-grid"><h2>📷 Foto Verifikasi</h2><p class="small">Memuat foto…</p></div>
     <div class="hl-match">
       <div class="pct" style="color:${labA.c}">${vApplied}%<small style="color:${labA.c}">${labA.t}</small></div>
       <div>
@@ -1304,6 +1333,7 @@ function renderDetail(){
   $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
 
   // pulihkan wawancara tersimpan (jika ada)
+  muatFoto(cur.token);
   const saved = cur.wawancara;
   const startKey = saved ? saved.posisiKey : cur.posisi_key;
   $("#iv-posisi").value = startKey;
@@ -1420,7 +1450,10 @@ async function batalRekom(){
 }
 async function hapusHasil(){
   if(!confirm(`Hapus permanen hasil tes ${cur.nama}? Tindakan ini tidak bisa dibatalkan.`)) return;
-  try { await sb(`psikotes_hasil?id=eq.${cur.id}`, {method:"DELETE"}); }
+  try {
+    await sb(`psikotes_hasil?id=eq.${cur.id}`, {method:"DELETE"});
+    if(cur.token) await sb(`psikotes_foto?token=eq.${encodeURIComponent(cur.token)}`, {method:"DELETE"}).catch(()=>{});
+  }
   catch(e){ alert("Gagal menghapus: "+e.message); return; }
   tutupDetail();
 }
@@ -1568,6 +1601,8 @@ function renderDetailJenjang(){
       ${versiLama?`<div class="note-info" style="background:var(--amber-soft)">⚠️ Hasil ini berasal dari versi bank soal lama — rincian per soal tidak dapat ditampilkan. Skor tetap valid untuk versinya.</div>`:""}
     </div>
 
+
+    <div class="card" id="foto-grid"><h2>📷 Foto Verifikasi</h2><p class="small">Memuat foto…</p></div>
     <div class="hl-match" style="border-color:${lab.c}">
       <div class="pct" style="color:${lab.c}">${r.skor}%<small style="color:${lab.c}">${lab.t}</small></div>
       <div>
@@ -1649,6 +1684,7 @@ function renderDetailJenjang(){
   $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
   $("#btn-json").addEventListener("click", copyJSON);
   $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
+  muatFoto(cur.token);
   setupInterviewJenjang(ivKey, cur.wawancara);
   if(cur.wawancara) tampilkanHasilWawancara();
 }

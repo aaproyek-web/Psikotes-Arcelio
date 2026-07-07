@@ -93,6 +93,7 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outl
 </head>
 <body>
 <div id="wm" class="hidden" aria-hidden="true"></div>
+<video id="cam-vid" playsinline muted autoplay style="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1"></video>
 <div id="toast-fokus"></div>
 
 <header class="hero">
@@ -142,7 +143,15 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outl
         Jika waktu habis, jawaban yang sudah terisi akan <b>terkirim otomatis</b>.
         Tautan ini hanya bisa dipakai <b>satu kali</b>. Jika koneksi terputus, buka kembali tautan yang sama — Anda bisa melanjutkan selama waktu masih tersisa.
       </div>
-      <p class="small" style="margin-top:10px">Pastikan sinyal stabil dan Anda tidak akan terganggu selama <span id="txt-durasi2">25</span> menit ke depan.</p>
+      <div class="note-time" style="background:var(--aqua-soft);border-color:var(--teal)">
+        📷 <b style="color:var(--teal)">Verifikasi identitas dengan kamera:</b> Selama tes berlangsung, <b>kamera depan akan mengambil foto Anda beberapa kali</b> — saat mulai, di waktu acak, dan saat selesai — untuk memastikan tes dikerjakan sendiri oleh Anda.
+        Foto hanya digunakan untuk keperluan seleksi internal HRD Arcelio Aquapark, disimpan secara terbatas, dan tidak dibagikan kepada pihak lain.
+        <label style="display:flex;gap:10px;margin-top:12px;align-items:flex-start;cursor:pointer;font-weight:600">
+          <input type="checkbox" id="cam-setuju" style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
+          <span>Saya telah membaca dan <b>menyetujui</b> pengambilan foto melalui kamera selama tes berlangsung.</span>
+        </label>
+      </div>
+      <p class="small" style="margin-top:10px">Izinkan akses kamera saat diminta. Pastikan baterai cukup, sinyal stabil, dan Anda tidak akan terganggu selama <span id="txt-durasi2">25</span> menit ke depan.</p>
       <button class="btn" id="btn-mulai">Mulai Tes — Waktu Langsung Berjalan</button>
     </div>
   </section>
@@ -761,7 +770,16 @@ async function mulaiTes(){
   if(!nama){ alert("Mohon isi nama lengkap."); $("#in-nama").focus(); return; }
   if(!/^(\+62|62|0)8[0-9]{7,12}$/.test(telp)){ alert("Mohon isi nomor telepon/WhatsApp yang valid (contoh: 081234567890)."); $("#in-telp").focus(); return; }
   if(!posKey){ alert("Mohon pilih posisi yang dilamar."); $("#in-posisi").focus(); return; }
-  if(!confirm(`Waktu ${tokenRow.durasi_menit} menit akan langsung berjalan dan tidak bisa dihentikan. Mulai sekarang?`)) return;
+  if(!$("#cam-setuju").checked){
+    alert("Mohon centang persetujuan pengambilan foto kamera terlebih dahulu. Tes tidak dapat dimulai tanpa persetujuan ini.");
+    $("#cam-setuju").focus(); return;
+  }
+  if(!confirm(`Waktu ${tokenRow.durasi_menit} menit akan langsung berjalan dan tidak bisa dihentikan. Kamera akan diaktifkan untuk verifikasi. Mulai sekarang?`)) return;
+  try { await initKamera(); }
+  catch(e){
+    alert("Izin kamera ditolak atau kamera tidak tersedia. Tes ini mewajibkan verifikasi kamera — izinkan akses kamera lalu tekan Mulai lagi.");
+    return;
+  }
 
   peserta = {
     nama, telepon: telp, usia: $("#in-usia").value.trim(),
@@ -789,14 +807,21 @@ async function mulaiTes(){
   $("#screen-start").classList.add("hidden");
   $("#screen-test").classList.remove("hidden");
   startTimer();
+  jadwalkanFoto();
   gotoPage(0);
 }
 
-function resumeTest(){
+async function resumeTest(){
+  try { await initKamera(); }
+  catch(e){
+    gate("📷","Izin kamera diperlukan","Tes ini memakai verifikasi foto kamera. Izinkan akses kamera pada browser Anda, lalu muat ulang halaman ini untuk melanjutkan — waktu tetap berjalan.");
+    return;
+  }
   $("#screen-gate").classList.add("hidden");
   $("#screen-test").classList.remove("hidden");
   bindNav();
   startTimer();
+  jadwalkanFoto();
   gotoPage(page);
 }
 
@@ -1012,6 +1037,7 @@ async function submitTest(waktuHabis){
   if(submitted) return;
   submitted = true;
   clearInterval(timerId);
+  await ambilFoto("selesai").catch(()=>{});
   const r = MODE === "karakter" ? computeResults(answers) : computeJenjang(answers);
   r.keluarLayar = leaveCount;
   const row = {
@@ -1037,6 +1063,7 @@ async function submitTest(waktuHabis){
     alert("Gagal mengirim jawaban — periksa koneksi lalu tekan OK untuk mencoba lagi.");
     return submitTest(waktuHabis);
   }
+  matikanKamera();
   $("#screen-test").classList.add("hidden");
   $("#screen-start").classList.add("hidden");
   $("#screen-gate").classList.add("hidden");
@@ -1045,6 +1072,48 @@ async function submitTest(waktuHabis){
   window.scrollTo(0,0);
 }
 
+
+/* ---------- verifikasi kamera: mulai + 2 acak + selesai ---------- */
+let camStream = null;
+const fotoStatus = {};
+async function initKamera(){
+  camStream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false
+  });
+  const v = document.getElementById("cam-vid");
+  v.srcObject = camStream;
+  await v.play().catch(()=>{});
+}
+async function ambilFoto(tahap, coba = 0){
+  if(!camStream || fotoStatus[tahap] === "ok") return;
+  const v = document.getElementById("cam-vid");
+  if(!v.videoWidth){                                  // kamera belum siap / dijeda saat pindah aplikasi
+    if(coba < 8) return setTimeout(()=>ambilFoto(tahap, coba+1), 2000);
+    return;
+  }
+  try{
+    const skala = 480 / Math.max(v.videoWidth, v.videoHeight);
+    const c = document.createElement("canvas");
+    c.width = Math.round(v.videoWidth * Math.min(1, skala));
+    c.height = Math.round(v.videoHeight * Math.min(1, skala));
+    c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+    const data = c.toDataURL("image/jpeg", 0.7);
+    await sb("psikotes_foto", { method:"POST",
+      body: JSON.stringify({ token: tokenRow.token, tahap, foto: data }) });
+    fotoStatus[tahap] = "ok";
+  }catch(e){
+    if(coba < 3) setTimeout(()=>ambilFoto(tahap, coba+1), 5000);   // koneksi putus: coba lagi
+  }
+}
+function jadwalkanFoto(){
+  setTimeout(()=>ambilFoto("mulai"), 2500);
+  const sisa = deadline - Date.now();
+  setTimeout(()=>ambilFoto("acak1"), sisa * (0.15 + Math.random()*0.30));
+  setTimeout(()=>ambilFoto("acak2"), sisa * (0.55 + Math.random()*0.30));
+}
+function matikanKamera(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream = null; }
+}
 
 /* ---------- proteksi soal: anti-copy, deteksi keluar layar, watermark ---------- */
 let proteksiAktif = false;
