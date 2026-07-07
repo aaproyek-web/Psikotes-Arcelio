@@ -977,7 +977,13 @@ const IV_JENJANG = {
 /* ============================================================
    LOGIKA DASHBOARD
    ============================================================ */
-function posOf(k){ return POSITIONS.find(p=>p.key===k); }
+function posOf(k){
+  const p = POSITIONS.find(x=>x.key===k);
+  if(p) return p;
+  return { key:k||"?", nama:(typeof cur!=="undefined"&&cur&&cur.posisi)||"(posisi tidak dikenal)",
+    ideal:{D:50,I:50,S:50,C:50,O:50,Co:50,E:50,A:50,N:50},
+    w:{D:1,I:1,S:1,C:1,O:1,Co:1,E:1,A:1,N:1} };
+}
 function ya(v){
   if(v == null) return "—";
   return v === "bersedia"
@@ -1016,7 +1022,10 @@ function archetypeOf(dims){
   const order = ["D","I","S","C"].map(d=>({d, v:dims[d]})).sort((a,b)=>b.v-a.v);
   const [p, s] = order;
   let key = p.d;
-  if(s.v >= 50 && (p.v - s.v) <= 18) key = p.d + s.d;
+  // kombinasi dipakai hanya bila arketipenya terdefinisi
+  // (pasangan diagonal I+C dan D+S tidak punya arketipe gabungan DISC klasik)
+  if(s.v >= 50 && (p.v - s.v) <= 18 && ARCHETYPES[p.d + s.d]) key = p.d + s.d;
+  if(!ARCHETYPES[key]) key = p.d;
   return { key, ...ARCHETYPES[key] };
 }
 function flagsOf(r){ return FLAG_RULES.filter(f=>f.cond(r)); }
@@ -1216,11 +1225,20 @@ function renderHasilList(){
   }).join("");
 }
 
+function tampilkanErrorLembar(e){
+  $("#hasil-detail").innerHTML = `
+    <button class="btn ghost small-btn no-print" onclick="tutupDetail()" style="margin-top:16px">&larr; Kembali ke daftar</button>
+    <div class="card" style="border:2px solid var(--coral)">
+      <h2>⚠️ Gagal menampilkan lembar ini</h2>
+      <p class="small">Terjadi kesalahan teknis saat merender hasil. Screenshot pesan di bawah dan kirimkan untuk perbaikan — data peserta tetap aman di database.</p>
+      <pre style="white-space:pre-wrap;font-size:11.5px;background:var(--coral-soft);padding:10px;border-radius:8px;overflow:auto">${(e && (e.stack || e.message)) || e}</pre>
+    </div>`;
+}
 function bukaHasil(id){
   cur = hasil.find(h=>h.id===id);
   if(!cur) return;
   $("#hasil-list-wrap").classList.add("hidden");
-  renderDetail();
+  try { renderDetail(); } catch(e){ console.error(e); tampilkanErrorLembar(e); }
   $("#hasil-detail").classList.remove("hidden");
   window.scrollTo(0,0);
 }
@@ -1426,7 +1444,7 @@ function renderDetail(){
 }
 
 /* ---------- modul wawancara ---------- */
-function ivQuestionsFor(key){ return [...IV_BANK[key], ...IV_UNIVERSAL]; }
+function ivQuestionsFor(key){ return [...(IV_BANK[key]||[]), ...IV_UNIVERSAL]; }
 function setupInterview(key, saved){
   const pos = posOf(key);
   const vTes = matchScore(pos, cur.hasil.dims);
