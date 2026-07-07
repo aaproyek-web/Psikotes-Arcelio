@@ -209,17 +209,20 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
 
 <div class="wrap">
 
-  <!-- Gerbang PIN -->
+  <!-- Gerbang Login HRD -->
   <section id="screen-pin">
-    <div class="card center-card">
+    <div class="card center-card" style="max-width:420px;margin-left:auto;margin-right:auto">
       <div style="font-size:44px">🔐</div>
-      <h2 style="margin-top:8px">Area Terbatas HRD</h2>
-      <p class="small">Masukkan PIN untuk membuka dashboard.</p>
-      <div class="pin-box">
-        <input type="password" id="in-pin" placeholder="PIN" inputmode="numeric" maxlength="6" autocomplete="off">
-        <button class="btn small-btn" id="btn-pin" style="margin-top:0">Masuk</button>
+      <h2 style="margin-top:8px">Login HRD</h2>
+      <p class="small">Masuk dengan akun HRD (dibuat di Supabase → Authentication → Users).</p>
+      <div style="text-align:left;margin-top:6px">
+        <label class="f" for="in-email">Email</label>
+        <input type="text" id="in-email" placeholder="hrd@arcelio.com" autocomplete="username">
+        <label class="f" for="in-pass">Password</label>
+        <input type="password" id="in-pass" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <p class="err" id="err-pin">PIN salah.</p>
+      <button class="btn" id="btn-login">Masuk</button>
+      <p class="err" id="err-login">Login gagal.</p>
     </div>
   </section>
 
@@ -229,6 +232,7 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
       <button data-tab="token" class="on">🎟️ Token</button>
       <button data-tab="hasil">📄 Hasil Tes</button>
       <button data-tab="rank">🏆 Peringkat</button>
+      <button id="btn-logout" style="margin-left:auto;border-color:var(--coral);color:var(--coral)">Keluar</button>
     </div>
 
     <!-- TAB TOKEN -->
@@ -327,23 +331,80 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
 /* ============================================================
    DASHBOARD HRD — PSIKOTES ARCELIO AQUAPARK
    1) Isi kredensial Supabase (SAMA dengan index.html)
-   2) PIN HRD default 2626 — ubah di HR_PIN
+   2) Akses HRD memakai login Supabase Auth (buat akun: Authentication → Users)
    ============================================================ */
 const SUPABASE_URL = "https://sscfekaqpsrszgwnnbgz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzY2Zla2FxcHNyc3pnd25uYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNDg0NDksImV4cCI6MjA5ODcyNDQ0OX0.LL-2T2UPEQ7hKtFlc1TkeowzGZ-fSpQFQDvgpBwerYw";
-const HR_PIN = "8789";
 const W_TES = 0.4, W_IV = 0.6;
+const SESS_KEY = "arcelio_hrd_sesi_v1";
 
 const $ = s => document.querySelector(s);
+let sesi = null;               // { access_token, refresh_token, exp }
+let refreshTimer = null;
+
 async function sb(path, opt = {}) {
+  const bearer = sesi ? sesi.access_token : SUPABASE_KEY;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     ...opt,
-    headers: { "apikey":SUPABASE_KEY, "Authorization":`Bearer ${SUPABASE_KEY}`,
+    headers: { "apikey":SUPABASE_KEY, "Authorization":`Bearer ${bearer}`,
       "Content-Type":"application/json", "Prefer":"return=representation", ...(opt.headers||{}) }
   });
+  if (res.status === 401) { keluarSesi(); throw new Error("Sesi berakhir — silakan login ulang."); }
   if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
   const txt = await res.text();
   return txt ? JSON.parse(txt) : null;
+}
+
+/* ---------- sesi login Supabase Auth ---------- */
+function simpanSesi(j){
+  sesi = { access_token:j.access_token, refresh_token:j.refresh_token,
+           exp: Date.now() + Math.max(60,(j.expires_in||3600)-90)*1000 };
+  try{ localStorage.setItem(SESS_KEY, JSON.stringify(sesi)); }catch(e){}
+  jadwalkanRefresh();
+}
+function jadwalkanRefresh(){
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(refreshSesi, Math.max(10000, sesi.exp - Date.now()));
+}
+async function refreshSesi(){
+  if(!sesi) return false;
+  try{
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method:"POST", headers:{ apikey:SUPABASE_KEY, "Content-Type":"application/json" },
+      body: JSON.stringify({ refresh_token: sesi.refresh_token })
+    });
+    if(!res.ok) throw 0;
+    simpanSesi(await res.json());
+    return true;
+  }catch(e){ keluarSesi(); return false; }
+}
+function keluarSesi(){
+  sesi = null; clearTimeout(refreshTimer);
+  try{ localStorage.removeItem(SESS_KEY); }catch(e){}
+  $("#screen-dash").classList.add("hidden");
+  $("#screen-pin").classList.remove("hidden");
+}
+async function login(){
+  const email = $("#in-email").value.trim(), pass = $("#in-pass").value;
+  if(!email || !pass){ tampilErr("Isi email dan password."); return; }
+  const btn = $("#btn-login"); btn.disabled = true; btn.textContent = "Memeriksa…";
+  try{
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method:"POST", headers:{ apikey:SUPABASE_KEY, "Content-Type":"application/json" },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const j = await res.json();
+    if(!res.ok) throw new Error(j.error_description || j.msg || "Email atau password salah.");
+    simpanSesi(j);
+    bukaDash();
+  }catch(e){ tampilErr(e.message); }
+  btn.disabled = false; btn.textContent = "Masuk";
+}
+function tampilErr(m){ const el = $("#err-login"); el.textContent = m; el.style.display = "block"; }
+function bukaDash(){
+  $("#screen-pin").classList.add("hidden");
+  $("#screen-dash").classList.remove("hidden");
+  loadTokens(); loadHasil(); loadRank();
 }
 
 /* ---------- POSISI + PROFIL IDEAL ---------- */
@@ -973,9 +1034,14 @@ function copyText(txt, btn, orig){
 }
 
 /* ---------- init + PIN ---------- */
-(function init(){
-  $("#btn-pin").addEventListener("click", checkPin);
-  $("#in-pin").addEventListener("keydown", e=>{ if(e.key==="Enter") checkPin(); });
+(async function init(){
+  $("#btn-login").addEventListener("click", login);
+  $("#in-pass").addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+  $("#btn-logout").addEventListener("click", ()=>{ if(confirm("Keluar dari dashboard?")) keluarSesi(); });
+  try{
+    const tersimpan = localStorage.getItem(SESS_KEY);
+    if(tersimpan){ sesi = JSON.parse(tersimpan); if(await refreshSesi()) bukaDash(); }
+  }catch(e){}
   document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click", ()=>switchTab(b.dataset.tab)));
   $("#tk-posisi").innerHTML = '<option value="">— Pelamar memilih sendiri —</option>' +
     POSITIONS.map(p=>`<option value="${p.key}">${p.nama}</option>`).join("");
@@ -999,15 +1065,7 @@ function copyText(txt, btn, orig){
   $("#f-posisi").addEventListener("change", renderRankTable);
   $("#f-periode").addEventListener("change", renderRankTable);
 })();
-function checkPin(){
-  if($("#in-pin").value !== HR_PIN){ $("#err-pin").style.display="block"; return; }
-  if(SUPABASE_URL.includes("GANTI")){
-    alert("Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_KEY di bagian atas berkas hrd.html dan index.html, lalu jalankan supabase_setup.sql.");
-  }
-  $("#screen-pin").classList.add("hidden");
-  $("#screen-dash").classList.remove("hidden");
-  loadTokens(); loadHasil(); loadRank();
-}
+
 function switchTab(t){
   document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===t));
   ["token","hasil","rank"].forEach(x=>$("#tab-"+x).classList.toggle("hidden", x!==t));

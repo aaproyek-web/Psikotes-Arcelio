@@ -700,7 +700,7 @@ function gate(emo, title, msg){
     return;
   }
   let rows;
-  try { rows = await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tok)}&select=*`); }
+  try { rows = await sb("rpc/ambil_token", { method:"POST", body: JSON.stringify({ p_token: tok }) }); }
   catch(e){ gate("📡","Gagal terhubung","Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu muat ulang halaman."); return; }
   if (!rows || rows.length === 0) { gate("❌","Tautan tidak valid","Kode undangan tidak ditemukan. Pastikan tautan disalin lengkap, atau hubungi HRD."); return; }
   tokenRow = rows[0];
@@ -806,12 +806,11 @@ async function mulaiTes(){
     bersediaMess: bMess
   };
   // klaim token secara atomik: hanya berhasil jika status masih 'baru'
-  const usedAt = new Date().toISOString();
   let claimed;
   try {
-    claimed = await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}&status=eq.baru`, {
-      method:"PATCH",
-      body: JSON.stringify({ status:"dipakai", used_at: usedAt, progress:{ answers, page:0, peserta, keluar:leaveCount } })
+    claimed = await sb("rpc/klaim_token", {
+      method:"POST",
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount } })
     });
   } catch(e){ alert("Gagal memulai — periksa koneksi lalu coba lagi."); return; }
   if(!claimed || claimed.length===0){
@@ -862,8 +861,9 @@ function startTimer(){
 }
 async function saveProgress(){
   try {
-    await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}&status=eq.dipakai`, {
-      method:"PATCH", body: JSON.stringify({ progress:{ answers, page, peserta, keluar:leaveCount } })
+    await sb("rpc/simpan_progress", {
+      method:"POST",
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount } })
     });
   } catch(e){ /* koneksi putus — dicoba lagi pada siklus berikutnya */ }
 }
@@ -1080,10 +1080,7 @@ async function submitTest(waktuHabis){
     hasil: r
   };
   try {
-    await sb("psikotes_hasil", { method:"POST", body: JSON.stringify(row) });
-    await sb(`psikotes_tokens?token=eq.${encodeURIComponent(tokenRow.token)}`, {
-      method:"PATCH", body: JSON.stringify({ status:"selesai", progress:null })
-    });
+    await sb("rpc/kirim_hasil", { method:"POST", body: JSON.stringify({ p_token: tokenRow.token, p: row }) });
   } catch(e){
     submitted = false;
     alert("Gagal mengirim jawaban — periksa koneksi lalu tekan OK untuk mencoba lagi.");
@@ -1124,8 +1121,8 @@ async function ambilFoto(tahap, coba = 0){
     c.height = Math.round(v.videoHeight * Math.min(1, skala));
     c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
     const data = c.toDataURL("image/jpeg", 0.7);
-    await sb("psikotes_foto", { method:"POST",
-      body: JSON.stringify({ token: tokenRow.token, tahap, foto: data }) });
+    await sb("rpc/kirim_foto", { method:"POST",
+      body: JSON.stringify({ p_token: tokenRow.token, p_tahap: tahap, p_foto: data }) });
     fotoStatus[tahap] = "ok";
   }catch(e){
     if(coba < 3) setTimeout(()=>ambilFoto(tahap, coba+1), 5000);   // koneksi putus: coba lagi
