@@ -178,6 +178,9 @@ a.wa{color:var(--green);font-weight:700;text-decoration:none}
 .foto-item img{width:110px;border-radius:10px;border:1.5px solid var(--line);display:block;transition:width .15s ease}
 .foto-item.big img{width:min(420px,86vw);border-color:var(--teal)}
 .foto-item figcaption{font-size:11px;color:var(--muted);font-weight:700;margin-top:4px}
+a[href*="wa.me"].wa-sudah::after{content:" ✓";font-weight:800}
+a.wa.wa-sudah{color:#8A9793}
+a.btn.wa-sudah{background:#EDF1F0 !important;border-color:#B9C4C0 !important;color:#6B7A75 !important}
 
 @media print{
   body{background:#fff;font-size:12px}
@@ -1001,6 +1004,24 @@ function ketDurasi(r){
   if(p<0.7)  return "Cepat dan efisien";
   return "Kecepatan pengerjaan wajar";
 }
+/* ---------- penanda tombol WA yang sudah pernah diklik ---------- */
+const WA_KEY = "arcelio_wa_terpakai_v1";
+let waSudah = {};
+try{ waSudah = JSON.parse(localStorage.getItem(WA_KEY) || "{}"); }catch(e){}
+function terapkanWaSudah(){
+  document.querySelectorAll('a[href*="wa.me"]').forEach(el=>{
+    if(waSudah[el.getAttribute("href")]) el.classList.add("wa-sudah");
+  });
+}
+document.addEventListener("click", e=>{
+  const el = e.target.closest('a[href*="wa.me"]');
+  if(!el) return;
+  waSudah[el.getAttribute("href")] = Date.now();
+  try{ localStorage.setItem(WA_KEY, JSON.stringify(waSudah)); }catch(e2){}
+  el.classList.add("wa-sudah");
+});
+new MutationObserver(terapkanWaSudah).observe(document.body, { childList:true, subtree:true });
+
 function jenisNama(j){ return !j||j==="karakter" ? "Psikotes Karakter" : (j==="spv" ? "Tes Jenjang SPV" : "Tes Jenjang Manager"); }
 function namaPosisiIv(){
   if(ivState.posisiKey==="jenjang-spv") return "Supervisor (Tes Jenjang)";
