@@ -130,6 +130,18 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outl
       <select id="in-posisi"></select>
       <label class="f" for="in-usia">Usia (opsional)</label>
       <input type="text" id="in-usia" inputmode="numeric" placeholder="Contoh: 24" autocomplete="off">
+      <label class="f" for="in-bersedia-posisi">Apakah Anda bersedia ditempatkan pada posisi yang TIDAK sesuai dengan pilihan Anda?</label>
+      <select id="in-bersedia-posisi">
+        <option value="">— Pilih jawaban —</option>
+        <option value="bersedia">Bersedia</option>
+        <option value="tidak">Tidak bersedia</option>
+      </select>
+      <label class="f" for="in-bersedia-mess">Apakah Anda bersedia tinggal di mess (tempat tinggal yang disediakan perusahaan)?</label>
+      <select id="in-bersedia-mess">
+        <option value="">— Pilih jawaban —</option>
+        <option value="bersedia">Bersedia</option>
+        <option value="tidak">Tidak bersedia</option>
+      </select>
     </div>
     <div class="card">
       <h2>Petunjuk Pengisian</h2>
@@ -770,6 +782,10 @@ async function mulaiTes(){
   if(!nama){ alert("Mohon isi nama lengkap."); $("#in-nama").focus(); return; }
   if(!/^(\+62|62|0)8[0-9]{7,12}$/.test(telp)){ alert("Mohon isi nomor telepon/WhatsApp yang valid (contoh: 081234567890)."); $("#in-telp").focus(); return; }
   if(!posKey){ alert("Mohon pilih posisi yang dilamar."); $("#in-posisi").focus(); return; }
+  const bPosisi = $("#in-bersedia-posisi").value;
+  const bMess = $("#in-bersedia-mess").value;
+  if(!bPosisi){ alert("Mohon jawab kesediaan ditempatkan pada posisi lain."); $("#in-bersedia-posisi").focus(); return; }
+  if(!bMess){ alert("Mohon jawab kesediaan tinggal di mess."); $("#in-bersedia-mess").focus(); return; }
   if(!$("#cam-setuju").checked){
     alert("Mohon centang persetujuan pengambilan foto kamera terlebih dahulu. Tes tidak dapat dimulai tanpa persetujuan ini.");
     $("#cam-setuju").focus(); return;
@@ -785,7 +801,9 @@ async function mulaiTes(){
     nama, telepon: telp, usia: $("#in-usia").value.trim(),
     posisiKey: posKey,
     posisi: MODE === "karakter" ? POSITIONS.find(p=>p.key===posKey).nama
-            : (MODE === "spv" ? "Jenjang SPV" : "Jenjang Manager")
+            : (MODE === "spv" ? "Jenjang SPV" : "Jenjang Manager"),
+    bersediaPosisiLain: bPosisi,
+    bersediaMess: bMess
   };
   // klaim token secara atomik: hanya berhasil jika status masih 'baru'
   const usedAt = new Date().toISOString();
@@ -1046,6 +1064,8 @@ async function submitTest(waktuHabis){
   const mulaiMs = deadline - tokenRow.durasi_menit*60000;
   r.durasiDetik = Math.max(0, Math.min(tokenRow.durasi_menit*60, Math.round((Date.now() - mulaiMs)/1000)));
   r.durasiTotalMenit = tokenRow.durasi_menit;
+  r.bersediaPosisiLain = peserta.bersediaPosisiLain || null;
+  r.bersediaMess = peserta.bersediaMess || null;
   const row = {
     jenis: MODE,
     token: tokenRow.token,

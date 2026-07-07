@@ -917,6 +917,12 @@ const IV_JENJANG = {
    LOGIKA DASHBOARD
    ============================================================ */
 function posOf(k){ return POSITIONS.find(p=>p.key===k); }
+function ya(v){
+  if(v == null) return "—";
+  return v === "bersedia"
+    ? '<span class="ok" style="font-weight:800">✓ Bersedia</span>'
+    : '<span class="bad" style="font-weight:800">✗ Tidak bersedia</span>';
+}
 function fmtDurasi(s){ if(s==null) return "—"; const m=Math.floor(s/60), dd=s%60; return m+":"+String(dd).padStart(2,"0"); }
 function ketDurasi(r){
   if(r.durasiDetik==null) return "Data waktu tidak tersedia (hasil versi lama)";
@@ -1114,6 +1120,8 @@ function renderHasilList(){
       const chipsJ = [
         `<span class="chip c-teal">🧭 ${jenisNama(h.jenis)} · ${r.skor}%</span>`,
         h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
+      r.bersediaPosisiLain==="tidak"?`<span class="chip c-amber">📌 hanya posisi pilihan</span>`:"",
+      r.bersediaMess==="tidak"?`<span class="chip c-amber">🏠 tidak bersedia mess</span>`:"",
         (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
         h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
       ].join("");
@@ -1134,6 +1142,8 @@ function renderHasilList(){
       red?`<span class="chip c-red">🔴 ${red} red flag</span>`:"",
       yel?`<span class="chip c-amber">🟡 ${yel} perlu digali</span>`:"",
       h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
+      r.bersediaPosisiLain==="tidak"?`<span class="chip c-amber">📌 hanya posisi pilihan</span>`:"",
+      r.bersediaMess==="tidak"?`<span class="chip c-amber">🏠 tidak bersedia mess</span>`:"",
       (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
       h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
     ].join("");
@@ -1220,6 +1230,8 @@ function renderDetail(){
         <div><b>Usia</b>${cur.usia||"—"}</div>
         <div><b>Tanggal &amp; waktu tes</b>${fmtTgl(cur.created_at)}</div>
         <div><b>Token</b>${cur.token||"—"}</div>
+        <div><b>Bersedia posisi lain</b>${ya(r.bersediaPosisiLain)}</div>
+        <div><b>Bersedia tinggal di mess</b>${ya(r.bersediaMess)}</div>
       </div>
       ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu pengerjaan habis — ${cur.tidak_dijawab} soal tidak terjawab (dihitung netral).</div>`:""}
     </div>
@@ -1610,6 +1622,8 @@ function renderDetailJenjang(){
         <div><b>Usia</b>${cur.usia||"—"}</div>
         <div><b>Tanggal &amp; waktu tes</b>${fmtTgl(cur.created_at)}</div>
         <div><b>Token</b>${cur.token||"—"}</div>
+        <div><b>Bersedia posisi lain</b>${ya(r.bersediaPosisiLain)}</div>
+        <div><b>Bersedia tinggal di mess</b>${ya(r.bersediaMess)}</div>
       </div>
       ${cur.waktu_habis?`<div class="note-info" style="background:var(--amber-soft)">⌛ Waktu habis — ${cur.tidak_dijawab} soal tidak lengkap terjawab (bernilai 0).</div>`:""}
       ${versiLama?`<div class="note-info" style="background:var(--amber-soft)">⚠️ Hasil ini berasal dari versi bank soal lama — rincian per soal tidak dapat ditampilkan. Skor tetap valid untuk versinya.</div>`:""}
