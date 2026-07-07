@@ -873,6 +873,7 @@ function gotoPage(p){
           div.classList.remove("unanswered-hl");
           saveDirty = true;
           updateProgress();
+          cekFotoAkhir(i);
         });
       });
     } else {
@@ -985,6 +986,7 @@ function renderJenjangItem(div, i){
         renderJenjangItem(div, i);
         if(isAnswered(i)) div.classList.remove("unanswered-hl");
         updateProgress();
+        cekFotoAkhir(i);
       });
     });
   } else {
@@ -1000,6 +1002,7 @@ function renderJenjangItem(div, i){
         div.classList.remove("unanswered-hl");
         saveDirty = true;
         updateProgress();
+        cekFotoAkhir(i);
       });
     });
   }
@@ -1040,6 +1043,9 @@ async function submitTest(waktuHabis){
   await ambilFoto("selesai").catch(()=>{});
   const r = MODE === "karakter" ? computeResults(answers) : computeJenjang(answers);
   r.keluarLayar = leaveCount;
+  const mulaiMs = deadline - tokenRow.durasi_menit*60000;
+  r.durasiDetik = Math.max(0, Math.min(tokenRow.durasi_menit*60, Math.round((Date.now() - mulaiMs)/1000)));
+  r.durasiTotalMenit = tokenRow.durasi_menit;
   const row = {
     jenis: MODE,
     token: tokenRow.token,
@@ -1110,6 +1116,10 @@ function jadwalkanFoto(){
   const sisa = deadline - Date.now();
   setTimeout(()=>ambilFoto("acak1"), sisa * (0.15 + Math.random()*0.30));
   setTimeout(()=>ambilFoto("acak2"), sisa * (0.55 + Math.random()*0.30));
+}
+function cekFotoAkhir(i){
+  // foto terakhir diambil diam-diam saat soal kedua-terakhir dijawab (soal 79 pada psikotes 80 item)
+  if(i === answers.length - 2 && isAnswered(i)) ambilFoto("selesai");
 }
 function matikanKamera(){
   if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream = null; }

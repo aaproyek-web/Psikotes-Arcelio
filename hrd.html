@@ -917,6 +917,17 @@ const IV_JENJANG = {
    LOGIKA DASHBOARD
    ============================================================ */
 function posOf(k){ return POSITIONS.find(p=>p.key===k); }
+function fmtDurasi(s){ if(s==null) return "—"; const m=Math.floor(s/60), dd=s%60; return m+":"+String(dd).padStart(2,"0"); }
+function ketDurasi(r){
+  if(r.durasiDetik==null) return "Data waktu tidak tersedia (hasil versi lama)";
+  const tot = (r.durasiTotalMenit||0)*60;
+  if(!tot) return "";
+  const p = r.durasiDetik/tot;
+  if(p>=0.98) return "Memakai hampir seluruh waktu" + (r.tidakDijawab>0?" — habis sebelum tuntas":"");
+  if(p<0.4)  return "Sangat cepat — pastikan keseriusan jawaban lewat wawancara";
+  if(p<0.7)  return "Cepat dan efisien";
+  return "Kecepatan pengerjaan wajar";
+}
 function jenisNama(j){ return !j||j==="karakter" ? "Psikotes Karakter" : (j==="spv" ? "Tes Jenjang SPV" : "Tes Jenjang Manager"); }
 function namaPosisiIv(){
   if(ivState.posisiKey==="jenjang-spv") return "Supervisor (Tes Jenjang)";
@@ -1109,7 +1120,7 @@ function renderHasilList(){
       return `<div class="hasil-row">
         <div>
           <div class="hn">${h.nama}</div>
-          <div class="hm">${fmtTgl(h.created_at)} · <a class="wa" href="https://wa.me/${(h.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${h.telepon||"—"}</a>${h.usia?` · ${h.usia} th`:""}</div>
+          <div class="hm">${fmtTgl(h.created_at)} · <a class="wa" href="https://wa.me/${(h.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${h.telepon||"—"}</a>${h.usia?` · ${h.usia} th`:""}${h.hasil.durasiDetik!=null?` · ⏱ ${fmtDurasi(h.hasil.durasiDetik)}`:""}</div>
           <div class="chips">${chipsJ}</div>
         </div>
         <button class="btn small-btn" onclick="bukaHasil('${h.id}')">Buka →</button>
@@ -1129,7 +1140,7 @@ function renderHasilList(){
     return `<div class="hasil-row">
       <div>
         <div class="hn">${h.nama}</div>
-        <div class="hm">${fmtTgl(h.created_at)} · <a class="wa" href="https://wa.me/${(h.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${h.telepon||"—"}</a>${h.usia?` · ${h.usia} th`:""}</div>
+        <div class="hm">${fmtTgl(h.created_at)} · <a class="wa" href="https://wa.me/${(h.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${h.telepon||"—"}</a>${h.usia?` · ${h.usia} th`:""}${h.hasil.durasiDetik!=null?` · ⏱ ${fmtDurasi(h.hasil.durasiDetik)}`:""}</div>
         <div class="chips">${chips}</div>
       </div>
       <button class="btn small-btn" onclick="bukaHasil('${h.id}')">Buka →</button>
@@ -1160,7 +1171,7 @@ async function muatFoto(token){
       el.innerHTML = '<h2>📷 Foto Verifikasi</h2><p class="small">Tidak ada foto untuk sesi ini — kemungkinan tes berlangsung sebelum fitur kamera aktif, atau kamera bermasalah di perangkat peserta.</p>';
       return;
     }
-    const lbl = { mulai:"▶️ Mulai", acak1:"🎲 Acak", acak2:"🎲 Acak", selesai:"🏁 Selesai" };
+    const lbl = { mulai:"▶️ Mulai", acak1:"🎲 Acak", acak2:"🎲 Acak", selesai:"🏁 Soal akhir" };
     el.innerHTML = `<h2>📷 Foto Verifikasi (${rows.length})</h2>
       <p class="small">Pastikan wajah <b>sama</b> di semua foto dan tidak tampak orang lain membantu. Cocokkan dengan wajah kandidat saat wawancara. Klik foto untuk memperbesar.</p>
       <div class="foto-row">${rows.map(f=>`
@@ -1242,6 +1253,9 @@ function renderDetail(){
         <div class="vbox"><div class="vt">Fokus layar</div>
           <div class="vv ${(r.keluarLayar||0)===0?"ok":((r.keluarLayar||0)<3?"warn":"bad")}">${r.keluarLayar||0} <small>kali keluar</small></div>
           <div class="vd">${(r.keluarLayar||0)===0?"Tidak pernah meninggalkan layar selama tes":((r.keluarLayar||0)<3?"Sesekali berpindah layar — masih wajar":"Sering meninggalkan layar — dalami di wawancara")}</div></div>
+        <div class="vbox"><div class="vt">Waktu pengerjaan</div>
+          <div class="vv ${r.durasiDetik!=null && r.durasiDetik < (r.durasiTotalMenit||0)*24 ? "warn" : "ok"}">${fmtDurasi(r.durasiDetik)} <small>/ ${r.durasiTotalMenit||"?"} mnt</small></div>
+          <div class="vd">${ketDurasi(r)}</div></div>
       </div>
     </div>
 
@@ -1620,6 +1634,9 @@ function renderDetailJenjang(){
         <div class="vbox"><div class="vt">Fokus layar</div>
           <div class="vv ${(r.keluarLayar||0)===0?"ok":((r.keluarLayar||0)<3?"warn":"bad")}">${r.keluarLayar||0} <small>kali keluar</small></div>
           <div class="vd">${(r.keluarLayar||0)===0?"Tidak pernah meninggalkan layar":((r.keluarLayar||0)<3?"Sesekali berpindah layar — wajar":"Sering keluar layar — verifikasi kemandirian jawaban dgn tanya lisan")}</div></div>
+        <div class="vbox"><div class="vt">Waktu pengerjaan</div>
+          <div class="vv ${r.durasiDetik!=null && r.durasiDetik < (r.durasiTotalMenit||0)*24 ? "warn" : "ok"}">${fmtDurasi(r.durasiDetik)} <small>/ ${r.durasiTotalMenit||"?"} mnt</small></div>
+          <div class="vd">${ketDurasi(r)}</div></div>
         <div class="vbox"><div class="vt">Penalaran praktis</div>
           <div class="vv ${r.nalarPct>=70?"ok":(r.nalarPct>=50?"warn":"bad")}">${r.benarNalar} <small>/ ${b.nalar.length} benar</small></div>
           <div class="vd">${r.nalarPct>=70?"Hitungan operasional kuat":(r.nalarPct>=50?"Cukup — dalami dengan studi kasus hitungan":"Lemah — risiko untuk peran yang mengelola angka")}</div></div>
