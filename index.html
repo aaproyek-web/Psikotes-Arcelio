@@ -84,6 +84,9 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--aqua);outl
 .pick button.pw.on{background:var(--coral);border-color:var(--coral);color:#fff}
 .jj-hint{font-size:12px;font-weight:700;color:var(--muted);margin:2px 0 4px}
 .jj-hint b.tb{color:var(--green)} .jj-hint b.tw{color:var(--coral)}
+textarea{width:100%;margin-top:12px;border:2px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:14px;min-height:96px;resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--aqua)}
+.pt-hint{font-size:12px;color:var(--muted);margin-top:8px}
 #wm{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;transform:rotate(-22deg) scale(1.5)}
 #wm span{font-size:13px;font-weight:800;color:rgba(11,60,73,.07);white-space:nowrap;padding:26px 30px}
 #toast-fokus{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:var(--coral);color:#fff;font-size:13px;font-weight:700;padding:10px 18px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none}
@@ -258,15 +261,15 @@ const POOLS = {
     {t:"Teman-teman menganggap saya orang yang ceria dan penuh semangat."},
     {t:"Saya merasa senang (bukan gugup) ketika menjadi pusat perhatian di sebuah kelompok."},
     {t:"Saya pandai membujuk orang lain sehingga mereka mau mengikuti ide atau ajakan saya."},
-    {t:"Suasana kerja yang ramai dan banyak orang membuat saya bertambah semangat."},
-    {t:"Saya sering melontarkan candaan untuk mencairkan suasana yang kaku."},
+    {t:"Saat keputusan saya berdampak pada orang lain, perasaan mereka lebih saya utamakan daripada hitungan untung-rugi.", dim:"TF", rev:true},
+    {t:"Saya sering bercanda untuk mencairkan suasana yang kaku."},
     {t:"Saya bingung harus bicara apa ketika mengobrol dengan orang yang belum akrab.", rev:true},
     {t:"Saat menjelaskan sesuatu, saya lebih suka memakai cerita dan contoh daripada angka dan data."},
   ],
   S: [
     {t:"Saya lebih nyaman dengan jadwal dan rutinitas yang tetap daripada perubahan yang mendadak.", id:"S1"},
     {t:"Saya sanggup mendengarkan keluhan orang lain sampai selesai tanpa memotong pembicaraannya."},
-    {t:"Menurut orang-orang di sekitar saya, saya termasuk orang yang tenang dan tidak mudah panik."},
+    {t:"Saat teman menceritakan masalahnya, saya cenderung langsung memberi jalan keluar, bukan hanya menemani perasaannya.", dim:"TF"},
     {t:"Saya tipe orang yang betah bekerja bertahun-tahun di satu tempat, tidak suka pindah-pindah."},
     {t:"Ketika ada aturan atau cara kerja baru, saya butuh waktu lebih lama dari orang lain untuk terbiasa."},
     {t:"Sebisa mungkin saya mengalah agar tidak terjadi pertengkaran dengan orang lain."},
@@ -276,7 +279,7 @@ const POOLS = {
   C: [
     {t:"Sebelum menyerahkan hasil kerja, saya selalu memeriksanya ulang minimal satu kali."},
     {t:"Saya merasa terganggu jika melihat orang bekerja tidak sesuai aturan atau prosedur (SOP)."},
-    {t:"Dalam mengambil keputusan, saya lebih percaya pada data dan bukti daripada perasaan."},
+    {t:"Dalam mengambil keputusan penting, saya lebih mengandalkan logika dan fakta daripada perasaan.", dim:"TF"},
     {t:"Saya menyukai pekerjaan yang menuntut ketelitian tinggi, misalnya menghitung atau mencocokkan data."},
     {t:"Sebelum memutuskan sesuatu yang penting, saya harus menimbang dulu semua kemungkinannya."},
     {t:"Saya merasa tidak nyaman jika perintah kerja yang saya terima tidak jelas dan tidak rinci."},
@@ -291,7 +294,7 @@ const POOLS = {
     {t:"Saya lebih memilih cara lama yang sudah terbukti aman daripada mencoba-coba cara baru.", rev:true},
     {t:"Saya cepat bisa menggunakan alat atau aplikasi baru tanpa harus lama diajari."},
     {t:"Bagi saya, perubahan di tempat kerja adalah kesempatan, bukan ancaman."},
-    {t:"Saya cepat bosan dengan pembahasan yang penuh teori tetapi tidak ada prakteknya.", rev:true},
+    {t:"Saya cepat bosan dengan pembahasan yang penuh teori tetapi tidak ada praktiknya.", rev:true},
   ],
   Co: [
     {t:"Saya biasa menyelesaikan tugas sebelum batas waktunya, bukan pas-pasan di akhir."},
@@ -304,7 +307,7 @@ const POOLS = {
     {t:"Saya menuntut diri sendiri untuk memberikan hasil kerja yang berkualitas tinggi."},
   ],
   E: [
-    {t:"Setelah berkumpul dan mengobrol dengan banyak orang, energi saya justru bertambah, bukan terkuras."},
+    {t:"Setelah berkumpul dan mengobrol dengan banyak orang, saya justru merasa makin bersemangat, bukan kelelahan."},
     {t:"Dalam obrolan kelompok, saya lebih banyak berbicara daripada hanya mendengarkan."},
     {t:"Saya lebih suka mengerjakan tugas sendirian daripada bersama-sama dalam tim.", rev:true},
     {t:"Saya cepat akrab dengan rekan kerja atau teman yang baru saya kenal."},
@@ -319,8 +322,8 @@ const POOLS = {
     {t:"Saya mudah memaafkan orang yang pernah berbuat salah kepada saya."},
     {t:"Saya butuh waktu lama untuk bisa percaya kepada orang yang baru saya kenal.", rev:true},
     {t:"Bagi saya, kepentingan tim lebih penting daripada kepentingan pribadi saya sendiri."},
-    {t:"Saya kadang menyindir atau mengomentari orang yang kerjanya lambat atau tidak becus.", rev:true},
-    {t:"Menurut orang lain, saya termasuk orang yang ramah dan enak diajak bicara."},
+    {t:"Saya kadang menyindir atau mengomentari orang yang kerjanya lambat atau asal-asalan.", rev:true},
+    {t:"Saya rela mengubah keputusan yang sudah benar menurut aturan, demi menjaga perasaan orang yang terkena dampaknya.", dim:"TF", rev:true},
     {t:"Saya sulit menolak ketika ada orang yang meminta tolong, walaupun sebenarnya saya keberatan."},
   ],
   N: [
@@ -350,7 +353,7 @@ const ITEMS = (() => {
   const dims = ["D","I","S","C","O","Co","E","A","N"];
   const out = [];
   for (let r = 0; r < 8; r++) {
-    for (const d of dims) out.push({ ...POOLS[d][r], dim: d });
+    for (const d of dims) out.push({ dim: d, ...POOLS[d][r] });   // dim khusus pada item (mis. TF) menang
     if (r === 2) out.push(SD_ITEMS[0]);
     if (r === 4) out.push(SD_ITEMS[1]);
     if (r === 5) out.push({ ...PAIR_ITEMS[0] });
@@ -674,13 +677,14 @@ let MODE = "karakter";           // karakter | spv | manager
 let PAGE_SIZE_CUR = PAGE_SIZE;
 let answers = new Array(ITEMS.length).fill(0);
 let page = 0;
-let TOTAL_PAGES = Math.ceil(ITEMS.length / PAGE_SIZE);
+let TOTAL_PAGES = Math.ceil(ITEMS.length / PAGE_SIZE) + 1;   // +1 halaman pertanyaan penutup
 let peserta = {};
 let deadline = 0;          // epoch ms — jangkar dari used_at (server), bukan jam klien
 let timerId = null;
 let submitted = false;
 let saveDirty = false;
 let leaveCount = 0;   // berapa kali peserta meninggalkan layar saat tes
+let penutup = { gaji:"", kelemahan:"", kelebihan:"" };
 let lastLeaveTs = 0;
 
 function gate(emo, title, msg){
@@ -728,6 +732,7 @@ function gate(emo, title, msg){
       page = tokenRow.progress.page || 0;
       peserta = tokenRow.progress.peserta || {};
       leaveCount = tokenRow.progress.keluar || 0;
+      penutup = tokenRow.progress.penutup || penutup;
     }
     deadline = dl;
     resumeTest();
@@ -810,7 +815,7 @@ async function mulaiTes(){
   try {
     claimed = await sb("rpc/klaim_token", {
       method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount } })
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount, penutup } })
     });
   } catch(e){ alert("Gagal memulai — periksa koneksi lalu coba lagi."); return; }
   if(!claimed || claimed.length===0){
@@ -863,7 +868,7 @@ async function saveProgress(){
   try {
     await sb("rpc/simpan_progress", {
       method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount } })
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount, penutup } })
     });
   } catch(e){ /* koneksi putus — dicoba lagi pada siklus berikutnya */ }
 }
@@ -874,6 +879,7 @@ function gotoPage(p){
   const start = page*PAGE_SIZE_CUR, end = Math.min(start+PAGE_SIZE_CUR, answers.length);
   const list = $("#item-list");
   list.innerHTML = "";
+  if(MODE === "karakter" && page === TOTAL_PAGES - 1){ renderPenutup(list); }
   for(let i=start;i<end;i++){
     const div = document.createElement("div");
     div.className = "item"; div.dataset.idx = i;
@@ -913,6 +919,11 @@ function updateProgress(){
   $("#prog-fill").style.width = (done/answers.length*100)+"%";
 }
 function nextPage(){
+  if(MODE === "karakter" && page === TOTAL_PAGES - 1){
+    if(!validasiPenutup()) return;
+    if(confirm("Kirim seluruh jawaban sekarang? Jawaban tidak bisa diubah setelah dikirim.")) submitTest(false);
+    return;
+  }
   const start = page*PAGE_SIZE_CUR, end = Math.min(start+PAGE_SIZE_CUR, answers.length);
   let ok = true;
   for(let i=start;i<end;i++){
@@ -961,6 +972,50 @@ function computeResults(ans){
            pctExtreme, pairDetails, flat:sdAll<0.55, extreme:pctExtreme>=85, tidakDijawab:kosong };
 }
 
+const PILIHAN_GAJI = ["Di bawah Rp1,6 juta","Rp1,6 juta \u2013 Rp1,9 juta","Rp1,9 juta \u2013 Rp2,3 juta","Di atas Rp2,3 juta"];
+function renderPenutup(list){
+  list.insertAdjacentHTML("beforeend", `
+    <div class="item" id="pt-gaji">
+      <div class="no">PERTANYAAN PENUTUP · 1 DARI 3</div>
+      <div class="stmt">Berapa harapan gaji Anda per bulan saat pertama kali bergabung di Arcelio Aquapark?</div>
+      <div class="opts">${PILIHAN_GAJI.map(g=>`<button type="button" class="${penutup.gaji===g?"sel":""}" data-g="${g}">${g}</button>`).join("")}</div>
+    </div>
+    <div class="item" id="pt-lemah">
+      <div class="no">PERTANYAAN PENUTUP · 2 DARI 3</div>
+      <div class="stmt">Sebutkan kelemahan pribadi yang Anda sadari — yang sering kali membuat Anda merasa tidak nyaman.</div>
+      <textarea id="ta-lemah" rows="4" placeholder="Tulis dengan jujur dan spesifik. Jawaban ini akan menjadi bahan perbincangan saat wawancara."></textarea>
+      <div class="pt-hint">Minimal 1–2 kalimat. Kejujuran lebih dihargai daripada jawaban yang terdengar sempurna.</div>
+    </div>
+    <div class="item" id="pt-lebih">
+      <div class="no">PERTANYAAN PENUTUP · 3 DARI 3</div>
+      <div class="stmt">Sebutkan kelebihan pribadi yang membuat Anda bangga.</div>
+      <textarea id="ta-lebih" rows="4" placeholder="Ceritakan kekuatan yang benar-benar Anda rasakan pada diri sendiri."></textarea>
+      <div class="pt-hint">Minimal 1–2 kalimat.</div>
+    </div>`);
+  $("#ta-lemah").value = penutup.kelemahan || "";
+  $("#ta-lebih").value = penutup.kelebihan || "";
+  document.querySelectorAll("#pt-gaji .opts button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      penutup.gaji = b.dataset.g;
+      document.querySelectorAll("#pt-gaji .opts button").forEach(x=>x.classList.toggle("sel", x===b));
+      $("#pt-gaji").classList.remove("unanswered-hl");
+      saveDirty = true;
+    });
+  });
+  $("#ta-lemah").addEventListener("input", e=>{ penutup.kelemahan = e.target.value; $("#pt-lemah").classList.remove("unanswered-hl"); saveDirty = true; });
+  $("#ta-lebih").addEventListener("input", e=>{ penutup.kelebihan = e.target.value; $("#pt-lebih").classList.remove("unanswered-hl"); saveDirty = true; });
+}
+function validasiPenutup(){
+  let ok = true;
+  if(!penutup.gaji){ $("#pt-gaji").classList.add("unanswered-hl"); ok = false; }
+  if((penutup.kelemahan||"").trim().length < 10){ $("#pt-lemah").classList.add("unanswered-hl"); ok = false; }
+  if((penutup.kelebihan||"").trim().length < 10){ $("#pt-lebih").classList.add("unanswered-hl"); ok = false; }
+  if(!ok){
+    alert("Mohon lengkapi pertanyaan penutup: pilih harapan gaji dan isi kelemahan serta kelebihan Anda (minimal 1–2 kalimat).");
+    document.querySelector(".unanswered-hl")?.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  return ok;
+}
 function jItem(i){
   const b = J_BANK[MODE];
   return i < b.sjt.length
@@ -1066,6 +1121,11 @@ async function submitTest(waktuHabis){
   r.durasiTotalMenit = tokenRow.durasi_menit;
   r.bersediaPosisiLain = peserta.bersediaPosisiLain || null;
   r.bersediaMess = peserta.bersediaMess || null;
+  if(MODE === "karakter"){
+    r.gajiHarapan = penutup.gaji || null;
+    r.kelemahan = (penutup.kelemahan||"").trim() || null;
+    r.kelebihan = (penutup.kelebihan||"").trim() || null;
+  }
   const row = {
     jenis: MODE,
     token: tokenRow.token,

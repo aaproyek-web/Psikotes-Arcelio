@@ -987,6 +987,7 @@ function posOf(k){
     ideal:{D:50,I:50,S:50,C:50,O:50,Co:50,E:50,A:50,N:50},
     w:{D:1,I:1,S:1,C:1,O:1,Co:1,E:1,A:1,N:1} };
 }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function ya(v){
   if(v == null) return "—";
   return v === "bersedia"
@@ -1210,6 +1211,7 @@ function renderHasilList(){
         h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
       r.bersediaPosisiLain==="tidak"?`<span class="chip c-amber">📌 hanya posisi pilihan</span>`:"",
       r.bersediaMess==="tidak"?`<span class="chip c-amber">🏠 tidak bersedia mess</span>`:"",
+      r.gajiHarapan?`<span class="chip c-teal">💰 ${r.gajiHarapan}</span>`:"",
         (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
         h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
       ].join("");
@@ -1232,6 +1234,7 @@ function renderHasilList(){
       h.waktu_habis?`<span class="chip c-amber">⌛ waktu habis</span>`:"",
       r.bersediaPosisiLain==="tidak"?`<span class="chip c-amber">📌 hanya posisi pilihan</span>`:"",
       r.bersediaMess==="tidak"?`<span class="chip c-amber">🏠 tidak bersedia mess</span>`:"",
+      r.gajiHarapan?`<span class="chip c-teal">💰 ${r.gajiHarapan}</span>`:"",
       (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
       h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
     ].join("");
@@ -1378,7 +1381,11 @@ function renderDetail(){
       </div>
     </div>
 
+    ${kartuPenutup(r)}
+    ${kartuIntegritas(r)}
+
     ${kartuTemperamen(dims)}
+    ${kartuMBTI(dims, r)}
     ${kartuPotensi(dims, r)}
 
     <div class="card"><h2>Profil DISC</h2>${["D","I","S","C"].map(bar).join("")}</div>
@@ -1601,6 +1608,74 @@ function copyJSON(){
 
 
 /* ============================================================
+   KEHATI-HATIAN INTEGRITAS & JAWABAN PENUTUP
+   ============================================================ */
+const POSISI_UANG = ["kasir","accounting","store","frontdesk","admin"];
+function kartuIntegritas(r){
+  const isJ = cur.jenis && cur.jenis !== "karakter";
+  let poin = 0; const sinyal = [];
+  if(isJ){
+    const it = (r.komp||{}).int;
+    if(it != null){
+      if(it < 55){ poin += 4; sinyal.push(`Skor skenario integritas rendah (${it}%) — pilihan tindakannya pada dilema etika perlu didalami`); }
+      else if(it < 70){ poin += 1; sinyal.push(`Skor skenario integritas sedang (${it}%)`); }
+    }
+    if((r.keluarLayar||0) >= 3){ poin += 1; sinyal.push("Sering meninggalkan layar saat tes — kemandirian jawaban dipertanyakan"); }
+  } else {
+    const d = r.dims || {};
+    if(d.Co <= 35){ poin += 2; sinyal.push(`Keandalan/kedisiplinan sangat rendah (Co ${d.Co}) — kontrol diri dan kepatuhan aturan lemah`); }
+    else if(d.Co <= 45){ poin += 1; sinyal.push(`Keandalan di bawah rata-rata (Co ${d.Co})`); }
+    if(d.A <= 35){ poin += 2; sinyal.push(`Kepedulian pada orang lain sangat rendah (A ${d.A}) — kecenderungan sinis/memanfaatkan`); }
+    else if(d.A <= 45){ poin += 1; sinyal.push(`Kepedulian di bawah rata-rata (A ${d.A})`); }
+    if(d.N >= 70){ poin += 1; sinyal.push(`Reaktivitas emosi tinggi (N ${d.N}) — rentan bertindak impulsif di bawah tekanan`); }
+    if(r.sd >= 4.25){ poin += 2; sinyal.push("Terindikasi menjawab demi pencitraan (faking good) — kejujuran dalam mengisi tes saja sudah diragukan"); }
+    if(r.consist >= 1.5){ poin += 1; sinyal.push("Jawaban inkonsisten — seluruh profil kurang dapat dipercaya"); }
+  }
+  const lvl = poin >= 4 ? {t:"⚠️ Perlu verifikasi KETAT", c:"var(--coral)"}
+            : poin >= 2 ? {t:"Perlu verifikasi standar+", c:"var(--amber)"}
+            : {t:"✓ Tidak ada penanda khusus", c:"var(--green)"};
+  const uang = !isJ && POSISI_UANG.includes(cur.posisi_key);
+  return `<div class="card" style="border-left:5px solid ${lvl.c}">
+    <h2>Kehati-hatian Integritas</h2>
+    <div style="font-weight:800;font-size:16px;color:${lvl.c};margin-top:4px">${lvl.t}</div>
+    ${uang?`<div class="note-info" style="background:var(--amber-soft);margin-top:8px">💰 Posisi yang dilamar <b>memegang uang/barang</b> — apa pun tingkatnya, langkah verifikasi di bawah sebaiknya dijalankan penuh.</div>`:""}
+    ${sinyal.length
+      ? `<h4 style="margin-top:12px">Sinyal yang terdeteksi</h4><ul>${sinyal.map(s=>`<li>${s}</li>`).join("")}</ul>`
+      : `<p class="small" style="margin-top:8px">Kombinasi keandalan, kepedulian, stabilitas emosi, dan kejujuran pengisian tidak menunjukkan pola risiko. Tetap jalankan verifikasi wajar untuk posisi yang memegang uang.</p>`}
+    ${poin >= 2 ? `
+    <h4 style="margin-top:12px">Pertanyaan wawancara integritas (minta contoh NYATA, gali dengan STAR)</h4>
+    <ul>
+      <li>“Ceritakan saat Anda menemukan uang atau barang yang bukan milik Anda di tempat kerja/umum. Apa yang Anda lakukan saat itu?”</li>
+      <li>“Pernahkah Anda melihat rekan kerja berbuat curang? Apa yang Anda lakukan — dan apa akibatnya bagi Anda?”</li>
+      <li>“Ceritakan kesalahan terbesar Anda di pekerjaan sebelumnya yang sempat tidak diketahui siapa pun. Bagaimana akhirnya?”</li>
+      <li>Perhatikan: jawaban yang terlalu mulus/heroik pada semuanya justru mencurigakan — orang jujur biasanya punya cerita yang ada kikuknya.</li>
+    </ul>
+    <h4>Langkah verifikasi</h4>
+    <ul>
+      <li><b>Cek referensi ke atasan langsung sebelumnya</b> (prediktor terkuat) dengan pertanyaan spesifik: “Apakah Anda akan mempekerjakannya lagi untuk posisi yang memegang uang?” — dengarkan keraguan sekecil apa pun.</li>
+      <li>Masa percobaan: tempatkan dulu di tugas yang tidak memegang kas, atau kas dengan rekonsiliasi harian + kontrol ganda.</li>
+      <li>Pastikan kontrol situasional aktif: hitung serah terima kas disaksikan dua pihak, CCTV titik uang, rotasi berkala.</li>
+    </ul>` : ""}
+    <p class="small" style="margin-top:10px"><b>Penting:</b> Ini pemandu kewaspadaan berbasis statistik kepribadian, <b>bukan bukti dan bukan tuduhan</b>. Banyak orang dengan profil serupa jujur seumur hidupnya. Jangan pernah menolak kandidat semata-mata karena kartu ini — gunakan untuk menentukan seberapa dalam verifikasi, dan biarkan referensi + wawancara + masa percobaan yang memutuskan.</p>
+  </div>`;
+}
+function kartuPenutup(r){
+  const ada = r.gajiHarapan || r.kelemahan || r.kelebihan;
+  if(!ada) return `<div class="card"><h2>Jawaban Penutup Peserta</h2><p class="small">Tidak tersedia — hasil ini dari versi sebelum pertanyaan penutup ditambahkan.</p></div>`;
+  return `<div class="card">
+    <h2>Jawaban Penutup Peserta</h2>
+    <div class="id-grid" style="margin-top:8px">
+      <div><b>Harapan gaji awal</b>${r.gajiHarapan?`💰 ${esc(r.gajiHarapan)}`:"—"}</div>
+    </div>
+    <h4 style="margin-top:12px">Kelemahan yang ia sadari</h4>
+    <div class="pair-box">${esc(r.kelemahan)||"—"}</div>
+    <h4 style="margin-top:12px">Kelebihan yang ia banggakan</h4>
+    <div class="pair-box">${esc(r.kelebihan)||"—"}</div>
+    <p class="small" style="margin-top:10px">Pakai di wawancara: minta <b>contoh nyata</b> dari kelemahan &amp; kelebihan ini (STAR). Kelemahan yang spesifik dan jujur adalah tanda kesadaran diri yang baik; jawaban template (“saya terlalu perfeksionis”) layak digali lebih keras. Cocokkan juga dengan profil DISC/OCEAN di bawah — selaras atau bertolak belakang?</p>
+  </div>`;
+}
+
+/* ============================================================
    TEMPERAMEN KLASIK & INDIKASI POTENSI JENJANG (lembar karakter)
    ============================================================ */
 function kartuTemperamen(dims){
@@ -1628,6 +1703,41 @@ function kartuTemperamen(dims){
       <div class="bar-val">${m.pct}%</div>
       <div class="bar-note">${m.d}</div></div>`).join("")}
     <div class="note-info">Tipe temperamen: <b>${tipe}</b>${catatan.length?`<br>${catatan.map(c=>"• "+c).join("<br>")}`:""}</div>
+  </div>`;
+}
+
+function kartuMBTI(dims, r){
+  const pakaiFallbackTF = dims.TF == null;
+  const tf = pakaiFallbackTF ? (100 - (dims.A ?? 50)) : dims.TF;
+  const sumbu = [
+    { v:dims.E,  a:"E", b:"I", da:"Extravert — energi dari interaksi dengan orang", db:"Introvert — energi dari ketenangan dan ruang sendiri" },
+    { v:dims.O,  a:"N", b:"S", da:"iNtuitive — berpikir gambaran besar, ide, kemungkinan", db:"Sensing — berpikir konkret, fakta, dan hal praktis" },
+    { v:tf,      a:"T", b:"F", da:"Thinking — memutuskan dengan logika dan konsistensi", db:"Feeling — memutuskan dengan nilai dan dampak ke orang" },
+    { v:dims.Co, a:"J", b:"P", da:"Judging — terencana, teratur, suka kepastian", db:"Perceiving — luwes, spontan, terbuka pada perubahan" },
+  ];
+  let tipe = "", adaTipis = false;
+  const baris = sumbu.map(s=>{
+    const v = s.v ?? 50;
+    const huruf = v >= 50 ? s.a : s.b;
+    const lean = Math.min(100, Math.round(Math.abs(v-50)*2));
+    const tipis = lean < 20;
+    if(tipis) adaTipis = true;
+    tipe += huruf;
+    return `<div class="bar-row">
+      <div class="bl" style="font-size:13px"><b>${huruf}${tipis?"*":""}</b> — ${v>=50?s.da:s.db}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${lean}%;background:${tipis?"var(--amber)":"var(--teal)"}"></div></div>
+      <div class="bar-val">${lean}%</div></div>`;
+  }).join("");
+  return `<div class="card">
+    <h2>Estimasi Tipe MBTI</h2>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <div style="font-size:40px;font-weight:800;letter-spacing:4px;color:var(--teal)">${tipe}</div>
+      <p class="small" style="max-width:46ch">Diestimasi dari dimensi Big Five yang berkorelasi kuat dengan keempat sumbu MBTI. Angka % = seberapa jauh dari garis tengah (keyakinan arah huruf).</p>
+    </div>
+    ${baris}
+    ${adaTipis?`<div class="note-info">Huruf bertanda <b>*</b> tipis (kandidat berada dekat garis tengah) — jangan terpaku pada satu kotak; ia bisa menampilkan kedua sisi tergantung situasi.</div>`:""}
+    ${pakaiFallbackTF?`<div class="note-info" style="background:var(--amber-soft)">Hasil dari versi tes lama: huruf T/F diperkirakan dari dimensi kepedulian (A) sehingga keyakinannya lebih rendah.</div>`:""}
+    <p class="small" style="margin-top:10px"><b>Catatan:</b> MBTI berguna sebagai bahasa deskriptif yang mudah dikomunikasikan, tetapi validitasnya untuk seleksi kerja lebih rendah daripada profil Big Five/DISC di lembar ini. Gunakan sebagai pelengkap gambaran, bukan dasar keputusan.</p>
   </div>`;
 }
 
@@ -1766,6 +1876,8 @@ function renderDetailJenjang(){
       }).join("")}
       ${lemah?`<div class="note-info">Kategori terlemah: <b>${lemah}</b> — jadikan fokus utama pendalaman wawancara di bawah.</div>`:""}
     </div>
+
+    ${kartuIntegritas(r)}
 
     <div class="card">
       <h2>Jawaban Janggal — Tanyakan Alasannya di Wawancara</h2>
