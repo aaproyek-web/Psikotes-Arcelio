@@ -149,14 +149,24 @@ textarea:focus{outline:none;border-color:var(--aqua)}
     <div class="card">
       <h2>Petunjuk Pengisian</h2>
       <ul style="padding-left:20px;font-size:14px" id="petunjuk-list">
-        <li>Terdapat <b>80 pernyataan</b> tentang kebiasaan dan sikap Anda sehari-hari.</li>
-        <li>Pilih angka <b>1 – 5</b>: <b>1</b> = Sangat Tidak Setuju · <b>3</b> = Netral · <b>5</b> = Sangat Setuju.</li>
-        <li>Tidak ada jawaban benar atau salah. Jawablah dengan <b>jujur dan spontan</b> — jawaban yang dibuat-buat akan terdeteksi sistem.</li>
+        <li>Terdapat <b>113 pernyataan</b> tentang kebiasaan dan sikap Anda, ditutup 3 pertanyaan singkat di akhir. Pilih angka <b>1 – 5</b>: <b>1</b> = Sangat Tidak Setuju · <b>3</b> = Netral · <b>5</b> = Sangat Setuju.</li>
+        <li><b>Tempatkan diri Anda yang SEBENARNYA hari ini</b> — bukan diri ideal yang Anda cita-citakan, dan bukan jawaban yang menurut Anda diinginkan perusahaan.</li>
+        <li><b>Tidak ada jawaban benar atau salah.</b> Setiap posisi membutuhkan karakter yang berbeda — jawaban yang dibagus-baguskan justru bisa membuat Anda ditempatkan di posisi yang tidak cocok, dan Andalah yang akan tersiksa menjalaninya.</li>
+        <li>Kerjakan di tempat <b>tenang</b>, sendirian, tanpa terburu-buru. <b>Baca setiap kalimat sampai selesai</b> sebelum menjawab — beberapa pernyataan arahnya berkebalikan.</li>
+        <li>Jawaban pertama yang jujur biasanya yang paling tepat. Anda tetap boleh kembali ke halaman sebelumnya untuk meninjau ulang sebelum mengirim.</li>
+        <li>⚠️ Sistem mencatat <b>waktu pengerjaan tiap soal, pola jawaban, dan konsistensi antar pernyataan</b>. Pengerjaan asal-asalan atau jawaban yang dibuat-buat hampir selalu terdeteksi — dan itu menurunkan penilaian Anda, bukan menaikkannya.</li>
       </ul>
       <div class="note-time">
         ⏱️ <b>Tentang waktu:</b> Anda memiliki <b><span id="txt-durasi">25</span> menit</b>. Waktu berjalan mundur <b>sejak tombol "Mulai Tes" ditekan</b> dan tidak bisa dihentikan.
         Jika waktu habis, jawaban yang sudah terisi akan <b>terkirim otomatis</b>.
         Tautan ini hanya bisa dipakai <b>satu kali</b>. Jika koneksi terputus, buka kembali tautan yang sama — Anda bisa melanjutkan selama waktu masih tersisa.
+      </div>
+      <div class="note-time" style="background:#F2FBF6;border-color:var(--green)">
+        🤝 <b style="color:var(--green)">Pernyataan kejujuran:</b>
+        <label style="display:flex;gap:10px;margin-top:10px;align-items:flex-start;cursor:pointer;font-weight:600">
+          <input type="checkbox" id="jujur-setuju" style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
+          <span>Saya berjanji menjawab sesuai <b>keadaan diri saya yang sebenarnya</b>, mengerjakan tes ini <b>sendiri tanpa bantuan siapa pun</b>, dan memahami bahwa jawaban yang tidak jujur dapat menggugurkan lamaran saya.</span>
+        </label>
       </div>
       <div class="note-time" style="background:var(--aqua-soft);border-color:var(--teal)">
         📷 <b style="color:var(--teal)">Verifikasi identitas dengan kamera:</b> Selama tes berlangsung, <b>kamera depan akan mengambil foto Anda beberapa kali</b> — saat mulai, di waktu acak, dan saat selesai — untuk memastikan tes dikerjakan sendiri oleh Anda.
@@ -231,136 +241,185 @@ async function sb(path, opt = {}) {
 
 /* ---------- DAFTAR POSISI (nama saja; profil ideal ada di hrd.html) ---------- */
 const POSITIONS = [
-  { key:"security",   nama:"Security" },
-  { key:"poolguard",  nama:"Pool Guard" },
-  { key:"frontdesk",  nama:"Front Desk / Receptionist" },
-  { key:"sales",      nama:"Sales" },
-  { key:"marketing",  nama:"Marketing" },
-  { key:"accounting", nama:"Accounting" },
-  { key:"kasir",      nama:"Kasir" },
-  { key:"admin",      nama:"Admin" },
-  { key:"store",      nama:"Store / Gudang" },
-  { key:"housekeeping", nama:"Housekeeping" },
-  { key:"engineering",nama:"Engineering / Maintenance" },
+  { key:"kasir",        nama:"Kasir" },
+  { key:"receptionist", nama:"Receptionist" },
+  { key:"sales",        nama:"Sales" },
+  { key:"marketing",    nama:"Marketing" },
+  { key:"poolguard",    nama:"Pool Guard" },
+  { key:"cleaning",     nama:"Cleaning Staff" },
+  { key:"housekeeping", nama:"House Keeping" },
+  { key:"engineering",  nama:"Engineering / Teknisi" },
+  { key:"security",     nama:"Security" },
+  { key:"accounting",   nama:"Accounting" },
+  { key:"admin",        nama:"Admin" },
+  { key:"hr",           nama:"HR Staff" },
+  { key:"event",        nama:"Event Coordinator" },
+  { key:"purchasing",   nama:"Purchasing" },
+  { key:"store",        nama:"Store / Gudang" },
 ];
 
 /* ---------- BANK SOAL (identik dengan pengaturan skoring di hrd.html) ---------- */
 const POOLS = {
   D: [
-    {t:"Ketika tim saya kebingungan dan tidak ada yang memimpin, saya yang maju mengambil alih."},
-    {t:"Saya berani mengambil keputusan dengan cepat, meskipun informasinya belum lengkap semua.", id:"D2"},
-    {t:"Jika saya tidak setuju dengan seseorang, saya menyampaikannya langsung kepada orangnya, bukan di belakang."},
-    {t:"Target kerja yang berat dan menantang justru membuat saya lebih bersemangat, bukan takut."},
-    {t:"Saya lebih senang menjadi ketua/pemimpin daripada menjadi anggota biasa."},
-    {t:"Dalam rapat atau kerja kelompok, saya sering menjadi orang yang mengarahkan jalannya pembicaraan."},
-    {t:"Jika melihat rekan kerja melakukan kesalahan, saya berani menegurnya secara langsung."},
-    {t:"Saya lebih memilih menghindari situasi yang bersifat lomba atau persaingan.", rev:true},
+    {t:"Dalam keadaan mendesak, saya berani cepat mengambil keputusan.", id:"D2"},
+    {t:"Saya senang memimpin jalannya diskusi atau kerja kelompok."},
+    {t:"Saya suka bersaing untuk menjadi yang terbaik."},
+    {t:"Saya senang mengarahkan orang lain agar tujuan tercapai."},
+    {t:"Pekerjaan yang penuh tantangan membuat saya bersemangat."},
+    {t:"Jika tidak setuju, saya berani menyampaikannya langsung kepada orangnya."},
+    {t:"Saya senang bila usul saya diikuti oleh orang lain."},
+    {t:"Saya memilih menghindari persaingan.", rev:true},
   ],
   I: [
-    {t:"Saya mudah memulai obrolan dengan orang yang baru pertama kali saya temui."},
-    {t:"Teman-teman menganggap saya orang yang ceria dan penuh semangat."},
-    {t:"Saya merasa senang (bukan gugup) ketika menjadi pusat perhatian di sebuah kelompok."},
-    {t:"Saya pandai membujuk orang lain sehingga mereka mau mengikuti ide atau ajakan saya."},
-    {t:"Saat keputusan saya berdampak pada orang lain, perasaan mereka lebih saya utamakan daripada hitungan untung-rugi.", dim:"TF", rev:true},
-    {t:"Saya sering bercanda untuk mencairkan suasana yang kaku."},
-    {t:"Saya bingung harus bicara apa ketika mengobrol dengan orang yang belum akrab.", rev:true},
-    {t:"Saat menjelaskan sesuatu, saya lebih suka memakai cerita dan contoh daripada angka dan data."},
+    {t:"Saya mudah memulai obrolan dengan orang yang baru saya kenal."},
+    {t:"Saya senang menjadi pusat perhatian."},
+    {t:"Saya pandai mengajak orang lain mengikuti ide saya."},
+    {t:"Saya senang berbicara di depan banyak orang."},
+    {t:"Teman-teman menganggap saya orang yang ceria dan bersemangat."},
+    {t:"Saya sering bercanda untuk mencairkan suasana."},
+    {t:"Saat menjelaskan sesuatu, saya suka memakai cerita dan contoh."},
+    {t:"Saya bingung harus bicara apa dengan orang yang belum akrab.", rev:true},
   ],
   S: [
-    {t:"Saya lebih nyaman dengan jadwal dan rutinitas yang tetap daripada perubahan yang mendadak.", id:"S1"},
-    {t:"Saya sanggup mendengarkan keluhan orang lain sampai selesai tanpa memotong pembicaraannya."},
-    {t:"Saat teman menceritakan masalahnya, saya cenderung langsung memberi jalan keluar, bukan hanya menemani perasaannya.", dim:"TF"},
-    {t:"Saya tipe orang yang betah bekerja bertahun-tahun di satu tempat, tidak suka pindah-pindah."},
-    {t:"Ketika ada aturan atau cara kerja baru, saya butuh waktu lebih lama dari orang lain untuk terbiasa."},
-    {t:"Sebisa mungkin saya mengalah agar tidak terjadi pertengkaran dengan orang lain."},
-    {t:"Mengerjakan tugas yang sama persis setiap hari membuat saya cepat bosan.", rev:true},
-    {t:"Saya tetap bisa sabar dan sopan melayani pelanggan yang sedang marah-marah."},
+    {t:"Saya lebih suka pekerjaan yang stabil daripada yang sering berubah.", id:"S1"},
+    {t:"Saya sabar mendengarkan orang lain sampai selesai bicara."},
+    {t:"Saya lebih suka menjaga kerukunan daripada berdebat."},
+    {t:"Saya betah bekerja lama di satu tempat."},
+    {t:"Saya tetap sabar melayani pelanggan yang sedang marah."},
+    {t:"Saya lebih suka mengalah agar tidak terjadi pertengkaran."},
+    {t:"Saya nyaman dengan pekerjaan yang jadwalnya tetap."},
+    {t:"Mengerjakan hal yang sama setiap hari membuat saya cepat bosan.", rev:true},
   ],
   C: [
-    {t:"Sebelum menyerahkan hasil kerja, saya selalu memeriksanya ulang minimal satu kali."},
-    {t:"Saya merasa terganggu jika melihat orang bekerja tidak sesuai aturan atau prosedur (SOP)."},
-    {t:"Dalam mengambil keputusan penting, saya lebih mengandalkan logika dan fakta daripada perasaan.", dim:"TF"},
-    {t:"Saya menyukai pekerjaan yang menuntut ketelitian tinggi, misalnya menghitung atau mencocokkan data."},
-    {t:"Sebelum memutuskan sesuatu yang penting, saya harus menimbang dulu semua kemungkinannya."},
-    {t:"Saya merasa tidak nyaman jika perintah kerja yang saya terima tidak jelas dan tidak rinci."},
-    {t:"Bagi saya, yang penting pekerjaan selesai — tidak harus sempurna sampai hal-hal kecil.", rev:true},
-    {t:"Berkas, catatan, dan barang kerja saya selalu tersimpan rapi sehingga mudah dicari."},
+    {t:"Saya nyaman bekerja dengan aturan yang jelas."},
+    {t:"Saya memeriksa ulang hasil kerja sebelum diserahkan."},
+    {t:"Saya menyukai pekerjaan yang menuntut ketelitian."},
+    {t:"Saya berhati-hati sebelum bertindak."},
+    {t:"Saya nyaman mengikuti instruksi yang rinci."},
+    {t:"Saya suka bila pekerjaan diatur dengan sistem yang rapi."},
+    {t:"Saya lebih suka mengikuti aturan daripada melanggarnya."},
+    {t:"Bagi saya yang penting pekerjaan selesai, tidak harus rapi sampai hal kecil.", rev:true},
   ],
   O: [
-    {t:"Saya senang mencoba cara baru dalam mengerjakan sesuatu, walaupun cara lama masih bisa dipakai."},
-    {t:"Saya suka mempelajari hal-hal baru di luar bidang pekerjaan saya, hanya karena penasaran."},
-    {t:"Saya sering punya ide atau usulan yang berbeda dari kebiasaan orang-orang."},
-    {t:"Saya menikmati kegiatan seni atau kreatif, misalnya musik, desain, menggambar, atau menulis."},
-    {t:"Saya lebih memilih cara lama yang sudah terbukti aman daripada mencoba-coba cara baru.", rev:true},
-    {t:"Saya cepat bisa menggunakan alat atau aplikasi baru tanpa harus lama diajari."},
-    {t:"Bagi saya, perubahan di tempat kerja adalah kesempatan, bukan ancaman."},
-    {t:"Saya cepat bosan dengan pembahasan yang penuh teori tetapi tidak ada praktiknya.", rev:true},
+    {t:"Saya suka mencoba cara baru meskipun belum terbiasa."},
+    {t:"Saya senang belajar hal baru karena penasaran."},
+    {t:"Saya suka berpikir kreatif mencari ide."},
+    {t:"Saya menikmati kegiatan seni seperti musik, menggambar, atau menulis."},
+    {t:"Saya suka membayangkan berbagai kemungkinan baru."},
+    {t:"Bagi saya, perubahan adalah kesempatan, bukan ancaman."},
+    {t:"Saya cepat bisa memakai alat atau aplikasi baru."},
+    {t:"Saya lebih memilih cara lama yang sudah terbukti aman.", rev:true},
   ],
   Co: [
-    {t:"Saya biasa menyelesaikan tugas sebelum batas waktunya, bukan pas-pasan di akhir."},
-    {t:"Sebelum mulai bekerja, saya membuat rencana atau daftar urutan yang akan saya kerjakan."},
-    {t:"Barang-barang pribadi saya selalu tertata di tempatnya masing-masing, tidak berantakan."},
-    {t:"Saya sering menunda-nunda pekerjaan sampai waktunya sudah mepet.", rev:true},
-    {t:"Dalam hal kehadiran, saya bisa diandalkan — hampir selalu datang tepat waktu.", id:"Co5"},
-    {t:"Sekali saya mulai mengerjakan sesuatu, saya pastikan selesai sampai tuntas."},
-    {t:"Saya kadang meninggalkan pekerjaan dalam keadaan setengah jadi lalu lupa melanjutkannya.", rev:true},
-    {t:"Saya menuntut diri sendiri untuk memberikan hasil kerja yang berkualitas tinggi."},
+    {t:"Saya berusaha menyelesaikan tugas sebelum batas waktunya."},
+    {t:"Saya disiplin mengatur waktu."},
+    {t:"Saya membuat rencana dulu sebelum mulai bekerja."},
+    {t:"Barang dan berkas kerja saya tertata rapi."},
+    {t:"Sekali mulai mengerjakan sesuatu, saya selesaikan sampai tuntas."},
+    {t:"Saya bertanggung jawab penuh atas hasil pekerjaan saya."},
+    {t:"Dalam hal kehadiran, saya hampir selalu datang tepat waktu.", id:"Co5"},
+    {t:"Saya sering menunda pekerjaan sampai waktunya mepet.", rev:true},
   ],
   E: [
-    {t:"Setelah berkumpul dan mengobrol dengan banyak orang, saya justru merasa makin bersemangat, bukan kelelahan."},
-    {t:"Dalam obrolan kelompok, saya lebih banyak berbicara daripada hanya mendengarkan."},
-    {t:"Saya lebih suka mengerjakan tugas sendirian daripada bersama-sama dalam tim.", rev:true},
-    {t:"Saya cepat akrab dengan rekan kerja atau teman yang baru saya kenal."},
-    {t:"Terlalu lama berada di tempat yang ramai membuat saya lelah dan ingin menyendiri.", rev:true},
-    {t:"Saya berani berbicara di depan banyak orang, misalnya memimpin doa atau memberi pengumuman."},
-    {t:"Saat bertemu orang lain, biasanya saya yang lebih dulu menyapa."},
-    {t:"Bagi saya, libur yang menyenangkan adalah berkumpul dengan banyak teman, bukan sendirian di rumah."},
+    {t:"Bertemu banyak orang membuat semangat saya bertambah."},
+    {t:"Saya senang berada di keramaian."},
+    {t:"Saat bertemu orang, biasanya saya yang lebih dulu menyapa."},
+    {t:"Saya cepat akrab dengan orang yang baru saya kenal."},
+    {t:"Saya senang bergaul dengan banyak orang."},
+    {t:"Libur yang menyenangkan bagi saya adalah berkumpul bersama banyak orang."},
+    {t:"Saya senang mengobrol panjang dengan orang lain."},
+    {t:"Saya lebih nyaman bekerja sendiri daripada dalam kelompok besar.", rev:true},
   ],
   A: [
-    {t:"Sebelum menilai seseorang, saya berusaha memahami dulu alasan dan sudut pandangnya."},
-    {t:"Saya mau membantu pekerjaan rekan yang kerepotan, walaupun pekerjaan saya sendiri juga banyak."},
-    {t:"Saya mudah memaafkan orang yang pernah berbuat salah kepada saya."},
-    {t:"Saya butuh waktu lama untuk bisa percaya kepada orang yang baru saya kenal.", rev:true},
-    {t:"Bagi saya, kepentingan tim lebih penting daripada kepentingan pribadi saya sendiri."},
-    {t:"Saya kadang menyindir atau mengomentari orang yang kerjanya lambat atau asal-asalan.", rev:true},
-    {t:"Saya rela mengubah keputusan yang sudah benar menurut aturan, demi menjaga perasaan orang yang terkena dampaknya.", dim:"TF", rev:true},
-    {t:"Saya sulit menolak ketika ada orang yang meminta tolong, walaupun sebenarnya saya keberatan."},
+    {t:"Saya mudah memahami perasaan orang lain."},
+    {t:"Saya suka menolong orang yang sedang kesulitan."},
+    {t:"Saya mudah memaafkan kesalahan orang lain."},
+    {t:"Saya peduli dengan kebutuhan orang di sekitar saya."},
+    {t:"Saya senang bekerja sama dalam tim."},
+    {t:"Saya berusaha menjaga hubungan baik dengan semua orang."},
+    {t:"Sebelum menilai seseorang, saya mencoba memahami alasannya dulu."},
+    {t:"Saya butuh waktu lama untuk bisa percaya pada orang baru.", rev:true},
   ],
   N: [
-    {t:"Ketika menghadapi tekanan atau dikejar waktu, saya mudah menjadi cemas dan gelisah.", id:"N1"},
-    {t:"Suasana hati saya mudah berubah — bisa senang lalu tiba-tiba kesal dalam satu hari."},
-    {t:"Dalam keadaan darurat atau genting, saya tetap bisa berpikir tenang.", rev:true},
-    {t:"Jika dikritik atau ditegur, saya bisa memikirkannya terus-menerus sampai berhari-hari."},
-    {t:"Saya mudah tersinggung oleh ucapan atau candaan orang lain."},
-    {t:"Saya sering mengkhawatirkan hal-hal buruk yang sebenarnya belum tentu terjadi."},
-    {t:"Setelah mengalami kejadian yang tidak menyenangkan, saya cepat pulih dan kembali normal.", rev:true},
-    {t:"Ketika sedang banyak masalah, saya jadi sulit tidur atau sulit berkonsentrasi."},
+    {t:"Saya mudah cemas menghadapi hal yang belum pasti.", id:"N1"},
+    {t:"Saya mudah merasa khawatir."},
+    {t:"Saya sering merasa tegang."},
+    {t:"Jika dikritik atau ditegur, saya memikirkannya sampai berhari-hari."},
+    {t:"Saat banyak masalah, saya sulit tidur atau sulit berkonsentrasi."},
+    {t:"Suasana hati saya mudah berubah-ubah dalam sehari."},
+    {t:"Saya mudah merasa gelisah."},
+    {t:"Dalam keadaan genting, saya tetap bisa berpikir tenang.", rev:true},
+  ],
+  TF: [
+    {t:"Saya membuat keputusan berdasarkan logika, bukan perasaan."},
+    {t:"Saya lebih percaya pada fakta daripada firasat."},
+    {t:"Saat teman bercerita masalahnya, saya cenderung langsung memberi jalan keluar, bukan sekadar menghibur."},
+    {t:"Sebelum memutuskan, saya menimbang dulu perasaan orang yang terkena dampaknya.", rev:true},
+    {t:"Bagi saya, menjaga perasaan orang lebih penting daripada menang berdebat.", rev:true},
+    {t:"Keputusan saya sering mengikuti kata hati.", rev:true},
+  ],
+  INT: [
+    {t:"Bila kembalian yang saya terima berlebih, saya mengembalikannya walau tidak ada yang tahu.", id:"IN1"},
+    {t:"Saya tetap jujur meskipun kejujuran itu merugikan saya."},
+    {t:"Bagi saya, mengambil barang kecil milik tempat kerja tetap termasuk mencuri."},
+    {t:"Saya menolak ikut berbuat curang meskipun dilakukan ramai-ramai."},
+    {t:"Menurut saya, bohong kecil tidak masalah asal tidak ketahuan.", rev:true},
+    {t:"Kalau semua orang melakukannya, melanggar aturan kecil itu wajar.", rev:true},
+  ],
+  DEW: [
+    {t:"Saat berbuat salah, saya mengakuinya tanpa mencari-cari alasan."},
+    {t:"Saya bisa menerima teguran tanpa marah atau merajuk."},
+    {t:"Saya memikirkan akibat jangka panjang sebelum bertindak."},
+    {t:"Saat sedang emosi, saya menahan diri agar tidak melampiaskannya ke orang lain."},
+    {t:"Kalau hasil kerja saya buruk, biasanya itu karena kesalahan orang lain.", rev:true},
+    {t:"Saya sulit menerima kritik atas pekerjaan saya.", rev:true},
+  ],
+  TOL: [
+    {t:"Saya nyaman bekerja dengan orang yang berbeda agama atau suku.", id:"TO1"},
+    {t:"Saya menghargai pendapat yang berbeda dengan pendapat saya."},
+    {t:"Saya bisa berteman baik dengan orang yang kebiasaannya berbeda dari saya."},
+    {t:"Perbedaan pandangan di dalam tim menurut saya hal yang wajar."},
+    {t:"Saya sulit bekerja sama dengan orang yang pandangan hidupnya berbeda.", rev:true},
+    {t:"Saya merasa cara hidup kelompok saya yang paling benar.", rev:true},
+  ],
+  KEB: [
+    {t:"Saya ikut senang melihat orang lain berhasil."},
+    {t:"Saya mau membantu orang tanpa mengharap imbalan."},
+    {t:"Saya menyisihkan waktu atau rezeki untuk membantu orang yang membutuhkan."},
+    {t:"Melihat orang kesusahan membuat saya tergerak untuk menolong."},
+    {t:"Membantu orang lain hanya membuang-buang waktu saya.", rev:true},
+    {t:"Kesusahan orang lain bukan urusan saya.", rev:true},
   ],
 };
 const SD_ITEMS = [
-  {t:"Seumur hidup, saya tidak pernah berbohong sekali pun, sekecil apa pun.", dim:"SD"},
-  {t:"Semua janji yang pernah saya buat selalu saya tepati, tanpa terkecuali.", dim:"SD"},
-  {t:"Saya tidak pernah merasa iri kepada siapa pun, dalam hal apa pun.", dim:"SD"},
-  {t:"Semua peraturan selalu saya patuhi — tidak pernah melanggar satu kali pun.", dim:"SD"},
+  {t:"Seumur hidup, saya tidak pernah berbohong sekali pun.", dim:"SD"},
+  {t:"Semua janji saya selalu saya tepati, tanpa terkecuali.", dim:"SD"},
+  {t:"Saya tidak pernah merasa iri kepada siapa pun.", dim:"SD"},
+  {t:"Saya tidak pernah melanggar peraturan, sekecil apa pun.", dim:"SD"},
+  {t:"Saya tidak pernah marah kepada siapa pun.", dim:"SD"},
 ];
 const PAIR_ITEMS = [
-  {t:"Walaupun datanya belum lengkap semua, saya tetap berani segera memutuskan.",                    dim:"D",  pairOf:"D2"},
-  {t:"Perubahan jadwal atau rencana yang tiba-tiba membuat saya merasa tidak nyaman.",                dim:"S",  pairOf:"S1"},
-  {t:"Saya hampir tidak pernah datang terlambat, baik ke tempat kerja maupun ke janji dengan orang.", dim:"Co", pairOf:"Co5"},
-  {t:"Tekanan dan tuntutan pekerjaan membuat saya mudah merasa gelisah.",                             dim:"N",  pairOf:"N1"},
+  {t:"Walaupun informasi belum lengkap semua, saya berani segera memutuskan.",              dim:"D",   pairOf:"D2"},
+  {t:"Perubahan rencana yang mendadak membuat saya tidak nyaman.",                          dim:"S",   pairOf:"S1"},
+  {t:"Saya hampir tidak pernah terlambat, baik ke tempat kerja maupun ke janji.",           dim:"Co",  pairOf:"Co5"},
+  {t:"Hal-hal yang belum pasti membuat saya mudah gelisah.",                                dim:"N",   pairOf:"N1"},
+  {t:"Bila menemukan uang yang bukan milik saya di tempat kerja, saya laporkan atau kembalikan.", dim:"INT", pairOf:"IN1"},
+  {t:"Bagi saya, perbedaan agama atau suku bukan halangan untuk bekerja sama.",             dim:"TOL", pairOf:"TO1"},
 ];
 const ITEMS = (() => {
-  const dims = ["D","I","S","C","O","Co","E","A","N"];
+  const urutan = ["D","I","S","C","O","Co","E","A","N","TF","INT","DEW","TOL","KEB"];
   const out = [];
   for (let r = 0; r < 8; r++) {
-    for (const d of dims) out.push({ dim: d, ...POOLS[d][r] });   // dim khusus pada item (mis. TF) menang
-    if (r === 2) out.push(SD_ITEMS[0]);
-    if (r === 4) out.push(SD_ITEMS[1]);
-    if (r === 5) out.push({ ...PAIR_ITEMS[0] });
-    if (r === 6) { out.push(SD_ITEMS[2]); out.push({ ...PAIR_ITEMS[1] }); }
-    if (r === 7) { out.push(SD_ITEMS[3]); out.push({ ...PAIR_ITEMS[2] }); out.push({ ...PAIR_ITEMS[3] }); }
+    for (const d of urutan) if (POOLS[d][r]) out.push({ dim: d, ...POOLS[d][r] });
+    if (r === 1) out.push(SD_ITEMS[0]);
+    if (r === 2) out.push(SD_ITEMS[1]);
+    if (r === 3) { out.push(SD_ITEMS[2]); out.push({ ...PAIR_ITEMS[0] }); }
+    if (r === 4) { out.push(SD_ITEMS[3]); out.push({ ...PAIR_ITEMS[1] }); }
+    if (r === 5) { out.push(SD_ITEMS[4]); out.push({ ...PAIR_ITEMS[2] }); out.push({ ...PAIR_ITEMS[3] }); }
+    if (r === 6) { out.push({ ...PAIR_ITEMS[4] }); }
+    if (r === 7) { out.push({ ...PAIR_ITEMS[5] }); }
   }
-  return out; // 80 item
+  return out; // 113 item
 })();
 
 /* ============================================================
@@ -685,6 +744,7 @@ let submitted = false;
 let saveDirty = false;
 let leaveCount = 0;   // berapa kali peserta meninggalkan layar saat tes
 let penutup = { gaji:"", kelemahan:"", kelebihan:"" };
+let itemLog = [];   // jejak waktu setiap kali soal dijawab: {i, v, t}
 let lastLeaveTs = 0;
 
 function gate(emo, title, msg){
@@ -733,6 +793,7 @@ function gate(emo, title, msg){
       peserta = tokenRow.progress.peserta || {};
       leaveCount = tokenRow.progress.keluar || 0;
       penutup = tokenRow.progress.penutup || penutup;
+      itemLog = tokenRow.progress.log || [];
     }
     deadline = dl;
     resumeTest();
@@ -791,6 +852,10 @@ async function mulaiTes(){
   const bMess = $("#in-bersedia-mess").value;
   if(!bPosisi){ alert("Mohon jawab kesediaan ditempatkan pada posisi lain."); $("#in-bersedia-posisi").focus(); return; }
   if(!bMess){ alert("Mohon jawab kesediaan tinggal di mess."); $("#in-bersedia-mess").focus(); return; }
+  if(!$("#jujur-setuju").checked){
+    alert("Mohon centang pernyataan kejujuran terlebih dahulu.");
+    $("#jujur-setuju").focus(); return;
+  }
   if(!$("#cam-setuju").checked){
     alert("Mohon centang persetujuan pengambilan foto kamera terlebih dahulu. Tes tidak dapat dimulai tanpa persetujuan ini.");
     $("#cam-setuju").focus(); return;
@@ -815,7 +880,7 @@ async function mulaiTes(){
   try {
     claimed = await sb("rpc/klaim_token", {
       method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount, penutup } })
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount, penutup, log:itemLog } })
     });
   } catch(e){ alert("Gagal memulai — periksa koneksi lalu coba lagi."); return; }
   if(!claimed || claimed.length===0){
@@ -868,7 +933,7 @@ async function saveProgress(){
   try {
     await sb("rpc/simpan_progress", {
       method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount, penutup } })
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount, penutup, log:itemLog } })
     });
   } catch(e){ /* koneksi putus — dicoba lagi pada siklus berikutnya */ }
 }
@@ -893,6 +958,7 @@ function gotoPage(p){
       div.querySelectorAll(".likert button").forEach(b=>{
         b.addEventListener("click", ()=>{
           answers[i] = +b.dataset.v;
+          itemLog.push({ i, v:answers[i], t:Date.now() });
           div.querySelectorAll(".likert button").forEach(x=>x.classList.toggle("sel", x===b));
           div.classList.remove("unanswered-hl");
           saveDirty = true;
@@ -1055,6 +1121,7 @@ function renderJenjangItem(div, i){
         if(bt.dataset.role === "b"){ b2 = (b2 === oi) ? 0 : oi; if(w2 === oi) w2 = 0; }
         else { w2 = (w2 === oi) ? 0 : oi; if(b2 === oi) b2 = 0; }
         answers[i] = b2*10 + w2;
+        itemLog.push({ i, v:answers[i], t:Date.now() });
         saveDirty = true;
         renderJenjangItem(div, i);
         if(isAnswered(i)) div.classList.remove("unanswered-hl");
@@ -1071,6 +1138,7 @@ function renderJenjangItem(div, i){
     div.querySelectorAll(".opts button").forEach(bt=>{
       bt.addEventListener("click", ()=>{
         answers[i] = +bt.dataset.v;
+        itemLog.push({ i, v:answers[i], t:Date.now() });
         div.querySelectorAll(".opts button").forEach(x=>x.classList.toggle("sel", x===bt));
         div.classList.remove("unanswered-hl");
         saveDirty = true;
@@ -1116,6 +1184,7 @@ async function submitTest(waktuHabis){
   await ambilFoto("selesai").catch(()=>{});
   const r = MODE === "karakter" ? computeResults(answers) : computeJenjang(answers);
   r.keluarLayar = leaveCount;
+  r.kecepatan = hitungKecepatan();
   const mulaiMs = deadline - tokenRow.durasi_menit*60000;
   r.durasiDetik = Math.max(0, Math.min(tokenRow.durasi_menit*60, Math.round((Date.now() - mulaiMs)/1000)));
   r.durasiTotalMenit = tokenRow.durasi_menit;
@@ -1193,6 +1262,27 @@ function jadwalkanFoto(){
   const sisa = deadline - Date.now();
   setTimeout(()=>ambilFoto("acak1"), sisa * (0.15 + Math.random()*0.30));
   setTimeout(()=>ambilFoto("acak2"), sisa * (0.55 + Math.random()*0.30));
+}
+function hitungKecepatan(){
+  if(itemLog.length < 5) return null;
+  const log = [...itemLog].sort((a,b)=>a.t-b.t);
+  const gaps = [];
+  for(let k=1;k<log.length;k++){
+    const g = (log[k].t - log[k-1].t)/1000;
+    if(g >= 0 && g < 300) gaps.push(g);   // jeda >5 menit = istirahat, diabaikan
+  }
+  const urut = [...gaps].sort((a,b)=>a-b);
+  const median = urut.length ? urut[Math.floor(urut.length/2)] : null;
+  const pctKilat = gaps.length ? Math.round(gaps.filter(g=>g<1.5).length/gaps.length*100) : 0;
+  const perSoal = {};
+  log.forEach(e=>perSoal[e.i]=(perSoal[e.i]||0)+1);
+  const revisi = Object.values(perSoal).filter(n=>n>1).length;
+  let runMaks = 1, run = 1;
+  for(let k=1;k<answers.length;k++){
+    if(answers[k] && answers[k] === answers[k-1]){ run++; runMaks = Math.max(runMaks, run); }
+    else run = 1;
+  }
+  return { medianDetik: median!=null ? +median.toFixed(1) : null, pctKilat, revisi, runMaks };
 }
 function cekFotoAkhir(i){
   // foto terakhir diambil diam-diam saat soal kedua-terakhir dijawab (soal 79 pada psikotes 80 item)

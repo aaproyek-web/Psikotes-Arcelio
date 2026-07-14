@@ -253,10 +253,10 @@ a.btn.wa-sudah{background:#EDF1F0 !important;border-color:#B9C4C0 !important;col
           <div id="tk-posisi-wrap"><label class="f">Posisi</label><select id="tk-posisi"></select></div>
           <div><label class="f">Durasi tes</label>
             <select id="tk-durasi">
-              <option value="15">15 menit</option>
-              <option value="18" selected>18 menit (disarankan)</option>
-              <option value="21">21 menit</option>
-              <option value="24">24 menit</option>
+              <option value="20">20 menit</option>
+              <option value="25" selected>25 menit (disarankan)</option>
+              <option value="30">30 menit</option>
+              <option value="35">35 menit</option>
               <option value="40">40 menit (tes jenjang)</option>
             </select></div>
           <div><label class="f">Link berlaku</label>
@@ -412,28 +412,51 @@ function bukaDash(){
 
 /* ---------- POSISI + PROFIL IDEAL ---------- */
 const POSITIONS = [
-  { key:"security", nama:"Security",
-    ideal:{ D:62, S:70, Co:76, C:65, N:24, A:50 }, w:{ D:2, S:2, Co:3, C:2, N:4, A:1 } },
-  { key:"poolguard", nama:"Pool Guard",
-    ideal:{ S:75, Co:78, N:18, C:65, D:55, E:50 }, w:{ S:3, Co:3, N:4, C:2, D:1, E:1 } },
-  { key:"frontdesk", nama:"Front Desk / Receptionist",
-    ideal:{ I:75, E:70, A:70, Co:68, C:60, N:28 }, w:{ I:3, E:2, A:2, Co:3, C:2, N:3 } },
-  { key:"sales", nama:"Sales",
-    ideal:{ I:80, E:75, D:65, O:60, Co:60, N:28 }, w:{ I:4, E:3, D:2, O:1, Co:2, N:2 } },
-  { key:"marketing", nama:"Marketing",
-    ideal:{ O:75, I:70, E:62, Co:66, C:58, N:32 }, w:{ O:3, I:3, E:2, Co:2, C:2, N:1 } },
-  { key:"accounting", nama:"Accounting",
-    ideal:{ C:85, Co:82, S:65, N:30, O:45, E:42 }, w:{ C:4, Co:4, S:2, N:2, O:1, E:1 } },
   { key:"kasir", nama:"Kasir",
-    ideal:{ C:75, Co:78, A:62, S:66, N:28, I:55 }, w:{ C:3, Co:3, A:2, S:2, N:3, I:1 } },
+    ideal:{D:40,I:50,S:65,C:80,O:45,Co:80,E:50,A:60,N:30,INT:90,DEW:70,TOL:60,KEB:55},
+    w:{D:1,I:1,S:2,C:3,O:1,Co:3,E:1,A:1,N:2,INT:3,DEW:2,TOL:1,KEB:1} },
+  { key:"receptionist", nama:"Receptionist",
+    ideal:{D:40,I:75,S:70,C:60,O:55,Co:65,E:70,A:75,N:30,INT:75,DEW:65,TOL:75,KEB:65},
+    w:{D:1,I:3,S:2,C:1,O:1,Co:1,E:2,A:3,N:2,INT:2,DEW:1,TOL:2,KEB:1} },
+  { key:"sales", nama:"Sales",
+    ideal:{D:65,I:80,S:40,C:45,O:60,Co:60,E:80,A:55,N:25,INT:65,DEW:65,TOL:65,KEB:50},
+    w:{D:2,I:3,S:1,C:1,O:1,Co:1,E:3,A:1,N:3,INT:1,DEW:1,TOL:1,KEB:1} },
+  { key:"marketing", nama:"Marketing",
+    ideal:{D:55,I:60,S:45,C:65,O:80,Co:70,E:55,A:55,N:35,INT:65,DEW:65,TOL:70,KEB:55},
+    w:{D:1,I:1,S:1,C:2,O:3,Co:2,E:1,A:1,N:1,INT:1,DEW:1,TOL:1,KEB:1} },
+  { key:"poolguard", nama:"Pool Guard",
+    ideal:{D:50,I:45,S:70,C:70,O:45,Co:75,E:50,A:60,N:20,INT:80,DEW:75,TOL:60,KEB:65},
+    w:{D:1,I:1,S:2,C:2,O:1,Co:3,E:1,A:1,N:3,INT:2,DEW:2,TOL:1,KEB:1} },
+  { key:"cleaning", nama:"Cleaning Staff",
+    ideal:{D:35,I:40,S:75,C:65,O:40,Co:75,E:45,A:55,N:35,INT:70,DEW:60,TOL:60,KEB:55},
+    w:{D:1,I:1,S:2,C:2,O:1,Co:3,E:1,A:1,N:1,INT:2,DEW:1,TOL:1,KEB:1} },
+  { key:"housekeeping", nama:"House Keeping",
+    ideal:{D:35,I:40,S:70,C:75,O:40,Co:80,E:40,A:55,N:35,INT:85,DEW:65,TOL:60,KEB:55},
+    w:{D:1,I:1,S:1,C:3,O:1,Co:3,E:1,A:1,N:1,INT:3,DEW:1,TOL:1,KEB:1} },
+  { key:"engineering", nama:"Engineering / Teknisi",
+    ideal:{D:50,I:40,S:55,C:80,O:70,Co:75,E:40,A:50,N:35,INT:70,DEW:70,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:3,Co:2,E:1,A:1,N:1,INT:1,DEW:2,TOL:1,KEB:1} },
+  { key:"security", nama:"Security",
+    ideal:{D:60,I:40,S:65,C:70,O:40,Co:80,E:45,A:50,N:20,INT:90,DEW:80,TOL:65,KEB:55},
+    w:{D:2,I:1,S:1,C:2,O:1,Co:3,E:1,A:1,N:3,INT:3,DEW:2,TOL:1,KEB:1} },
+  { key:"accounting", nama:"Accounting",
+    ideal:{D:40,I:35,S:60,C:90,O:45,Co:85,E:35,A:50,N:30,INT:95,DEW:75,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:1,Co:3,E:1,A:1,N:2,INT:3,DEW:2,TOL:1,KEB:1} },
   { key:"admin", nama:"Admin",
-    ideal:{ C:78, Co:78, S:65, N:32, O:50, E:45 }, w:{ C:4, Co:4, S:2, N:2, O:1, E:1 } },
+    ideal:{D:40,I:45,S:65,C:75,O:50,Co:80,E:45,A:55,N:35,INT:75,DEW:65,TOL:60,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:1,Co:3,E:1,A:1,N:1,INT:2,DEW:1,TOL:1,KEB:1} },
+  { key:"hr", nama:"HR Staff",
+    ideal:{D:50,I:65,S:65,C:65,O:60,Co:70,E:65,A:80,N:30,INT:85,DEW:80,TOL:85,KEB:75},
+    w:{D:1,I:1,S:1,C:1,O:1,Co:1,E:1,A:3,N:2,INT:3,DEW:3,TOL:3,KEB:2} },
+  { key:"event", nama:"Event Coordinator",
+    ideal:{D:65,I:70,S:45,C:60,O:70,Co:70,E:70,A:60,N:25,INT:65,DEW:70,TOL:70,KEB:55},
+    w:{D:2,I:2,S:1,C:1,O:2,Co:2,E:2,A:1,N:3,INT:1,DEW:2,TOL:1,KEB:1} },
+  { key:"purchasing", nama:"Purchasing",
+    ideal:{D:55,I:50,S:55,C:75,O:55,Co:75,E:50,A:50,N:35,INT:90,DEW:75,TOL:60,KEB:50},
+    w:{D:2,I:1,S:1,C:2,O:1,Co:2,E:1,A:1,N:1,INT:3,DEW:2,TOL:1,KEB:1} },
   { key:"store", nama:"Store / Gudang",
-    ideal:{ C:72, Co:76, S:70, A:55, N:35, D:45 }, w:{ C:3, Co:3, S:3, A:1, N:2, D:1 } },
-  { key:"housekeeping", nama:"Housekeeping",
-    ideal:{ S:75, Co:76, A:62, C:62, N:32, D:40 }, w:{ S:3, Co:4, A:2, C:2, N:2, D:1 } },
-  { key:"engineering", nama:"Engineering / Maintenance",
-    ideal:{ C:75, Co:75, O:65, S:65, N:30, E:40 }, w:{ C:3, Co:3, O:2, S:2, N:3, E:1 } },
+    ideal:{D:35,I:40,S:65,C:75,O:40,Co:75,E:40,A:50,N:35,INT:85,DEW:65,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:1,Co:2,E:1,A:1,N:1,INT:3,DEW:1,TOL:1,KEB:1} },
 ];
 const DIM_LABELS = { D:"Dominance", I:"Influence", S:"Steadiness", C:"Compliance",
   O:"Openness", Co:"Conscientiousness", E:"Extraversion", A:"Agreeableness", N:"Neuroticism" };
@@ -470,83 +493,111 @@ const IV_UNIVERSAL = [
   { q:"Mengapa memilih melamar di Arcelio Aquapark, dan Anda membayangkan akan bertahan berapa lama di sini?", dig:"Komitmen & motivasi — jawaban realistis (jarak rumah, kebutuhan jelas) lebih baik daripada gombalan." },
 ];
 const IV_BANK = {
-  security: [
-    { q:"Ada pengunjung mabuk membuat keributan dan mengganggu pengunjung lain. Ceritakan langkah demi langkah apa yang Anda lakukan.", dig:"Ketegasan terukur — urutan: amankan situasi, dekati tenang, jangan langsung fisik, panggil bantuan." },
-    { q:"Bagaimana cara Anda tetap waspada saat berjaga di pos yang sepi dan membosankan berjam-jam?", dig:"Kewaspadaan & anti-jenuh — cari kebiasaan konkret (patroli berkala, cek titik rawan)." },
-    { q:"Teman sesama karyawan meminta Anda meloloskan barang keluar tanpa pemeriksaan, 'sekali ini saja'. Apa jawaban Anda?", dig:"Integritas vs pertemanan — jawaban terbaik: tetap periksa, tolak halus tapi jelas." },
-    { q:"Ceritakan pengalaman Anda menghadapi orang yang hampir berkelahi. Bagaimana Anda meredakannya?", dig:"Pengendalian diri — nilai tinggi jika meredakan tanpa kekerasan dan tahu kapan minta bantuan." },
-    { q:"Anda menemukan anak kecil menangis terpisah dari orang tuanya. Apa yang Anda lakukan pertama kali?", dig:"SOP & empati — amankan anak, jangan diserahkan sembarang orang, informasikan lewat jalur resmi." },
-  ],
-  poolguard: [
-    { q:"Anda melihat anak megap-megap di tengah kolam, sementara Anda bertugas sendirian. Ceritakan urutan tindakan Anda detik demi detik.", dig:"Prioritas keselamatan — peluit/teriak minta bantuan dulu, alat apung, baru masuk air; jangan tinggalkan kolam tanpa pengawasan." },
-    { q:"Pengunjung dewasa melompat-lompat di kolam anak dan membahayakan. Apa persisnya kata-kata dan tindakan Anda?", dig:"Ketegasan ramah — berani menegur langsung dengan sopan, tidak hanya diam atau lapor saja." },
-    { q:"Mengawasi kolam itu monoton. Bagaimana Anda menjaga mata dan fokus tetap awas selama berjam-jam?", dig:"Vigilance — teknik scanning, rotasi posisi, tidak main HP; kejujuran soal godaan bosan bernilai plus." },
-    { q:"Seberapa baik kemampuan renang Anda? Ceritakan pengalaman menolong orang di air, jika pernah.", dig:"Kompetensi teknis — wajib bisa berenang; catat perlunya tes praktik sebelum penempatan." },
-    { q:"Hari libur, pengunjung membludak, satu rekan Anda izin sakit. Bagaimana Anda mengatur pengawasan kolam?", dig:"Kerja di bawah tekanan — pembagian zona, komunikasi dengan atasan, tidak meninggalkan area." },
-  ],
-  frontdesk: [
-    { q:"Pengunjung marah karena antre lama, lalu membentak Anda di depan umum. Apa yang Anda katakan dan lakukan saat itu juga?", dig:"Pengendalian emosi & service recovery — tetap tenang, minta maaf, beri solusi; tidak balas membentak/menangis." },
-    { q:"Saat antrean panjang, bagaimana cara Anda membuat setiap pengunjung tetap merasa dilayani dengan baik?", dig:"Keramahan yang efisien — sapaan singkat, informasi estimasi, gerakan cepat tapi sopan." },
-    { q:"Pengunjung memaksa minta harga promo yang sudah berakhir kemarin. Bagaimana Anda menolaknya tanpa membuatnya kecewa berat?", dig:"Tegas + ramah — tidak melanggar aturan harga, tapi menawarkan alternatif." },
-    { q:"Ceritakan pengalaman Anda melayani beberapa permintaan sekaligus dalam waktu bersamaan. Mana yang Anda dahulukan dan mengapa?", dig:"Multitasking & prioritas — ada logika urutan yang masuk akal." },
-    { q:"Bagaimana cara Anda memastikan uang dan tiket yang Anda pegang selalu cocok dengan catatan di akhir shift?", dig:"Ketelitian & tanggung jawab uang — kebiasaan menghitung ulang, mencatat, serah terima jelas." },
-  ],
-  sales: [
-    { q:"Anggap saya HRD sebuah pabrik di Purwokerto. Tawarkan paket gathering Arcelio kepada saya, mulai sekarang.", dig:"Roleplay persuasi — nilai pembukaan, penggalian kebutuhan, penawaran manfaat (bukan sekadar harga), penutupan." },
-    { q:"Ceritakan pengalaman menjual atau menawarkan sesuatu yang berhasil. Menurut Anda apa kuncinya?", dig:"Track record — cari bukti nyata sekecil apa pun (jualan online, dagang, organisasi)." },
-    { q:"Calon klien sudah menolak Anda lima kali. Apa yang Anda lakukan pada pendekatan keenam?", dig:"Resiliensi — gigih tapi cerdas (ganti pendekatan/waktu/penawaran), bukan memaksa membabi buta." },
-    { q:"Jika diminta mencari calon klien gathering dari nol di wilayah Banyumas, dari mana Anda mulai?", dig:"Prospecting — sebutkan sumber konkret: sekolah, pabrik, instansi, komunitas, media sosial." },
-    { q:"Klien besar minta diskon melebihi wewenang Anda dan mengancam batal. Apa yang Anda lakukan?", dig:"Integritas vs target — tidak janji sembarangan; eskalasi ke atasan dengan tetap menjaga klien." },
-  ],
-  marketing: [
-    { q:"Menurut Anda, apa alasan utama orang memilih datang ke waterpark? Bagaimana memakai alasan itu untuk promosi Arcelio?", dig:"Insight konsumen — jawaban dari sudut pandang pengunjung (keluarga, anak, harga, foto-foto), bukan asal." },
-    { q:"Hari kerja (Senin–Jumat) pengunjung sepi. Usulkan ide konten atau program promosi untuk menaikkannya.", dig:"Kreativitas terarah — ide spesifik dan masuk akal untuk pasar lokal, bukan ide mahal yang mengawang." },
-    { q:"Dari mana Anda tahu sebuah promosi berhasil atau gagal? Apa yang Anda ukur?", dig:"Orientasi data — sebut ukuran nyata: jumlah pengunjung, jangkauan, biaya per hasil." },
-    { q:"Ceritakan konten atau kampanye yang pernah Anda buat (pribadi/organisasi/kerja) dan bagaimana hasilnya.", dig:"Portofolio — minta bukti bisa ditunjukkan; hasil kecil yang jujur lebih baik dari klaim besar." },
-    { q:"Anggaran promosi bulan ini sangat kecil. Kegiatan apa yang Anda prioritaskan dan apa yang Anda korbankan?", dig:"Prioritas & realistis — paham mana yang murah-berdampak (organik, kemitraan) vs mahal." },
-  ],
-  accounting: [
-    { q:"Ceritakan pengalaman Anda menyusun pembukuan atau laporan keuangan. Aplikasi/software apa saja yang Anda kuasai?", dig:"Kompetensi teknis — gali sedetail mungkin; siapkan tes praktik Excel/jurnal sederhana." },
-    { q:"Di akhir hari Anda menemukan selisih kas Rp50.000 yang tidak jelas. Apa langkah Anda satu per satu?", dig:"Ketelitian & prosedur — telusuri transaksi, jangan ditambal uang pribadi diam-diam, lapor transparan." },
-    { q:"Atasan meminta Anda mencatat sebuah transaksi dengan cara yang menurut Anda tidak wajar. Apa yang Anda lakukan?", dig:"Integritas — berani bertanya/menolak halus dan mendokumentasikan; hati-hati pada yang langsung menurut." },
-    { q:"Saat hari ramai dengan ratusan transaksi, bagaimana Anda memastikan tidak ada yang terlewat dicatat?", dig:"Sistematika — kebiasaan rekonsiliasi harian, cek silang dengan kasir/tiket." },
-    { q:"Tutup buku bulanan bertepatan dengan banyak tugas lain yang juga mendesak. Bagaimana Anda mengaturnya?", dig:"Manajemen deadline — ada metode prioritas nyata, berani komunikasi ke atasan sejak awal." },
-  ],
-  kasir: [
-    { q:"Saat serah terima shift, uang di laci Anda kurang Rp20.000. Apa yang Anda lakukan?", dig:"Kejujuran & prosedur — lapor apa adanya dan telusuri; waspadai jawaban 'saya ganti saja biar aman'." },
-    { q:"Teman dekat Anda berkata: 'Tiketnya nggak usah dibayar ya, kan kamu kasirnya.' Bagaimana persisnya Anda menjawab?", dig:"Integritas — menolak dengan jelas meski canggung; 'tergantung situasi' adalah tanda bahaya." },
-    { q:"Antrean panjang, sistem kasir lemot, pengunjung mulai protes. Apa yang Anda lakukan saat itu?", dig:"Ketenangan di bawah tekanan — tetap teliti walau diburu-buru, komunikasi ke antrean, minta bantuan." },
-    { q:"Bagaimana kebiasaan Anda memastikan uang kembalian selalu tepat, bahkan saat ramai?", dig:"Ketelitian — hitung di depan pengunjung, sebutkan nominal, rapikan laci per pecahan." },
-    { q:"Pernahkah Anda salah hitung atau salah input? Ceritakan kejadiannya dan apa yang Anda lakukan setelahnya.", dig:"Tanggung jawab — mengaku dan memperbaiki bernilai tinggi; 'tidak pernah salah' justru mencurigakan." },
-  ],
-  admin: [
-    { q:"Ceritakan pengalaman Anda mengelola dokumen atau data. Seperti apa sistem penyimpanan/pengarsipan yang Anda pakai?", dig:"Sistematika — ada metode nyata (penamaan file, folder, buku agenda), bukan sekadar 'rapi kok'." },
-    { q:"Anda menemukan angka di dua laporan tidak cocok satu sama lain. Apa langkah Anda?", dig:"Ketelitian — telusuri ke sumber, tanya pihak terkait, catat perbaikan; bukan pilih salah satu asal cepat." },
-    { q:"Dua atasan berbeda memberi Anda tiga tugas mendesak sekaligus. Bagaimana Anda mengaturnya?", dig:"Prioritas & komunikasi — berani mengkonfirmasi urutan ke atasan, tidak diam-diam keteteran." },
-    { q:"Seberapa mahir Anda menggunakan Excel/Google Sheets? Sebutkan rumus atau fitur yang biasa Anda pakai.", dig:"Kompetensi — minimal SUM/IF/VLOOKUP/filter; siapkan tes praktik singkat untuk membuktikan." },
-    { q:"Anda mengetahui data gaji dan data pribadi karyawan. Bagaimana Anda menjaga kerahasiaannya, termasuk dari teman dekat?", dig:"Integritas & kerahasiaan — tegas menolak membocorkan walau ditanya teman/keluarga." },
-  ],
-  store: [
-    { q:"Bagaimana cara Anda mencatat barang masuk dan keluar supaya stok di catatan selalu cocok dengan fisik?", dig:"Sistematika — kartu stok/pencatatan langsung saat barang bergerak, bukan dirapel." },
-    { q:"Saat stock opname, jumlah fisik tidak cocok dengan catatan. Apa yang Anda lakukan?", dig:"Ketelitian & kejujuran — hitung ulang, telusuri dokumen, lapor apa adanya; jangan 'disesuaikan' diam-diam." },
-    { q:"Ceritakan bagaimana Anda akan menata gudang agar barang cepat ditemukan dan tidak rusak.", dig:"Kerapian & logika — pengelompokan, label, FIFO untuk barang kedaluwarsa (F&B)." },
-    { q:"Ada permintaan barang mendadak saat Anda sedang di tengah-tengah stock opname. Bagaimana menyikapinya?", dig:"Prioritas — layani dengan tetap tercatat, tidak meninggalkan opname berantakan." },
-    { q:"Teman berkata: 'Pinjam dulu barang gudang ya, nggak usah pakai surat, besok kubalikin.' Apa jawaban Anda?", dig:"Integritas — semua keluar-masuk harus tercatat, sedekat apa pun orangnya." },
-  ],
-  housekeeping: [
-    { q:"Menurut Anda, kapan sebuah toilet atau area umum layak disebut 'bersih'? Jelaskan standar Anda sendiri.", dig:"Standar kebersihan pribadi — makin detail (kering, tidak bau, tidak berkerak, sudut-sudut) makin baik; jawaban 'yang penting kelihatan bersih' adalah tanda kurang." },
-    { q:"Anda menemukan dompet atau HP pengunjung tertinggal di area yang sedang Anda bersihkan. Apa persisnya yang Anda lakukan?", dig:"Integritas barang temuan — serahkan lewat jalur resmi dengan saksi/pencatatan, tidak disimpan dulu 'untuk diamankan sendiri'." },
-    { q:"Area tanggung jawab Anda luas sementara waktunya terbatas. Bagaimana Anda mengatur urutan pekerjaannya?", dig:"Prioritas & sistematika — dahulukan area kontak pengunjung/berisiko (toilet, area makan), ada pola rute, bukan asal jalan." },
-    { q:"Ada pengunjung muntah di dekat kolam saat sedang ramai-ramainya. Ceritakan langkah Anda satu per satu.", dig:"Respons cepat & higienis — amankan area dulu (tanda/pembatas), alat pelindung, cairan pembersih yang tepat, tidak jijik berlebihan atau menunda." },
-    { q:"Atasan sedang tidak ada dan area Anda terlihat 'masih bersih'. Apa yang Anda kerjakan?", dig:"Kerja tanpa pengawasan — tetap menjalankan checklist rutin, mengisi waktu dengan deep cleaning; waspadai jawaban 'istirahat dulu'." },
-  ],
-  engineering: [
-    { q:"Pompa atau filter kolam tiba-tiba mati di jam operasional saat ramai pengunjung. Ceritakan langkah Anda satu per satu.", dig:"Troubleshooting darurat — utamakan keselamatan, cek penyebab sistematis, koordinasi dengan operasional." },
-    { q:"Ceritakan perbaikan listrik, mesin, atau pipa paling sulit yang pernah Anda tangani. Bagaimana menyelesaikannya?", dig:"Kompetensi — detail teknisnya nyambung atau tidak; siapkan tes praktik bila perlu." },
-    { q:"Bagaimana Anda menyusun jadwal perawatan rutin agar tidak ada kerusakan mendadak?", dig:"Pola pikir preventif — checklist harian/mingguan/bulanan, pencatatan riwayat mesin." },
-    { q:"Apa saja yang WAJIB Anda lakukan sebelum memperbaiki peralatan listrik di area basah seperti kolam?", dig:"Keselamatan kerja — matikan sumber listrik, kunci panel (LOTO), alat pelindung; jawaban asal = bahaya." },
-    { q:"Sparepart habis, toko/vendor tutup, tapi wahana harus beroperasi besok pagi. Apa yang Anda lakukan?", dig:"Problem solving — solusi sementara yang AMAN, komunikasi risiko ke atasan; bukan akal-akalan berbahaya." },
-  ],
+kasir: [
+  { q:"Ceritakan saat Anda memegang uang milik orang lain atau tempat kerja. Pernah menemukan selisih? Apa yang Anda lakukan?", dig:"Integritas uang — dengarkan apakah ia melapor atau menutupi." },
+  { q:"Teman dekat Anda datang berbelanja dan setengah bercanda minta \u201Cdilewatkan saja tidak usah bayar penuh\u201D. Apa persis yang Anda katakan?", dig:"Ketegasan integritas vs tekanan pertemanan — minta kalimat konkret." },
+  { q:"Kasir bekerja mengulang hal yang sama sepanjang hari. Ceritakan pekerjaan paling monoton yang pernah Anda jalani — berapa lama bertahan?", dig:"Ketahanan rutinitas (S/Co) — bukti nyata, bukan janji." },
+  { q:"Antrean panjang, pembeli marah-marah, dan mesin lambat. Ceritakan pengalaman serupa dan bagaimana Anda menjaga ketelitian saat panik.", dig:"Stabilitas (N) + ketelitian di bawah tekanan." },
+  { q:"Bagaimana cara Anda memastikan hitungan uang akhir shift selalu cocok? Ceritakan kebiasaan kerja Anda.", dig:"Kebiasaan teliti (C) yang nyata — orang teliti punya ritual." },
+],
+receptionist: [
+  { q:"Peragakan bagaimana Anda menyambut tamu yang baru masuk sambil telepon berdering dan ada tamu lain menunggu.", dig:"Multitugas + keramahan alami (I/E) — lihat bahasa tubuhnya." },
+  { q:"Ceritakan pengalaman menghadapi tamu/pelanggan yang marah besar. Apa yang Anda ucapkan pertama kali?", dig:"Kesabaran (S) + empati (A) — kalimat pertama menentukan." },
+  { q:"Anda terlanjur memberi informasi yang ternyata salah kepada tamu. Apa yang Anda lakukan?", dig:"Kedewasaan mengakui kesalahan — waspadai yang menutupi." },
+  { q:"Receptionist harus tersenyum sepanjang shift walau sedang ada masalah pribadi. Bagaimana Anda memisahkan keduanya? Beri contoh nyata.", dig:"Pengendalian emosi (DEW/N)." },
+  { q:"Apa yang Anda lakukan di menit-menit kosong saat lobi sepi?", dig:"Inisiatif — merapikan/menyiapkan vs main HP." },
+],
+sales: [
+  { q:"Ceritakan penolakan paling menyakitkan yang pernah Anda alami saat menawarkan sesuatu. Apa yang Anda lakukan sesudahnya?", dig:"Ketahanan mental (N rendah) — sales hidup dari penolakan." },
+  { q:"Jual sesuatu kepada saya sekarang — apa saja yang ada di ruangan ini. Silakan mulai.", dig:"Persuasi spontan (I) — lihat struktur bicara & keberanian." },
+  { q:"Target bulan ini hampir pasti tidak tercapai di tanggal 25. Apa yang Anda lakukan di 5 hari terakhir?", dig:"Daya juang (D) vs pasrah/alasan." },
+  { q:"Calon pelanggan hampir setuju kalau Anda melebih-lebihkan sedikit fasilitas yang sebenarnya. Apa yang Anda lakukan?", dig:"Integritas menjual — janji berlebihan meracuni reputasi Arcelio." },
+  { q:"Bagaimana cara Anda mencari calon pelanggan baru (sekolah, instansi, komunitas)? Ceritakan langkah nyatanya.", dig:"Kemandirian prospek — sales sejati punya metode." },
+],
+marketing: [
+  { q:"Tunjukkan atau ceritakan konten/promosi yang pernah Anda buat dan hasilnya. Angka apa yang Anda pakai untuk menilai berhasil?", dig:"Bukti karya + kebiasaan membaca data — beda pengunggah vs pemasar." },
+  { q:"Weekday Arcelio sepi, weekend penuh. Beri saya 3 ide untuk meramaikan weekday — pilih satu yang paling Anda yakini dan jelaskan alasannya.", dig:"Kreativitas (O) yang membumi + kemampuan memilih prioritas." },
+  { q:"Ceritakan promosi/konten yang pernah GAGAL. Kenapa gagal menurut Anda?", dig:"Kejujuran evaluasi — pemasar yang tidak pernah gagal = tidak pernah mencoba." },
+  { q:"Apa bedanya pekerjaan Anda dengan pekerjaan sales, menurut pemahaman Anda?", dig:"Kejelasan peran — marketing membangun permintaan, sales menutup penjualan." },
+  { q:"Konten harus terbit rutin walau sedang tidak ada ide. Bagaimana Anda mengatasinya? Ceritakan sistem kerja Anda.", dig:"Konsistensi produksi (Co) — kreativitas butuh disiplin." },
+],
+poolguard: [
+  { q:"Mengawasi kolam itu 95% membosankan dan 5% menentukan nyawa. Bagaimana Anda menjaga fokus pada jam ke-4 berdiri di pinggir kolam?", dig:"Kewaspadaan berkelanjutan — jawaban jujur mengakui beratnya." },
+  { q:"Ceritakan pengalaman menolong orang atau menghadapi keadaan darurat. Apa yang Anda lakukan detik-detik pertama?", dig:"Ketenangan genting (N rendah) + naluri bertindak." },
+  { q:"Anak-anak berlarian di area licin dan orang tuanya tidak peduli saat ditegur. Apa yang Anda lakukan?", dig:"Ketegasan sopan — berani menegakkan aturan pada pengunjung." },
+  { q:"Seberapa bisa Anda berenang? Bersediakah dites praktik menolong di air?", dig:"Kemampuan nyata + kejujuran mengakui batas." },
+  { q:"Rekan satu pos sering main HP saat jaga. Apa yang Anda lakukan?", dig:"Integritas keselamatan — diam berarti ikut menanggung risiko nyawa." },
+],
+cleaning: [
+  { q:"Ceritakan pekerjaan fisik terberat yang pernah Anda jalani. Bagian apa yang paling berat dan bagaimana Anda bertahan?", dig:"Ketahanan fisik nyata (bukti, bukan semangat kosong)." },
+  { q:"Menurut Anda, kapan sebuah toilet umum disebut BENAR-BENAR bersih? Sebutkan sedetail mungkin.", dig:"Standar kebersihan pribadi (C) — jawaban detail = standar tinggi." },
+  { q:"Area yang baru Anda bersihkan langsung dikotori pengunjung lagi, berulang sepanjang hari. Bagaimana perasaan Anda dan apa yang Anda lakukan?", dig:"Ketahanan mental kerja Sisyphus (S) tanpa dendam ke pengunjung." },
+  { q:"Anda menemukan dompet tertinggal di area yang Anda bersihkan dan tidak ada orang. Apa yang Anda lakukan?", dig:"Integritas — jawaban benar: serahkan sesuai prosedur, jangan dibuka-buka." },
+  { q:"Saat semua area sudah bersih dan belum ada tugas baru, apa yang Anda kerjakan?", dig:"Inisiatif & etos — mencari yang bisa dikerjakan vs menunggu." },
+],
+housekeeping: [
+  { q:"Apa bedanya kamar yang \u201Csudah dibersihkan\u201D dengan kamar yang \u201Csiap menyambut tamu\u201D? Jelaskan sedetail mungkin.", dig:"Kepekaan detail (C) khas housekeeping — sudut seprai, bau, simetri." },
+  { q:"Anda menemukan uang/perhiasan tertinggal di kamar yang Anda bereskan. Ceritakan persis apa yang Anda lakukan, langkah demi langkah.", dig:"Integritas tertinggi — pekerjaan ini masuk ruang pribadi orang." },
+  { q:"Penghuni/tamu menuduh Anda memindahkan atau menghilangkan barangnya, padahal tidak. Apa yang Anda lakukan?", dig:"Kedewasaan menghadapi tuduhan tanpa emosi + pentingnya prosedur." },
+  { q:"Ada 10 kamar harus selesai sebelum jam 14.00 dan Anda tahu tidak akan terkejar dengan standar penuh. Apa yang Anda lakukan?", dig:"Kejujuran melapor & prioritas vs diam-diam menurunkan standar." },
+  { q:"Ceritakan pengalaman merawat rumah/kamar/kos — kebiasaan rapi apa yang sudah jadi bagian diri Anda?", dig:"Kerapian sebagai karakter (Co), bukan tuntutan." },
+],
+engineering: [
+  { q:"Ceritakan kerusakan paling sulit yang pernah Anda perbaiki. Bagaimana urutan Anda mencari sumber masalahnya?", dig:"Pola pikir diagnosa (C/O) — urut atau coba-coba?" },
+  { q:"Pompa utama mati di jam ramai. Apa 5 hal pertama yang Anda periksa, berurutan?", dig:"Logika teknis praktis + ketenangan (relevan langsung dgn aquapark)." },
+  { q:"Ceritakan saat Anda hampir/pernah celaka saat bekerja dengan listrik atau mesin. Apa yang berubah setelahnya?", dig:"Kesadaran keselamatan dari pengalaman — teknisi ceroboh membahayakan semua." },
+  { q:"Ada alat baru yang belum pernah Anda pegang sama sekali. Bagaimana cara Anda mempelajarinya? Beri contoh nyata yang pernah terjadi.", dig:"Kemampuan belajar mandiri (O)." },
+  { q:"Perbaikan butuh sparepart yang harus dibeli, tapi atasan sulit dihubungi dan wahana harus jalan besok pagi. Apa yang Anda lakukan?", dig:"Inisiatif vs nekat — batas wewenang & komunikasi." },
+],
+security: [
+  { q:"Ceritakan pengalaman menghadapi orang mabuk, ribut, atau mengamuk. Apa yang Anda lakukan dan bagaimana akhirnya?", dig:"Tegas terkendali — kekuatan sesungguhnya adalah meredakan tanpa kekerasan." },
+  { q:"Apa bedanya tegas dengan kasar, menurut Anda? Beri contoh dari pengalaman sendiri.", dig:"Kematangan (DEW) — security wajah pertama keamanan Arcelio." },
+  { q:"Seseorang menyelipkan uang agar Anda mengizinkan sesuatu yang melanggar aturan (parkir, masuk tanpa tiket, dsb). Ceritakan bila pernah mengalami — apa yang Anda lakukan?", dig:"Integritas — posisi ini diuji godaan kecil setiap hari." },
+  { q:"Jaga malam sendirian, sepi, jam 2 pagi terdengar suara mencurigakan di area belakang. Ceritakan langkah Anda.", dig:"Keberanian prosedural — cek keberanian sekaligus kepatuhan protokol." },
+  { q:"Yang melanggar aturan ternyata kerabat pemilik atau atasan Anda sendiri. Apa yang Anda lakukan?", dig:"Integritas terhadap kekuasaan — pertanyaan pamungkas security." },
+],
+accounting: [
+  { q:"Ceritakan pengalaman mengelola pembukuan/laporan keuangan. Selisih terbesar yang pernah Anda temukan — bagaimana Anda melacaknya?", dig:"Ketelitian nyata + kegigihan menelusuri (C)." },
+  { q:"Atasan meminta Anda \u201Cmerapikan\u201D angka agar laporan bulan ini terlihat lebih baik. Persisnya, apa yang Anda katakan kepadanya?", dig:"Integritas tertinggi — minta kalimat konkret, bukan teori." },
+  { q:"Bagaimana kebiasaan Anda memastikan tidak ada salah input? Ceritakan sistem kerja pribadi Anda.", dig:"Ritual ketelitian — akuntan teliti selalu punya sistem cek ganda." },
+  { q:"Tutup buku bulanan bertepatan dengan banyak transaksi menumpuk. Ceritakan pengalaman bekerja di bawah tenggat ketat.", dig:"Ketahanan tekanan (N) tanpa mengorbankan akurasi." },
+  { q:"Software atau alat apa yang Anda kuasai (Excel, aplikasi akuntansi)? Fungsi Excel apa yang paling sering Anda pakai?", dig:"Kemampuan teknis nyata — jawaban spesifik (VLOOKUP, pivot) = benar-benar bisa." },
+],
+admin: [
+  { q:"Ceritakan sistem pengarsipan yang pernah Anda buat atau rapikan. Bagaimana orang lain mencari dokumen setelahnya?", dig:"Kerapian sistemik (C/Co) — admin baik membuat orang lain mudah." },
+  { q:"Lima orang meminta bantuan Anda bersamaan dengan tenggat masing-masing. Bagaimana Anda mengurutkannya?", dig:"Prioritas & ketenangan multitugas." },
+  { q:"Ceritakan kesalahan input/dokumen yang pernah Anda buat. Bagaimana Anda menemukannya dan apa yang Anda ubah setelahnya?", dig:"Kedewasaan + perbaikan sistem — semua orang pernah salah; yang penting sesudahnya." },
+  { q:"Seberapa jauh Anda menguasai Excel/Word/Google Sheets? Beri contoh pekerjaan tersulit yang pernah Anda selesaikan dengannya.", dig:"Kemampuan alat kerja nyata." },
+  { q:"Ada dokumen berisi data gaji karyawan lewat di meja Anda. Teman dekat bertanya isinya. Apa jawaban Anda?", dig:"Kerahasiaan (INT) — admin memegang banyak informasi sensitif." },
+],
+hr: [
+  { q:"Ceritakan saat Anda dipercaya memegang rahasia yang berat. Bagaimana Anda menjaganya, terutama saat orang-orang mendesak bertanya?", dig:"Kerahasiaan — nyawa pekerjaan HR." },
+  { q:"Dua karyawan berkonflik dan dua-duanya datang ke Anda merasa paling benar. Ceritakan bagaimana Anda menengahi (pengalaman nyata bila ada).", dig:"Keadilan + empati dua arah (A/TOL) tanpa memihak." },
+  { q:"Kerabat pemilik menitipkan pelamar yang menurut penilaian Anda tidak memenuhi syarat. Apa yang Anda lakukan?", dig:"Integritas proses — HR penjaga keadilan rekrutmen." },
+  { q:"Anda harus menyampaikan keputusan pahit (tidak lolos, kontrak tak diperpanjang) kepada orang yang berharap besar. Bagaimana caranya?", dig:"Tega yang manusiawi — keseimbangan ketegasan & kebaikan (KEB)." },
+  { q:"Menurut Anda, HR itu membela perusahaan atau membela karyawan? Jelaskan.", dig:"Kematangan berpikir — jawaban terbaik: menjaga keduanya lewat keadilan & aturan." },
+],
+event: [
+  { q:"Ceritakan acara yang pernah Anda tangani dari persiapan sampai selesai. Apa peran persis Anda?", dig:"Bukti pengalaman — bedakan panitia inti vs sekadar hadir." },
+  { q:"Hari H: pengisi acara terlambat, sound bermasalah, dan klien mulai panik — bersamaan. Ceritakan pengalaman serupa dan urutan tindakan Anda.", dig:"Ketenangan multi-krisis (N rendah, D) — inti pekerjaan ini." },
+  { q:"Bagaimana cara Anda memastikan semua pihak (vendor, tim internal, klien) tahu tugas masing-masing? Tunjukkan alat/cara yang biasa Anda pakai.", dig:"Sistem koordinasi (rundown, grup, checklist) — bukan sekadar 'komunikasi baik'." },
+  { q:"Klien meminta perubahan besar H-1 acara. Apa yang Anda lakukan?", dig:"Fleksibilitas (O) dengan batas realistis — berani bilang mana yang tidak mungkin." },
+  { q:"Ceritakan acara yang berjalan TIDAK sesuai rencana. Apa pelajaran yang mengubah cara kerja Anda?", dig:"Kedewasaan evaluasi — koordinator berpengalaman punya luka." },
+],
+purchasing: [
+  { q:"Ceritakan negosiasi terbaik yang pernah Anda lakukan (harga, termin, kualitas). Bagaimana Anda mempersiapkannya?", dig:"Kemampuan nego berbasis persiapan (D/C), bukan gertak." },
+  { q:"Vendor menawarkan komisi pribadi agar Anda memilih mereka. Ceritakan bila pernah mengalami — dan apa persisnya yang Anda lakukan?", dig:"Integritas inti purchasing — godaan terbesar posisi ini." },
+  { q:"Bagaimana cara Anda membandingkan dua penawaran yang harganya beda tipis? Apa saja yang Anda periksa selain harga?", dig:"Ketelitian menyeluruh: kualitas, termin, purna jual, rekam jejak." },
+  { q:"Barang kritis habis mendadak dan vendor langganan tidak sanggup kirim cepat. Apa yang Anda lakukan?", dig:"Inisiatif darurat + jaringan alternatif tanpa menabrak prosedur." },
+  { q:"Bagaimana Anda mendokumentasikan pembelian agar bisa diaudit kapan pun? Ceritakan kebiasaan Anda.", dig:"Kesadaran jejak audit — purchasing rapi = purchasing aman." },
+],
+store: [
+  { q:"Ceritakan pengalaman stock opname. Selisih apa yang pernah Anda temukan dan bagaimana Anda menelusurinya?", dig:"Ketelitian + kejujuran melaporkan selisih apa adanya." },
+  { q:"Bagaimana cara Anda menata gudang agar barang mudah dicari dan yang lama terpakai lebih dulu?", dig:"Pemahaman FIFO & sistem penataan (C/Co) — dari pengalaman nyata." },
+  { q:"Ada barang menumpuk hampir kedaluwarsa/rusak karena kesalahan pencatatan lama. Apa yang Anda lakukan?", dig:"Kejujuran melaporkan kerugian vs menyembunyikan." },
+  { q:"Rekan kerja meminta barang gudang \u201Cpinjam dulu, catatnya nanti\u201D. Apa jawaban Anda?", dig:"Integritas prosedur — pintu kebocoran gudang selalu dimulai dari 'nanti'." },
+  { q:"Bagaimana kebiasaan Anda mencatat barang masuk-keluar agar tidak ada yang terlewat?", dig:"Disiplin pencatatan real-time (Co)." },
+],
 };
 
 /* ---------- ATURAN FLAG ---------- */
@@ -619,6 +670,14 @@ const FLAG_RULES = [
     baik:["Kendala teknis yang masuk akal dan jumlah kosong sedikit","Mengakui kurang cepat dan menjelaskan wajar"],
     buruk:["Banyak soal kosong tanpa alasan jelas","Menyalahkan sistem tanpa dasar"],
     rekom:"Jika soal kosong lebih dari 15, pertimbangkan tes ulang dengan token baru. Jika sedikit, lanjutkan tapi baca profil dengan hati-hati." },
+  { id:"pengerjaan-asal", level:"yellow", cond:r=>{ const ks = skorKeseriusan(r); return ks && ks.skor < 55; },
+    title:"Terindikasi Mengerjakan Asal-Asalan",
+    indikator:r=>{ const ks = skorKeseriusan(r); return "Indeks keseriusan hanya " + ks.skor + "/100. " + ks.catatan.join(". ") + "."; },
+    risiko:"Jawaban yang diberikan tanpa membaca membuat SELURUH profil di lembar ini tidak menggambarkan orang yang sebenarnya — skor baik maupun buruk sama-sama tidak dapat dipercaya.",
+    tanya:["Sampaikan datar: \u201CSistem mencatat pengerjaan Anda sangat cepat — boleh diceritakan bagaimana tadi mengerjakannya?\u201D","Bacakan 3\u20134 pernyataan dari tes dan minta jawaban lisan spontan, lalu bandingkan dengan isian tertulisnya.","Tanyakan kondisi saat mengerjakan: di mana, sedang apa, dan memakai perangkat siapa."],
+    baik:["Mengakui terburu-buru dengan alasan wajar dan bersedia tes ulang","Jawaban lisan konsisten dengan isian tertulis"],
+    buruk:["Bersikeras mengerjakan serius padahal data menunjukkan sebaliknya","Jawaban lisan bertolak belakang dengan isian"],
+    rekom:"Tawarkan tes ulang dengan penjelasan pentingnya keseriusan. Kandidat yang menolak sambil defensif adalah sinyal tambahan yang buruk." },
   { id:"keluar-layar", level:"yellow", cond:r=>(r.keluarLayar||0)>=3,
     title:"Sering Meninggalkan Layar Saat Tes",
     indikator:r=>`Peserta terdeteksi meninggalkan layar/berpindah aplikasi ${r.keluarLayar} kali selama pengerjaan.`,
@@ -1029,9 +1088,17 @@ function namaPosisiIv(){
   if(ivState.posisiKey==="jenjang-manager") return "Manager (Tes Jenjang)";
   return posOf(ivState.posisiKey).nama;
 }
+const SKALA_SATU_ARAH = { INT:"atas", DEW:"atas", TOL:"atas", KEB:"atas", N:"bawah" };
 function matchScore(pos, dims){
   let num=0, den=0;
-  for(const d in pos.ideal){ num += pos.w[d]*Math.abs(dims[d]-pos.ideal[d]); den += pos.w[d]; }
+  for(const d in pos.ideal){
+    const v = dims[d] ?? 50;
+    let diff = Math.abs(v - pos.ideal[d]);
+    // skala satu-arah: melebihi ideal ke arah yang baik TIDAK dihukum
+    if(SKALA_SATU_ARAH[d] === "atas"  && v > pos.ideal[d]) diff = 0;
+    if(SKALA_SATU_ARAH[d] === "bawah" && v < pos.ideal[d]) diff = 0;
+    num += pos.w[d]*diff; den += pos.w[d];
+  }
   return Math.max(0, Math.min(100, Math.round(100 - num/den*1.6)));
 }
 function matchLabel(v){
@@ -1083,7 +1150,7 @@ function copyText(txt, btn, orig){
     '<option value="jenjang-spv">SPV (Tes Jenjang)</option><option value="jenjang-manager">Manager (Tes Jenjang)</option>';
   $("#tk-jenis").addEventListener("change", ()=>{
     const j = $("#tk-jenis").value;
-    if(j === "karakter"){ $("#tk-durasi").value = "18"; $("#tk-posisi").disabled = false; }
+    if(j === "karakter"){ $("#tk-durasi").value = "25"; $("#tk-posisi").disabled = false; }
     else { $("#tk-durasi").value = "40"; $("#tk-posisi").disabled = true; }
   });
   $("#btn-buat-token").addEventListener("click", buatToken);
@@ -1368,6 +1435,13 @@ function renderDetail(){
         <div class="vbox"><div class="vt">Waktu pengerjaan</div>
           <div class="vv ${r.durasiDetik!=null && r.durasiDetik < (r.durasiTotalMenit||0)*24 ? "warn" : "ok"}">${fmtDurasi(r.durasiDetik)} <small>/ ${r.durasiTotalMenit||"?"} mnt</small></div>
           <div class="vd">${ketDurasi(r)}</div></div>
+        <div class="vbox"><div class="vt">Keseriusan pengerjaan</div>
+          ${(()=>{ const ks = skorKeseriusan(r);
+            if(!ks) return `<div class="vv">—</div><div class="vd">Data waktu per soal tidak tersedia (versi lama)</div>`;
+            const cls = ks.skor>=75?"ok":(ks.skor>=55?"warn":"bad");
+            return `<div class="vv ${cls}">${ks.skor} <small>/ 100</small></div>
+              <div class="vd">${ks.skor>=75?"Pola pengerjaan wajar dan serius":(ks.skor>=55?"Ada tanda tergesa — lihat catatan flag":"Terindikasi asal-asalan — lihat flag & pertimbangkan tes ulang")}</div>`; })()}
+        </div>
       </div>
     </div>
 
@@ -1382,6 +1456,7 @@ function renderDetail(){
     </div>
 
     ${kartuPenutup(r)}
+    ${kartuSosial(dims)}
     ${kartuIntegritas(r)}
 
     ${kartuTemperamen(dims)}
@@ -1610,7 +1685,43 @@ function copyJSON(){
 /* ============================================================
    KEHATI-HATIAN INTEGRITAS & JAWABAN PENUTUP
    ============================================================ */
-const POSISI_UANG = ["kasir","accounting","store","frontdesk","admin"];
+function skorKeseriusan(r){
+  if(!r.kecepatan) return null;
+  const k = r.kecepatan;
+  let s = 100; const catatan = [];
+  if(k.pctKilat >= 40){ s -= 30; catatan.push(`${k.pctKilat}% soal dijawab kurang dari 1,5 detik — nyaris tanpa membaca`); }
+  else if(k.pctKilat >= 25){ s -= 15; catatan.push(`${k.pctKilat}% soal dijawab sangat cepat (di bawah 1,5 detik)`); }
+  if(k.medianDetik != null && k.medianDetik < 2.5){ s -= 15; catatan.push(`Waktu tengah per soal hanya ${k.medianDetik} detik`); }
+  if(k.runMaks >= 15){ s -= 25; catatan.push(`${k.runMaks} soal berurutan dijawab angka yang sama persis (pola lurus)`); }
+  else if(k.runMaks >= 10){ s -= 10; catatan.push(`${k.runMaks} soal berurutan dengan jawaban sama`); }
+  if(r.flat){ s -= 15; catatan.push("Variasi jawaban sangat datar di seluruh tes"); }
+  if(r.durasiDetik != null && r.durasiTotalMenit && r.durasiDetik < r.durasiTotalMenit*60*0.35){ s -= 10; catatan.push("Total waktu pengerjaan sangat singkat"); }
+  if(k.revisi >= 3){ s = Math.min(100, s + 5); catatan.push(`Meninjau ulang ${k.revisi} jawaban — tanda membaca dengan serius (nilai tambah)`); }
+  return { skor: Math.max(0, s), catatan };
+}
+function kartuSosial(dims){
+  if(dims.INT == null) return `<div class="card"><h2>Karakter Sosial &amp; Kematangan</h2><p class="small">Tidak tersedia — hasil dari versi tes sebelum skala ini ditambahkan.</p></div>`;
+  const skala = [
+    { k:"INT", nama:"Integritas",      tinggi:"menjunjung kejujuran walau merugikan diri sendiri", rendah:"permisif terhadap kecurangan kecil — dalami di wawancara" },
+    { k:"DEW", nama:"Kedewasaan",      tinggi:"mengakui salah, menerima kritik, menahan emosi", rendah:"defensif, mencari kambing hitam, sulit menerima kritik" },
+    { k:"TOL", nama:"Toleransi",       tinggi:"nyaman dengan perbedaan agama, suku, dan pandangan", rendah:"kaku terhadap perbedaan — risiko gesekan di tim yang majemuk" },
+    { k:"KEB", nama:"Kebaikan Sesama", tinggi:"tergerak menolong tanpa mengharap imbalan", rendah:"acuh pada kesusahan orang — minim kerelaan membantu tim" },
+  ];
+  return `<div class="card">
+    <h2>Karakter Sosial &amp; Kematangan</h2>
+    <p class="small">Empat skala nilai kemanusiaan — masing-masing diukur 6 pernyataan, termasuk pernyataan terbalik agar arah jawaban tidak bisa ditebak.</p>
+    ${skala.map(x=>{
+      const v = dims[x.k] ?? 50; const l = matchLabel(v);
+      return `<div class="bar-row">
+        <div class="bl" style="font-size:12.5px">${x.nama}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${l.c}"></div></div>
+        <div class="bar-val">${v}</div>
+        <div class="bar-note">${v>=65?x.tinggi:(v<=45?x.rendah:"berada di rentang tengah")}</div></div>`;
+    }).join("")}
+    <p class="small" style="margin-top:8px">Skor rendah bukan vonis — jadikan bahan wawancara. Sebaliknya, skor nyaris sempurna di keempatnya <b>bersamaan dengan</b> flag pencitraan justru patut dicurigai sebagai jawaban yang dibuat-buat.</p>
+  </div>`;
+}
+const POSISI_UANG = ["kasir","accounting","store","admin","receptionist","purchasing"];
 function kartuIntegritas(r){
   const isJ = cur.jenis && cur.jenis !== "karakter";
   let poin = 0; const sinyal = [];
@@ -1628,6 +1739,9 @@ function kartuIntegritas(r){
     if(d.A <= 35){ poin += 2; sinyal.push(`Kepedulian pada orang lain sangat rendah (A ${d.A}) — kecenderungan sinis/memanfaatkan`); }
     else if(d.A <= 45){ poin += 1; sinyal.push(`Kepedulian di bawah rata-rata (A ${d.A})`); }
     if(d.N >= 70){ poin += 1; sinyal.push(`Reaktivitas emosi tinggi (N ${d.N}) — rentan bertindak impulsif di bawah tekanan`); }
+    if(d.INT != null && d.INT <= 35){ poin += 3; sinyal.push(`Skala integritas sangat rendah (${d.INT}) — permisif terhadap kecurangan pada pernyataan langsung`); }
+    else if(d.INT != null && d.INT <= 45){ poin += 1; sinyal.push(`Skala integritas di bawah rata-rata (${d.INT})`); }
+    if(d.DEW != null && d.DEW <= 35){ poin += 1; sinyal.push(`Kedewasaan rendah (${d.DEW}) — cenderung menyalahkan pihak lain saat tertekan`); }
     if(r.sd >= 4.25){ poin += 2; sinyal.push("Terindikasi menjawab demi pencitraan (faking good) — kejujuran dalam mengisi tes saja sudah diragukan"); }
     if(r.consist >= 1.5){ poin += 1; sinyal.push("Jawaban inkonsisten — seluruh profil kurang dapat dipercaya"); }
   }
@@ -1858,6 +1972,13 @@ function renderDetailJenjang(){
         <div class="vbox"><div class="vt">Waktu pengerjaan</div>
           <div class="vv ${r.durasiDetik!=null && r.durasiDetik < (r.durasiTotalMenit||0)*24 ? "warn" : "ok"}">${fmtDurasi(r.durasiDetik)} <small>/ ${r.durasiTotalMenit||"?"} mnt</small></div>
           <div class="vd">${ketDurasi(r)}</div></div>
+        <div class="vbox"><div class="vt">Keseriusan pengerjaan</div>
+          ${(()=>{ const ks = skorKeseriusan(r);
+            if(!ks) return `<div class="vv">—</div><div class="vd">Data waktu per soal tidak tersedia (versi lama)</div>`;
+            const cls = ks.skor>=75?"ok":(ks.skor>=55?"warn":"bad");
+            return `<div class="vv ${cls}">${ks.skor} <small>/ 100</small></div>
+              <div class="vd">${ks.skor>=75?"Pola pengerjaan wajar dan serius":(ks.skor>=55?"Ada tanda tergesa — lihat catatan flag":"Terindikasi asal-asalan — lihat flag & pertimbangkan tes ulang")}</div>`; })()}
+        </div>
         <div class="vbox"><div class="vt">Penalaran praktis</div>
           <div class="vv ${r.nalarPct>=70?"ok":(r.nalarPct>=50?"warn":"bad")}">${r.benarNalar} <small>/ ${b.nalar.length} benar</small></div>
           <div class="vd">${r.nalarPct>=70?"Hitungan operasional kuat":(r.nalarPct>=50?"Cukup — dalami dengan studi kasus hitungan":"Lemah — risiko untuk peran yang mengelola angka")}</div></div>
