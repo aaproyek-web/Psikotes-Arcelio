@@ -261,7 +261,7 @@ const POSITIONS = [
 /* ---------- BANK SOAL (identik dengan pengaturan skoring di hrd.html) ---------- */
 const POOLS = {
   D: [
-    {t:"Dalam keadaan mendesak, saya berani cepat mengambil keputusan.", id:"D2"},
+    {t:"Dalam keadaan mendesak, saya berani cepat mengambil keputusan.", id:"D2", also:{"N": -0.3}},
     {t:"Saya senang memimpin jalannya diskusi atau kerja kelompok."},
     {t:"Saya suka bersaing untuk menjadi yang terbaik."},
     {t:"Saya senang mengarahkan orang lain agar tujuan tercapai."},
@@ -271,7 +271,7 @@ const POOLS = {
     {t:"Saya memilih menghindari persaingan.", rev:true},
   ],
   I: [
-    {t:"Saya mudah memulai obrolan dengan orang yang baru saya kenal."},
+    {t:"Saya mudah memulai obrolan dengan orang yang baru saya kenal.", also:{"TOL": 0.2, "N": -0.2}},
     {t:"Saya senang menjadi pusat perhatian."},
     {t:"Saya pandai mengajak orang lain mengikuti ide saya."},
     {t:"Saya senang berbicara di depan banyak orang."},
@@ -281,27 +281,27 @@ const POOLS = {
     {t:"Saya bingung harus bicara apa dengan orang yang belum akrab.", rev:true},
   ],
   S: [
-    {t:"Saya lebih suka pekerjaan yang stabil daripada yang sering berubah.", id:"S1"},
+    {t:"Saya lebih suka pekerjaan yang stabil daripada yang sering berubah.", id:"S1", also:{"O": -0.3}},
     {t:"Saya sabar mendengarkan orang lain sampai selesai bicara."},
     {t:"Saya lebih suka menjaga kerukunan daripada berdebat."},
     {t:"Saya betah bekerja lama di satu tempat."},
-    {t:"Saya tetap sabar melayani pelanggan yang sedang marah."},
+    {t:"Saya tetap sabar melayani pelanggan yang sedang marah.", also:{"DEW": 0.3, "A": 0.2}},
     {t:"Saya lebih suka mengalah agar tidak terjadi pertengkaran."},
     {t:"Saya nyaman dengan pekerjaan yang jadwalnya tetap."},
     {t:"Mengerjakan hal yang sama setiap hari membuat saya cepat bosan.", rev:true},
   ],
   C: [
-    {t:"Saya nyaman bekerja dengan aturan yang jelas."},
+    {t:"Saya nyaman bekerja dengan aturan yang jelas.", also:{"INT": 0.3}},
     {t:"Saya memeriksa ulang hasil kerja sebelum diserahkan."},
     {t:"Saya menyukai pekerjaan yang menuntut ketelitian."},
-    {t:"Saya berhati-hati sebelum bertindak."},
+    {t:"Saya berhati-hati sebelum bertindak.", also:{"INT": 0.15}},
     {t:"Saya nyaman mengikuti instruksi yang rinci."},
     {t:"Saya suka bila pekerjaan diatur dengan sistem yang rapi."},
     {t:"Saya lebih suka mengikuti aturan daripada melanggarnya."},
     {t:"Bagi saya yang penting pekerjaan selesai, tidak harus rapi sampai hal kecil.", rev:true},
   ],
   O: [
-    {t:"Saya suka mencoba cara baru meskipun belum terbiasa."},
+    {t:"Saya suka mencoba cara baru meskipun belum terbiasa.", also:{"D": 0.2}},
     {t:"Saya senang belajar hal baru karena penasaran."},
     {t:"Saya suka berpikir kreatif mencari ide."},
     {t:"Saya menikmati kegiatan seni seperti musik, menggambar, atau menulis."},
@@ -311,12 +311,12 @@ const POOLS = {
     {t:"Saya lebih memilih cara lama yang sudah terbukti aman.", rev:true},
   ],
   Co: [
-    {t:"Saya berusaha menyelesaikan tugas sebelum batas waktunya."},
+    {t:"Saya berusaha menyelesaikan tugas sebelum batas waktunya.", also:{"INT": 0.25, "DEW": 0.2}},
     {t:"Saya disiplin mengatur waktu."},
     {t:"Saya membuat rencana dulu sebelum mulai bekerja."},
     {t:"Barang dan berkas kerja saya tertata rapi."},
-    {t:"Sekali mulai mengerjakan sesuatu, saya selesaikan sampai tuntas."},
-    {t:"Saya bertanggung jawab penuh atas hasil pekerjaan saya."},
+    {t:"Sekali mulai mengerjakan sesuatu, saya selesaikan sampai tuntas.", also:{"DEW": 0.2}},
+    {t:"Saya bertanggung jawab penuh atas hasil pekerjaan saya.", also:{"INT": 0.2, "DEW": 0.2}},
     {t:"Dalam hal kehadiran, saya hampir selalu datang tepat waktu.", id:"Co5"},
     {t:"Saya sering menunda pekerjaan sampai waktunya mepet.", rev:true},
   ],
@@ -331,17 +331,17 @@ const POOLS = {
     {t:"Saya lebih nyaman bekerja sendiri daripada dalam kelompok besar.", rev:true},
   ],
   A: [
-    {t:"Saya mudah memahami perasaan orang lain."},
-    {t:"Saya suka menolong orang yang sedang kesulitan."},
-    {t:"Saya mudah memaafkan kesalahan orang lain."},
+    {t:"Saya mudah memahami perasaan orang lain.", also:{"KEB": 0.3, "TOL": 0.2, "DEW": 0.15}},
+    {t:"Saya suka menolong orang yang sedang kesulitan.", also:{"DEW": 0.15}},
+    {t:"Saya mudah memaafkan kesalahan orang lain.", also:{"TOL": 0.25, "DEW": 0.2}},
     {t:"Saya peduli dengan kebutuhan orang di sekitar saya."},
     {t:"Saya senang bekerja sama dalam tim."},
-    {t:"Saya berusaha menjaga hubungan baik dengan semua orang."},
-    {t:"Sebelum menilai seseorang, saya mencoba memahami alasannya dulu."},
-    {t:"Saya butuh waktu lama untuk bisa percaya pada orang baru.", rev:true},
+    {t:"Saya berusaha menjaga hubungan baik dengan semua orang.", also:{"TOL": 0.15, "KEB": 0.1}},
+    {t:"Sebelum menilai seseorang, saya mencoba memahami alasannya dulu.", also:{"TOL": 0.25, "DEW": 0.15}},
+    {t:"Saya butuh waktu lama untuk bisa percaya pada orang baru.", rev:true, also:{"TOL": -0.2}},
   ],
   N: [
-    {t:"Saya mudah cemas menghadapi hal yang belum pasti.", id:"N1"},
+    {t:"Saya mudah cemas menghadapi hal yang belum pasti.", id:"N1", also:{"DEW": -0.3}},
     {t:"Saya mudah merasa khawatir."},
     {t:"Saya sering merasa tegang."},
     {t:"Jika dikritik atau ditegur, saya memikirkannya sampai berhari-hari."},
@@ -351,7 +351,7 @@ const POOLS = {
     {t:"Dalam keadaan genting, saya tetap bisa berpikir tenang.", rev:true},
   ],
   TF: [
-    {t:"Saya membuat keputusan berdasarkan logika, bukan perasaan."},
+    {t:"Saya membuat keputusan berdasarkan logika, bukan perasaan.", also:{"A": -0.2}},
     {t:"Saya lebih percaya pada fakta daripada firasat."},
     {t:"Saat teman bercerita masalahnya, saya cenderung langsung memberi jalan keluar, bukan sekadar menghibur."},
     {t:"Sebelum memutuskan, saya menimbang dulu perasaan orang yang terkena dampaknya.", rev:true},
@@ -359,34 +359,34 @@ const POOLS = {
     {t:"Keputusan saya sering mengikuti kata hati.", rev:true},
   ],
   INT: [
-    {t:"Bila kembalian yang saya terima berlebih, saya mengembalikannya walau tidak ada yang tahu.", id:"IN1"},
-    {t:"Saya tetap jujur meskipun kejujuran itu merugikan saya."},
+    {t:"Bila kembalian yang saya terima berlebih, saya mengembalikannya walau tidak ada yang tahu.", id:"IN1", also:{"Co": 0.2, "N": -0.15}},
+    {t:"Saya tetap jujur meskipun kejujuran itu merugikan saya.", also:{"DEW": 0.25}},
     {t:"Bagi saya, mengambil barang kecil milik tempat kerja tetap termasuk mencuri."},
     {t:"Saya menolak ikut berbuat curang meskipun dilakukan ramai-ramai."},
-    {t:"Menurut saya, bohong kecil tidak masalah asal tidak ketahuan.", rev:true},
-    {t:"Kalau semua orang melakukannya, melanggar aturan kecil itu wajar.", rev:true},
+    {t:"Menurut saya, bohong kecil tidak masalah asal tidak ketahuan.", rev:true, also:{"Co": -0.2, "DEW": -0.15}},
+    {t:"Kalau semua orang melakukannya, melanggar aturan kecil itu wajar.", rev:true, also:{"C": -0.2}},
   ],
   DEW: [
-    {t:"Saat berbuat salah, saya mengakuinya tanpa mencari-cari alasan."},
-    {t:"Saya bisa menerima teguran tanpa marah atau merajuk."},
+    {t:"Saat berbuat salah, saya mengakuinya tanpa mencari-cari alasan.", also:{"INT": 0.3}},
+    {t:"Saya bisa menerima teguran tanpa marah atau merajuk.", also:{"A": 0.15, "TOL": 0.15}},
     {t:"Saya memikirkan akibat jangka panjang sebelum bertindak."},
     {t:"Saat sedang emosi, saya menahan diri agar tidak melampiaskannya ke orang lain."},
-    {t:"Kalau hasil kerja saya buruk, biasanya itu karena kesalahan orang lain.", rev:true},
+    {t:"Kalau hasil kerja saya buruk, biasanya itu karena kesalahan orang lain.", rev:true, also:{"INT": -0.25, "A": -0.15}},
     {t:"Saya sulit menerima kritik atas pekerjaan saya.", rev:true},
   ],
   TOL: [
-    {t:"Saya nyaman bekerja dengan orang yang berbeda agama atau suku.", id:"TO1"},
-    {t:"Saya menghargai pendapat yang berbeda dengan pendapat saya."},
+    {t:"Saya nyaman bekerja dengan orang yang berbeda agama atau suku.", id:"TO1", also:{"KEB": 0.2, "A": 0.15}},
+    {t:"Saya menghargai pendapat yang berbeda dengan pendapat saya.", also:{"DEW": 0.2}},
     {t:"Saya bisa berteman baik dengan orang yang kebiasaannya berbeda dari saya."},
     {t:"Perbedaan pandangan di dalam tim menurut saya hal yang wajar."},
-    {t:"Saya sulit bekerja sama dengan orang yang pandangan hidupnya berbeda.", rev:true},
+    {t:"Saya sulit bekerja sama dengan orang yang pandangan hidupnya berbeda.", rev:true, also:{"A": -0.2}},
     {t:"Saya merasa cara hidup kelompok saya yang paling benar.", rev:true},
   ],
   KEB: [
-    {t:"Saya ikut senang melihat orang lain berhasil."},
+    {t:"Saya ikut senang melihat orang lain berhasil.", also:{"TOL": 0.15}},
     {t:"Saya mau membantu orang tanpa mengharap imbalan."},
     {t:"Saya menyisihkan waktu atau rezeki untuk membantu orang yang membutuhkan."},
-    {t:"Melihat orang kesusahan membuat saya tergerak untuk menolong."},
+    {t:"Melihat orang kesusahan membuat saya tergerak untuk menolong.", also:{"A": 0.2, "TOL": 0.15}},
     {t:"Membantu orang lain hanya membuang-buang waktu saya.", rev:true},
     {t:"Kesusahan orang lain bukan urusan saya.", rev:true},
   ],
@@ -1007,6 +1007,15 @@ function nextPage(){
 }
 
 /* ---------- skoring (dijalankan di sisi peserta, disimpan ke DB) ---------- */
+/* pasangan tema yang seharusnya sejalan — dipakai untuk mendeteksi kejanggalan lintas kategori */
+const TENSION_PAIRS = [
+  { a:"C",  b:"INT", label:"Suka aturan yang jelas (C) vs sikap terhadap kecurangan kecil (Integritas)" },
+  { a:"Co", b:"DEW", label:"Keandalan/disiplin (Co) vs kedewasaan menerima tanggung jawab" },
+  { a:"A",  b:"KEB", label:"Kepedulian pada orang (A) vs kerelaan menolong tanpa pamrih" },
+  { a:"A",  b:"TOL", label:"Kepedulian pada orang (A) vs penerimaan terhadap perbedaan" },
+  { a:"Co", b:"INT", label:"Keandalan/disiplin (Co) vs kejujuran saat tidak diawasi" },
+];
+
 function computeResults(ans){
   const sums = {}, counts = {};
   let sdSum = 0, sdCount = 0, kosong = 0;
@@ -1018,8 +1027,31 @@ function computeResults(ans){
     sums[it.dim] = (sums[it.dim]||0) + val;
     counts[it.dim] = (counts[it.dim]||0) + 1;
   });
+  const dimsPrimer = {};
+  for(const d in sums) dimsPrimer[d] = (sums[d]/counts[d] - 1) / 4 * 100;   // skala 0-100, belum dibulatkan
+
+  // ---------- sinyal silang (cross-loading): soal yang "menyerempet" kategori lain ----------
+  const crossSum = {}, crossW = {};
+  ITEMS.forEach((it,i)=>{
+    if(!it.also) return;
+    let raw = ans[i]; if(raw === 0) raw = 3;
+    const val = it.rev ? 6-raw : raw;
+    const skor100 = (val - 1) / 4 * 100;
+    for(const d in it.also){
+      const bobot = Math.abs(it.also[d]);
+      const arah = it.also[d] < 0 ? (100 - skor100) : skor100;   // bobot negatif = berlawanan arah
+      crossSum[d] = (crossSum[d]||0) + arah*bobot;
+      crossW[d] = (crossW[d]||0) + bobot;
+    }
+  });
   const dims = {};
-  for(const d in sums) dims[d] = Math.round((sums[d]/counts[d] - 1) / 4 * 100);
+  for(const d in dimsPrimer){
+    const cross = crossW[d] ? crossSum[d]/crossW[d] : null;
+    // sinyal silang berkontribusi maksimal 15% — dimensi resmi tetap dominan
+    const gab = cross != null ? dimsPrimer[d]*0.85 + cross*0.15 : dimsPrimer[d];
+    dims[d] = Math.max(0, Math.min(100, Math.round(gab)));
+  }
+
   const pairDetails = [];
   ITEMS.forEach((it,i)=>{
     if(it.pairOf){
@@ -1034,8 +1066,21 @@ function computeResults(ans){
   const sdAll = Math.sqrt(filled.reduce((a,b)=>a+(b-mean)**2,0)/filled.length);
   const nExtreme = filled.filter(a=>a===1||a===5).length;
   const pctExtreme = Math.round(nExtreme/filled.length*100);
+
+  // ---------- pembatas kejanggalan: pasangan tema yang seharusnya sejalan tapi berlawanan tajam ----------
+  const tensions = [];
+  TENSION_PAIRS.forEach(p=>{
+    if(dims[p.a] == null || dims[p.b] == null) return;
+    const selisih = dims[p.a] - dims[p.b];
+    if(Math.abs(selisih) >= 35){
+      tensions.push({ a:p.a, b:p.b, va:dims[p.a], vb:dims[p.b], label:p.label,
+        arah: selisih > 0 ? `${p.a} tinggi (${dims[p.a]}) tapi ${p.b} rendah (${dims[p.b]})`
+                           : `${p.b} tinggi (${dims[p.b]}) tapi ${p.a} rendah (${dims[p.a]})` });
+    }
+  });
+
   return { dims, sd:+(sdSum/sdCount).toFixed(3), consist:+consist.toFixed(3), sdAll:+sdAll.toFixed(3),
-           pctExtreme, pairDetails, flat:sdAll<0.55, extreme:pctExtreme>=85, tidakDijawab:kosong };
+           pctExtreme, pairDetails, tensions, flat:sdAll<0.55, extreme:pctExtreme>=85, tidakDijawab:kosong };
 }
 
 const PILIHAN_GAJI = ["Di bawah Rp1,6 juta","Rp1,6 juta \u2013 Rp1,9 juta","Rp1,9 juta \u2013 Rp2,3 juta","Di atas Rp2,3 juta"];

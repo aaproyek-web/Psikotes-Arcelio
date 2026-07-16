@@ -173,6 +173,12 @@ table.rank tr:nth-child(even) td{background:#F7FBFB}
 .badge-final{font-weight:800;font-variant-numeric:tabular-nums}
 .del-btn{border:0;background:none;color:var(--coral);cursor:pointer;font-size:15px}
 a.wa{color:var(--green);font-weight:700;text-decoration:none}
+.sticky-back{position:sticky;top:0;z-index:45;background:rgba(244,250,251,.97);backdrop-filter:blur(4px);
+  padding:10px 0;margin:0 0 6px;display:flex;gap:10px;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--line)}
+.sticky-back .ringkas-nama{font-weight:800;font-size:13.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:44vw}
+#btn-toggle-detail{display:block;width:100%;margin-top:6px}
+@media print{ .sticky-back{position:static} }
 .foto-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
 .foto-item{margin:0;cursor:pointer;text-align:center}
 .foto-item img{width:110px;border-radius:10px;border:1.5px solid var(--line);display:block;transition:width .15s ease}
@@ -413,50 +419,50 @@ function bukaDash(){
 /* ---------- POSISI + PROFIL IDEAL ---------- */
 const POSITIONS = [
   { key:"kasir", nama:"Kasir",
-    ideal:{D:40,I:50,S:65,C:80,O:45,Co:80,E:50,A:60,N:30,INT:90,DEW:70,TOL:60,KEB:55},
-    w:{D:1,I:1,S:2,C:3,O:1,Co:3,E:1,A:1,N:2,INT:3,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:40,I:50,S:65,C:80,O:45,E:50,A:60,TOL:60,KEB:55},
+    w:{D:1,I:1,S:2,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"receptionist", nama:"Receptionist",
-    ideal:{D:40,I:75,S:70,C:60,O:55,Co:65,E:70,A:75,N:30,INT:75,DEW:65,TOL:75,KEB:65},
-    w:{D:1,I:3,S:2,C:1,O:1,Co:1,E:2,A:3,N:2,INT:2,DEW:1,TOL:2,KEB:1} },
+    ideal:{D:40,I:75,S:70,C:60,O:55,E:70,A:75,TOL:75,KEB:65},
+    w:{D:1,I:3,S:2,C:1,O:1,E:2,A:3,TOL:2,KEB:1} },
   { key:"sales", nama:"Sales",
-    ideal:{D:65,I:80,S:40,C:45,O:60,Co:60,E:80,A:55,N:25,INT:65,DEW:65,TOL:65,KEB:50},
-    w:{D:2,I:3,S:1,C:1,O:1,Co:1,E:3,A:1,N:3,INT:1,DEW:1,TOL:1,KEB:1} },
+    ideal:{D:65,I:80,S:40,C:45,O:60,E:80,A:55,TOL:65,KEB:50},
+    w:{D:2,I:3,S:1,C:1,O:1,E:3,A:1,TOL:1,KEB:1} },
   { key:"marketing", nama:"Marketing",
-    ideal:{D:55,I:60,S:45,C:65,O:80,Co:70,E:55,A:55,N:35,INT:65,DEW:65,TOL:70,KEB:55},
-    w:{D:1,I:1,S:1,C:2,O:3,Co:2,E:1,A:1,N:1,INT:1,DEW:1,TOL:1,KEB:1} },
+    ideal:{D:55,I:60,S:45,C:65,O:80,E:55,A:55,TOL:70,KEB:55},
+    w:{D:1,I:1,S:1,C:2,O:3,E:1,A:1,TOL:1,KEB:1} },
   { key:"poolguard", nama:"Pool Guard",
-    ideal:{D:50,I:45,S:70,C:70,O:45,Co:75,E:50,A:60,N:20,INT:80,DEW:75,TOL:60,KEB:65},
-    w:{D:1,I:1,S:2,C:2,O:1,Co:3,E:1,A:1,N:3,INT:2,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:50,I:45,S:70,C:70,O:45,E:50,A:60,TOL:60,KEB:65},
+    w:{D:1,I:1,S:2,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"cleaning", nama:"Cleaning Staff",
-    ideal:{D:35,I:40,S:75,C:65,O:40,Co:75,E:45,A:55,N:35,INT:70,DEW:60,TOL:60,KEB:55},
-    w:{D:1,I:1,S:2,C:2,O:1,Co:3,E:1,A:1,N:1,INT:2,DEW:1,TOL:1,KEB:1} },
+    ideal:{D:35,I:40,S:75,C:65,O:40,E:45,A:55,TOL:60,KEB:55},
+    w:{D:1,I:1,S:2,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"housekeeping", nama:"House Keeping",
-    ideal:{D:35,I:40,S:70,C:75,O:40,Co:80,E:40,A:55,N:35,INT:85,DEW:65,TOL:60,KEB:55},
-    w:{D:1,I:1,S:1,C:3,O:1,Co:3,E:1,A:1,N:1,INT:3,DEW:1,TOL:1,KEB:1} },
+    ideal:{D:35,I:40,S:70,C:75,O:40,E:40,A:55,TOL:60,KEB:55},
+    w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"engineering", nama:"Engineering / Teknisi",
-    ideal:{D:50,I:40,S:55,C:80,O:70,Co:75,E:40,A:50,N:35,INT:70,DEW:70,TOL:55,KEB:50},
-    w:{D:1,I:1,S:1,C:3,O:3,Co:2,E:1,A:1,N:1,INT:1,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:50,I:40,S:55,C:80,O:70,E:40,A:50,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:3,E:1,A:1,TOL:1,KEB:1} },
   { key:"security", nama:"Security",
-    ideal:{D:60,I:40,S:65,C:70,O:40,Co:80,E:45,A:50,N:20,INT:90,DEW:80,TOL:65,KEB:55},
-    w:{D:2,I:1,S:1,C:2,O:1,Co:3,E:1,A:1,N:3,INT:3,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:60,I:40,S:65,C:70,O:40,E:45,A:50,TOL:65,KEB:55},
+    w:{D:2,I:1,S:1,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"accounting", nama:"Accounting",
-    ideal:{D:40,I:35,S:60,C:90,O:45,Co:85,E:35,A:50,N:30,INT:95,DEW:75,TOL:55,KEB:50},
-    w:{D:1,I:1,S:1,C:3,O:1,Co:3,E:1,A:1,N:2,INT:3,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:40,I:35,S:60,C:90,O:45,E:35,A:50,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"admin", nama:"Admin",
-    ideal:{D:40,I:45,S:65,C:75,O:50,Co:80,E:45,A:55,N:35,INT:75,DEW:65,TOL:60,KEB:50},
-    w:{D:1,I:1,S:1,C:3,O:1,Co:3,E:1,A:1,N:1,INT:2,DEW:1,TOL:1,KEB:1} },
+    ideal:{D:40,I:45,S:65,C:75,O:50,E:45,A:55,TOL:60,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"hr", nama:"HR Staff",
-    ideal:{D:50,I:65,S:65,C:65,O:60,Co:70,E:65,A:80,N:30,INT:85,DEW:80,TOL:85,KEB:75},
-    w:{D:1,I:1,S:1,C:1,O:1,Co:1,E:1,A:3,N:2,INT:3,DEW:3,TOL:3,KEB:2} },
+    ideal:{D:50,I:65,S:65,C:65,O:60,E:65,A:80,TOL:85,KEB:75},
+    w:{D:1,I:1,S:1,C:1,O:1,E:1,A:3,TOL:3,KEB:2} },
   { key:"event", nama:"Event Coordinator",
-    ideal:{D:65,I:70,S:45,C:60,O:70,Co:70,E:70,A:60,N:25,INT:65,DEW:70,TOL:70,KEB:55},
-    w:{D:2,I:2,S:1,C:1,O:2,Co:2,E:2,A:1,N:3,INT:1,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:65,I:70,S:45,C:60,O:70,E:70,A:60,TOL:70,KEB:55},
+    w:{D:2,I:2,S:1,C:1,O:2,E:2,A:1,TOL:1,KEB:1} },
   { key:"purchasing", nama:"Purchasing",
-    ideal:{D:55,I:50,S:55,C:75,O:55,Co:75,E:50,A:50,N:35,INT:90,DEW:75,TOL:60,KEB:50},
-    w:{D:2,I:1,S:1,C:2,O:1,Co:2,E:1,A:1,N:1,INT:3,DEW:2,TOL:1,KEB:1} },
+    ideal:{D:55,I:50,S:55,C:75,O:55,E:50,A:50,TOL:60,KEB:50},
+    w:{D:2,I:1,S:1,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"store", nama:"Store / Gudang",
-    ideal:{D:35,I:40,S:65,C:75,O:40,Co:75,E:40,A:50,N:35,INT:85,DEW:65,TOL:55,KEB:50},
-    w:{D:1,I:1,S:1,C:3,O:1,Co:2,E:1,A:1,N:1,INT:3,DEW:1,TOL:1,KEB:1} },
+    ideal:{D:35,I:40,S:65,C:75,O:40,E:40,A:50,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
 ];
 const DIM_LABELS = { D:"Dominance", I:"Influence", S:"Steadiness", C:"Compliance",
   O:"Openness", Co:"Conscientiousness", E:"Extraversion", A:"Agreeableness", N:"Neuroticism" };
@@ -1386,7 +1392,10 @@ function renderDetail(){
     </div>`;
 
   $("#hasil-detail").innerHTML = `
-    <button class="btn ghost small-btn no-print" onclick="tutupDetail()" style="margin-top:16px">&larr; Kembali ke daftar</button>
+    <div class="sticky-back no-print">
+      <button class="btn ghost small-btn" onclick="tutupDetail()" style="margin:0">&larr; Kembali ke daftar</button>
+      <span class="ringkas-nama">${cur.nama} · ${cur.posisi}</span>
+    </div>
     <div class="card">
       <span class="confid">Rahasia — Internal HRD</span>
       <h2 style="font-size:20px">Lembar Hasil Psikotes</h2>
@@ -1405,6 +1414,11 @@ function renderDetail(){
 
 
     <div class="card" id="foto-grid"><h2>📷 Foto Verifikasi</h2><p class="small">Memuat foto…</p></div>
+
+    ${ringkasanHierarki(r, dims)}
+    <button class="btn no-print" id="btn-toggle-detail">📋 Lihat Detail Lengkap ▾</button>
+
+    <div id="detail-lengkap" class="hidden">
     <div class="hl-match">
       <div class="pct" style="color:${labA.c}">${vApplied}%<small style="color:${labA.c}">${labA.t}</small></div>
       <div>
@@ -1530,8 +1544,15 @@ function renderDetail(){
         <button class="btn small-btn ghost" id="btn-json">📋 Salin Data (JSON)</button>
         <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
       </div>
+    </div>
     </div>`;
 
+  $("#btn-toggle-detail").addEventListener("click", ()=>{
+    const dl = $("#detail-lengkap"); const btn = $("#btn-toggle-detail");
+    const buka = dl.classList.toggle("hidden") === false;
+    btn.textContent = buka ? "📋 Sembunyikan Detail" : "📋 Lihat Detail Lengkap ▾";
+    if(buka) dl.scrollIntoView({behavior:"smooth", block:"start"});
+  });
   $("#iv-posisi").addEventListener("change", onIvPosisiChange);
   $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
   $("#btn-json").addEventListener("click", copyJSON);
@@ -1742,6 +1763,7 @@ function kartuIntegritas(r){
     if(d.INT != null && d.INT <= 35){ poin += 3; sinyal.push(`Skala integritas sangat rendah (${d.INT}) — permisif terhadap kecurangan pada pernyataan langsung`); }
     else if(d.INT != null && d.INT <= 45){ poin += 1; sinyal.push(`Skala integritas di bawah rata-rata (${d.INT})`); }
     if(d.DEW != null && d.DEW <= 35){ poin += 1; sinyal.push(`Kedewasaan rendah (${d.DEW}) — cenderung menyalahkan pihak lain saat tertekan`); }
+    (r.tensions||[]).forEach(t=>{ poin += 1; sinyal.push(`Kejanggalan: ${t.arah} (${t.label})`); });
     if(r.sd >= 4.25){ poin += 2; sinyal.push("Terindikasi menjawab demi pencitraan (faking good) — kejujuran dalam mengisi tes saja sudah diragukan"); }
     if(r.consist >= 1.5){ poin += 1; sinyal.push("Jawaban inkonsisten — seluruh profil kurang dapat dipercaya"); }
   }
@@ -1855,11 +1877,76 @@ function kartuMBTI(dims, r){
   </div>`;
 }
 
+function hitungKelayakan(dims, r){
+  const intg = dims.INT ?? 55, dew = dims.DEW ?? 55;
+  let skor = 0.25*(100-dims.N) + 0.20*dims.Co + 0.30*intg + 0.25*dew;
+  const validitasBuruk = r.sd>=4.25 || r.consist>=1.5;
+  const tensionBerat = (r.tensions||[]).length >= 2;
+  if(validitasBuruk) skor = Math.min(skor, 60);
+  if(tensionBerat) skor = Math.min(skor, 55);
+  return { skor:Math.round(Math.max(0,Math.min(100,skor))), validitasBuruk, tensionBerat };
+}
+
+function ringkasanHierarki(r, dims){
+  const kel = hitungKelayakan(dims, r);
+  const pot = hitungPotensi(dims);
+  const matches = POSITIONS.map(p=>({p, v:matchScore(p,dims)})).sort((a,b)=>b.v-a.v);
+  const best = matches[0];
+
+  const bandKel = kel.skor>=75 ? {t:"Layak diprioritaskan", c:"var(--green)"}
+    : kel.skor>=55 ? {t:"Layak dengan catatan", c:"var(--amber)"}
+    : {t:"Perlu pertimbangan khusus", c:"var(--coral)"};
+  const bandPot = pot>=75 ? {t:"Berpotensi Manager-track", c:"var(--green)"}
+    : pot>=60 ? {t:"Berpotensi SPV", c:"var(--teal)"}
+    : {t:"Staff / Pelaksana", c:"var(--amber)"};
+  const labelBest = matchLabel(best.v);
+
+  const gate = kel.skor < 55;
+  return `
+  <div class="card" style="border:2px solid ${bandKel.c}">
+    <h2>Ringkasan Hasil — 3 Tingkat Penilaian</h2>
+    <p class="small">Dibaca berurutan dari atas: kelayakan dasar menentukan apakah dua penilaian di bawahnya relevan dipertimbangkan.</p>
+
+    <div style="margin-top:14px;padding:14px;border-radius:12px;background:${gate?"var(--coral-soft)":"#F2FBF6"};border:1.5px solid ${bandKel.c}">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><div class="small" style="font-weight:800;letter-spacing:.5px;color:${bandKel.c}">1 · KELAYAKAN DIPEKERJAKAN</div>
+          <div style="font-size:15px;font-weight:800;margin-top:2px">${bandKel.t}</div></div>
+        <div style="font-size:32px;font-weight:800;color:${bandKel.c}">${kel.skor}%</div>
+      </div>
+      <p class="small" style="margin-top:6px">Dari stabilitas emosi, keandalan, integritas, dan kedewasaan — fondasi yang idealnya dimiliki siapa pun yang bekerja di Arcelio.</p>
+      ${kel.validitasBuruk?`<div class="small" style="margin-top:6px;color:var(--coral);font-weight:700">⚠️ Validitas jawaban bermasalah — skor ini kurang bisa dipercaya, verifikasi langsung lewat wawancara.</div>`:""}
+      ${kel.tensionBerat?`<div class="small" style="margin-top:4px;color:var(--coral);font-weight:700">⚠️ Ditemukan kejanggalan antar jawaban (lihat bagian Kehati-hatian Integritas).</div>`:""}
+    </div>
+
+    <div style="margin-top:10px;padding:14px;border-radius:12px;background:${gate?"#F5F5F5":"var(--paper)"};border:1.5px solid var(--line);${gate?"opacity:.55":""}">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><div class="small" style="font-weight:800;letter-spacing:.5px;color:${bandPot.c}">2 · JENJANG: STAFF ATAU SPV/MANAGER</div>
+          <div style="font-size:15px;font-weight:800;margin-top:2px">${bandPot.t}</div></div>
+        <div style="font-size:32px;font-weight:800;color:${bandPot.c}">${pot}%</div>
+      </div>
+      <p class="small" style="margin-top:6px">Indikasi kesiapan memikul tanggung jawab memimpin orang — bukan vonis plafon karir, gunakan Tes Jenjang untuk kandidat sungguhan.</p>
+    </div>
+
+    <div style="margin-top:10px;padding:14px;border-radius:12px;background:${gate?"#F5F5F5":"var(--paper)"};border:1.5px solid var(--line);${gate?"opacity:.55":""}">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><div class="small" style="font-weight:800;letter-spacing:.5px;color:${labelBest.c}">3 · REKOMENDASI POSISI</div>
+          <div style="font-size:15px;font-weight:800;margin-top:2px">${best.p.nama}</div></div>
+        <div style="font-size:32px;font-weight:800;color:${labelBest.c}">${best.v}%</div>
+      </div>
+      <p class="small" style="margin-top:6px">Posisi paling sesuai gaya kerja &amp; kepribadian (bukan lagi berdasar stabilitas/integritas — itu sudah dinilai di tingkat 1). Lihat peringkat lengkap 15 posisi di bagian detail.</p>
+    </div>
+
+    ${gate?`<div class="note-info" style="background:var(--coral-soft);margin-top:12px">Skor tingkat 1 di bawah 55% — baca dua tingkat di atas sebagai <b>informasi tambahan</b>, bukan dasar utama keputusan. Dalami dulu penyebabnya lewat Catatan Perhatian &amp; wawancara.</div>`:""}
+  </div>`;
+}
+
 function hitungPotensi(dims){
   const people = (dims.I + dims.E + Math.min(dims.A,75)) / 3;
-  let skor = 0.30*(100-dims.N) + 0.25*dims.Co + 0.20*dims.D + 0.15*dims.O + 0.10*people;
+  const intg = dims.INT ?? 55, dew = dims.DEW ?? 55;   // versi lama: netral wajar
+  let skor = 0.22*(100-dims.N) + 0.16*dims.Co + 0.18*dims.D + 0.12*dims.O + 0.10*people + 0.14*intg + 0.08*dew;
   if(dims.N >= 70) skor = Math.min(skor, 55);
   if(dims.Co <= 35) skor = Math.min(skor, 50);
+  if(intg <= 35) skor = Math.min(skor, 45);   // pemimpin dgn integritas rendah = risiko besar
   return Math.round(skor);
 }
 function kartuPotensi(dims, r){
@@ -1932,7 +2019,10 @@ function renderDetailJenjang(){
   const ivKey = cur.jenis === "spv" ? "jenjang-spv" : "jenjang-manager";
 
   $("#hasil-detail").innerHTML = `
-    <button class="btn ghost small-btn no-print" onclick="tutupDetail()" style="margin-top:16px">&larr; Kembali ke daftar</button>
+    <div class="sticky-back no-print">
+      <button class="btn ghost small-btn" onclick="tutupDetail()" style="margin:0">&larr; Kembali ke daftar</button>
+      <span class="ringkas-nama">${cur.nama} · ${jn}</span>
+    </div>
     <div class="card">
       <span class="confid">Rahasia — Internal HRD</span>
       <h2 style="font-size:20px">Lembar Hasil ${jn}</h2>
@@ -1959,6 +2049,9 @@ function renderDetailJenjang(){
         <p><b>${band}.</b> Gabungan skenario format ganda tepat/keliru (bobot 70%: ${r.sjtPct}%) dan penalaran praktis (bobot 30%: ${r.nalarPct}% — benar ${r.benarNalar}/${b.nalar.length}). Format ganda sengaja sulit ditebak — skor 60–70% sudah tergolong baik.</p>
       </div>
     </div>
+
+    <button class="btn no-print" id="btn-toggle-detail">📋 Lihat Detail Lengkap ▾</button>
+    <div id="detail-lengkap" class="hidden">
 
     <div class="card">
       <h2>Validitas Pengerjaan</h2>
@@ -2040,8 +2133,15 @@ function renderDetailJenjang(){
         <button class="btn small-btn ghost" id="btn-json">📋 Salin Data (JSON)</button>
         <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
       </div>
+    </div>
     </div>`;
 
+  $("#btn-toggle-detail").addEventListener("click", ()=>{
+    const dl = $("#detail-lengkap"); const btn = $("#btn-toggle-detail");
+    const buka = dl.classList.toggle("hidden") === false;
+    btn.textContent = buka ? "📋 Sembunyikan Detail" : "📋 Lihat Detail Lengkap ▾";
+    if(buka) dl.scrollIntoView({behavior:"smooth", block:"start"});
+  });
   $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
   $("#btn-json").addEventListener("click", copyJSON);
   $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
