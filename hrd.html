@@ -1878,13 +1878,22 @@ function kartuMBTI(dims, r){
 }
 
 function hitungKelayakan(dims, r){
-  const intg = dims.INT ?? 55, dew = dims.DEW ?? 55;
-  let skor = 0.25*(100-dims.N) + 0.20*dims.Co + 0.30*intg + 0.25*dew;
+  // bobot dihitung ulang (renormalisasi) hanya dari skala yang tersedia di data ini —
+  // hasil versi lama (belum ada INT/DEW) dinilai penuh dari N & Co, bukan "digantung" oleh nilai netral tetap
+  const bagian = [
+    { v:100-dims.N, w:0.25 },
+    { v:dims.Co,     w:0.20 },
+    { v:dims.INT,    w:0.30 },
+    { v:dims.DEW,    w:0.25 },
+  ].filter(b=>b.v != null);
+  const totalW = bagian.reduce((a,b)=>a+b.w,0);
+  let skor = bagian.reduce((a,b)=>a+b.v*b.w,0) / totalW;
+  const dataTerbatas = dims.INT == null || dims.DEW == null;
   const validitasBuruk = r.sd>=4.25 || r.consist>=1.5;
   const tensionBerat = (r.tensions||[]).length >= 2;
   if(validitasBuruk) skor = Math.min(skor, 60);
   if(tensionBerat) skor = Math.min(skor, 55);
-  return { skor:Math.round(Math.max(0,Math.min(100,skor))), validitasBuruk, tensionBerat };
+  return { skor:Math.round(Math.max(0,Math.min(100,skor))), validitasBuruk, tensionBerat, dataTerbatas };
 }
 
 function ringkasanHierarki(r, dims){
@@ -1915,6 +1924,7 @@ function ringkasanHierarki(r, dims){
       </div>
       <p class="small" style="margin-top:6px">Dari stabilitas emosi, keandalan, integritas, dan kedewasaan — fondasi yang idealnya dimiliki siapa pun yang bekerja di Arcelio.</p>
       ${kel.validitasBuruk?`<div class="small" style="margin-top:6px;color:var(--coral);font-weight:700">⚠️ Validitas jawaban bermasalah — skor ini kurang bisa dipercaya, verifikasi langsung lewat wawancara.</div>`:""}
+      ${kel.dataTerbatas?`<div class="small" style="margin-top:6px;color:var(--amber);font-weight:700">ℹ️ Hasil dari tes versi lama (sebelum skala Integritas/Kedewasaan ada) — skor dihitung penuh dari data yang tersedia (stabilitas emosi + keandalan).</div>`:""}
       ${kel.tensionBerat?`<div class="small" style="margin-top:4px;color:var(--coral);font-weight:700">⚠️ Ditemukan kejanggalan antar jawaban (lihat bagian Kehati-hatian Integritas).</div>`:""}
     </div>
 
@@ -1942,11 +1952,16 @@ function ringkasanHierarki(r, dims){
 
 function hitungPotensi(dims){
   const people = (dims.I + dims.E + Math.min(dims.A,75)) / 3;
-  const intg = dims.INT ?? 55, dew = dims.DEW ?? 55;   // versi lama: netral wajar
-  let skor = 0.22*(100-dims.N) + 0.16*dims.Co + 0.18*dims.D + 0.12*dims.O + 0.10*people + 0.14*intg + 0.08*dew;
+  const bagian = [
+    { v:100-dims.N,  w:0.22 }, { v:dims.Co, w:0.16 }, { v:dims.D, w:0.18 },
+    { v:dims.O,      w:0.12 }, { v:people,  w:0.10 },
+    { v:dims.INT,    w:0.14 }, { v:dims.DEW, w:0.08 },
+  ].filter(b=>b.v != null);
+  const totalW = bagian.reduce((a,b)=>a+b.w,0);
+  let skor = bagian.reduce((a,b)=>a+b.v*b.w,0) / totalW;
   if(dims.N >= 70) skor = Math.min(skor, 55);
   if(dims.Co <= 35) skor = Math.min(skor, 50);
-  if(intg <= 35) skor = Math.min(skor, 45);   // pemimpin dgn integritas rendah = risiko besar
+  if(dims.INT != null && dims.INT <= 35) skor = Math.min(skor, 45);
   return Math.round(skor);
 }
 function kartuPotensi(dims, r){
