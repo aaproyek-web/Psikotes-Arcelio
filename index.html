@@ -334,10 +334,10 @@ const POOLS = {
     {t:"Saya mudah memahami perasaan orang lain.", also:{"KEB": 0.3, "TOL": 0.2, "DEW": 0.15}},
     {t:"Saya suka menolong orang yang sedang kesulitan.", also:{"DEW": 0.15}},
     {t:"Saya mudah memaafkan kesalahan orang lain.", also:{"TOL": 0.25, "DEW": 0.2}},
-    {t:"Saya peduli dengan kebutuhan orang di sekitar saya."},
+    {t:"Saya tetap memperhatikan kebutuhan rekan kerja meski itu membuat pekerjaan saya sendiri selesai lebih lambat."},
     {t:"Saya senang bekerja sama dalam tim."},
-    {t:"Saya berusaha menjaga hubungan baik dengan semua orang.", also:{"TOL": 0.15, "KEB": 0.1}},
-    {t:"Sebelum menilai seseorang, saya mencoba memahami alasannya dulu.", also:{"TOL": 0.25, "DEW": 0.15}},
+    {t:"Saya lebih memilih menjaga suasana baik daripada menyampaikan kritik yang sebenarnya rekan saya perlukan.", rev:true, also:{"TOL": 0.15, "KEB": 0.1}},
+    {t:"Saya tetap berusaha memahami alasan seseorang, bahkan ketika tindakannya jelas merugikan saya.", also:{"TOL": 0.25, "DEW": 0.15}},
     {t:"Saya butuh waktu lama untuk bisa percaya pada orang baru.", rev:true, also:{"TOL": -0.2}},
   ],
   N: [
@@ -359,34 +359,34 @@ const POOLS = {
     {t:"Keputusan saya sering mengikuti kata hati.", rev:true},
   ],
   INT: [
-    {t:"Bila kembalian yang saya terima berlebih, saya mengembalikannya walau tidak ada yang tahu.", id:"IN1", also:{"Co": 0.2, "N": -0.15}},
-    {t:"Saya tetap jujur meskipun kejujuran itu merugikan saya.", also:{"DEW": 0.25}},
-    {t:"Bagi saya, mengambil barang kecil milik tempat kerja tetap termasuk mencuri."},
-    {t:"Saya menolak ikut berbuat curang meskipun dilakukan ramai-ramai."},
+    {t:"Karena kesalahan hitung kembalian itu murni kesalahan kasirnya, bukan salah saya, wajar saja kalau saya diam dan menyimpan kelebihannya.", id:"IN1", rev:true},
+    {t:"Selama kesalahan kecil saya di pekerjaan tidak merugikan siapa pun secara langsung, tidak masalah bila saya diam saja tanpa melaporkannya.", rev:true},
+    {t:"Memakai stok kantor (pulpen, kertas) untuk keperluan pribadi sesekali, menurut saya bukan masalah besar.", rev:true},
+    {t:"Kalau seluruh tim sepakat menutupi kesalahan kecil demi menghindari masalah bersama, saya akan ikut diam.", rev:true},
     {t:"Menurut saya, bohong kecil tidak masalah asal tidak ketahuan.", rev:true, also:{"Co": -0.2, "DEW": -0.15}},
     {t:"Kalau semua orang melakukannya, melanggar aturan kecil itu wajar.", rev:true, also:{"C": -0.2}},
   ],
   DEW: [
-    {t:"Saat berbuat salah, saya mengakuinya tanpa mencari-cari alasan.", also:{"INT": 0.3}},
-    {t:"Saya bisa menerima teguran tanpa marah atau merajuk.", also:{"A": 0.15, "TOL": 0.15}},
-    {t:"Saya memikirkan akibat jangka panjang sebelum bertindak."},
-    {t:"Saat sedang emosi, saya menahan diri agar tidak melampiaskannya ke orang lain."},
+    {t:"Saya lebih memilih diam saja daripada mengakui kesalahan di depan tim, walau nanti ketahuan juga.", rev:true},
+    {t:"Saya bisa menerima teguran dari atasan, tetapi sulit menerima teguran yang sama dari rekan sejawat.", rev:true},
+    {t:"Saya setuju bahwa menyelesaikan pekerjaan yang mendesak boleh menunda ibadah atau waktu istirahat pribadi, selama nanti tetap ditunaikan."},
+    {t:"Kalau saya jelas benar dan orang lain jelas salah, wajar bagi saya menunjukkan kekesalan agar mereka sadar.", rev:true},
     {t:"Kalau hasil kerja saya buruk, biasanya itu karena kesalahan orang lain.", rev:true, also:{"INT": -0.25, "A": -0.15}},
     {t:"Saya sulit menerima kritik atas pekerjaan saya.", rev:true},
   ],
   TOL: [
-    {t:"Saya nyaman bekerja dengan orang yang berbeda agama atau suku.", id:"TO1", also:{"KEB": 0.2, "A": 0.15}},
-    {t:"Saya menghargai pendapat yang berbeda dengan pendapat saya.", also:{"DEW": 0.2}},
-    {t:"Saya bisa berteman baik dengan orang yang kebiasaannya berbeda dari saya."},
-    {t:"Perbedaan pandangan di dalam tim menurut saya hal yang wajar."},
+    {t:"Saya merasa atasan yang berbeda keyakinan dengan saya akan sulit benar-benar mengenal saya sebagai pribadi.", id:"TO1", rev:true},
+    {t:"Kalau pendapat saya sudah terbukti benar dari pengalaman, saya sulit menerima keputusan tim yang berbeda meski sudah dijelaskan alasannya.", rev:true},
+    {t:"Saya tetap nyaman satu shift dengan rekan yang cara ibadah atau kebiasaannya sangat berbeda, meski itu membuat koordinasi kerja jadi lebih lambat."},
+    {t:"Saya tetap menghormati keputusan tim meski hasil akhirnya mengecewakan saya secara pribadi."},
     {t:"Saya sulit bekerja sama dengan orang yang pandangan hidupnya berbeda.", rev:true, also:{"A": -0.2}},
     {t:"Saya merasa cara hidup kelompok saya yang paling benar.", rev:true},
   ],
   KEB: [
-    {t:"Saya ikut senang melihat orang lain berhasil.", also:{"TOL": 0.15}},
-    {t:"Saya mau membantu orang tanpa mengharap imbalan."},
-    {t:"Saya menyisihkan waktu atau rezeki untuk membantu orang yang membutuhkan."},
-    {t:"Melihat orang kesusahan membuat saya tergerak untuk menolong.", also:{"A": 0.2, "TOL": 0.15}},
+    {t:"Kalau rekan sejawat saya naik jabatan lebih dulu, saya butuh waktu untuk benar-benar bisa ikut senang untuknya.", rev:true},
+    {t:"Saya bersedia membantu rekan menyelesaikan pekerjaannya walau itu membuat pekerjaan saya sendiri jadi lembur."},
+    {t:"Saya tetap menyisihkan sebagian gaji untuk membantu orang lain, meski kebutuhan saya sendiri bulan itu sedang ketat."},
+    {t:"Melihat rekan kerja kesusahan membuat saya menawarkan bantuan, walau saya sendiri sedang dikejar tenggat.", also:{"A": 0.2, "TOL": 0.15}},
     {t:"Membantu orang lain hanya membuang-buang waktu saya.", rev:true},
     {t:"Kesusahan orang lain bukan urusan saya.", rev:true},
   ],
@@ -403,8 +403,8 @@ const PAIR_ITEMS = [
   {t:"Perubahan rencana yang mendadak membuat saya tidak nyaman.",                          dim:"S",   pairOf:"S1"},
   {t:"Saya hampir tidak pernah terlambat, baik ke tempat kerja maupun ke janji.",           dim:"Co",  pairOf:"Co5"},
   {t:"Hal-hal yang belum pasti membuat saya mudah gelisah.",                                dim:"N",   pairOf:"N1"},
-  {t:"Bila menemukan uang yang bukan milik saya di tempat kerja, saya laporkan atau kembalikan.", dim:"INT", pairOf:"IN1"},
-  {t:"Bagi saya, perbedaan agama atau suku bukan halangan untuk bekerja sama.",             dim:"TOL", pairOf:"TO1"},
+  {t:"Menemukan uang tunai di area kerja yang sepi dan tidak ada CCTV, saya tetap melaporkannya.", dim:"INT", pairOf:"IN1"},
+  {t:"Saya merasa sulit membangun kedekatan yang tulus dengan rekan kerja yang keyakinannya sangat berbeda dari saya.", dim:"TOL", pairOf:"TO1", rev:true},
 ];
 const ITEMS = (() => {
   const urutan = ["D","I","S","C","O","Co","E","A","N","TF","INT","DEW","TOL","KEB"];
@@ -1308,17 +1308,25 @@ function jadwalkanFoto(){
   setTimeout(()=>ambilFoto("acak1"), sisa * (0.15 + Math.random()*0.30));
   setTimeout(()=>ambilFoto("acak2"), sisa * (0.55 + Math.random()*0.30));
 }
+/* waktu wajar minimum utk membaca+menjawab satu soal, diskalakan dari jumlah kata —
+   soal pendek tetap diberi ambang ketat, soal dilema panjang diberi ambang lebih longgar */
+function ambangBaca(idx){
+  const teks = (MODE === "karakter" ? (ITEMS[idx] && ITEMS[idx].t) : (jItem(idx) && jItem(idx).t)) || "";
+  const kata = teks.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1.2, Math.min(6, 0.8 + kata*0.22));   // ±0.22 detik/kata, dibatasi 1.2–6 detik
+}
 function hitungKecepatan(){
   if(itemLog.length < 5) return null;
   const log = [...itemLog].sort((a,b)=>a.t-b.t);
   const gaps = [];
   for(let k=1;k<log.length;k++){
     const g = (log[k].t - log[k-1].t)/1000;
-    if(g >= 0 && g < 300) gaps.push(g);   // jeda >5 menit = istirahat, diabaikan
+    if(g >= 0 && g < 300) gaps.push({ g, ambang: ambangBaca(log[k].i) });   // jeda >5 menit = istirahat, diabaikan
   }
-  const urut = [...gaps].sort((a,b)=>a-b);
-  const median = urut.length ? urut[Math.floor(urut.length/2)] : null;
-  const pctKilat = gaps.length ? Math.round(gaps.filter(g=>g<1.5).length/gaps.length*100) : 0;
+  const urut = [...gaps].sort((a,b)=>a.g-b.g);
+  const median = urut.length ? urut[Math.floor(urut.length/2)].g : null;
+  // "kilat" kini relatif thd panjang soal itu sendiri, bukan ambang tetap
+  const pctKilat = gaps.length ? Math.round(gaps.filter(x=>x.g < x.ambang*0.5).length/gaps.length*100) : 0;
   const perSoal = {};
   log.forEach(e=>perSoal[e.i]=(perSoal[e.i]||0)+1);
   const revisi = Object.values(perSoal).filter(n=>n>1).length;
