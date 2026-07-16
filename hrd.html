@@ -1441,7 +1441,7 @@ function renderDetail(){
           <div class="vv ${pCls}">${r.flat?"Datar":(r.extreme?"Ekstrem":"Normal")}</div>
           <div class="vd">${r.flat?"Hampir semua jawaban sama — profil kurang tajam":(r.extreme?"Dominan jawaban 1/5 — cek keseriusan":"Variasi jawaban sehat")}</div></div>
         <div class="vbox"><div class="vt">Soal terjawab</div>
-          <div class="vv ${r.tidakDijawab>0?"warn":"ok"}">${80-(r.tidakDijawab||0)} <small>/ 80</small></div>
+          <div class="vv ${r.tidakDijawab>0?"warn":"ok"}">${(cur.jawaban?cur.jawaban.length:113)-(r.tidakDijawab||0)} <small>/ ${cur.jawaban?cur.jawaban.length:113}</small></div>
           <div class="vd">${r.tidakDijawab>0?"Sebagian kosong karena waktu habis":"Semua soal terjawab"}</div></div>
         <div class="vbox"><div class="vt">Fokus layar</div>
           <div class="vv ${(r.keluarLayar||0)===0?"ok":((r.keluarLayar||0)<3?"warn":"bad")}">${r.keluarLayar||0} <small>kali keluar</small></div>
