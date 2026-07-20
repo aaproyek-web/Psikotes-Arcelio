@@ -1355,12 +1355,14 @@ async function muatFoto(token){
       return;
     }
     const lbl = { mulai:"▶️ Mulai", acak1:"🎲 Acak", acak2:"🎲 Acak", selesai:"🏁 Soal akhir" };
+    const jmlLanjut = rows.filter(f=>f.tahap.startsWith("lanjut_")).length;
     el.innerHTML = `<h2>📷 Foto Verifikasi (${rows.length})</h2>
       <p class="small">Pastikan wajah <b>sama</b> di semua foto dan tidak tampak orang lain membantu. Cocokkan dengan wajah kandidat saat wawancara. Klik foto untuk memperbesar.</p>
+      ${jmlLanjut>0?`<div class="note-info" style="background:var(--amber-soft);border-color:var(--coral)">⚠️ Sesi tes ini <b>sempat terputus dan disambung ulang ${jmlLanjut}×</b> (foto berlabel 🔄). Bandingkan wajah pada foto tersebut dengan foto "Mulai" — kalau terlihat berbeda orang, ini indikasi kuat perpindahan tangan/joki di tengah tes. Jangan gunakan hasil ini untuk keputusan tanpa klarifikasi langsung.</div>`:""}
       <div class="foto-row">${rows.map(f=>`
         <figure class="foto-item" onclick="this.classList.toggle('big')">
           <img src="${f.foto}" alt="foto verifikasi" loading="lazy">
-          <figcaption>${lbl[f.tahap]||f.tahap} · ${new Date(f.created_at).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</figcaption>
+          <figcaption>${f.tahap.startsWith("lanjut_")?"🔄 Sesi disambung":(lbl[f.tahap]||f.tahap)} · ${new Date(f.created_at).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</figcaption>
         </figure>`).join("")}</div>`;
   }catch(e){
     el.innerHTML = '<h2>📷 Foto Verifikasi</h2><p class="small">Gagal memuat foto: '+e.message+'. Pastikan update_kamera.sql sudah dijalankan di Supabase.</p>';

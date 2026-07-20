@@ -910,7 +910,19 @@ async function resumeTest(){
   bindNav();
   startTimer();
   jadwalkanFoto();
+  ambilFotoLanjut();   // foto verifikasi setiap kali sesi disambung — menangkap potensi serah-terima HP
   gotoPage(page);
+}
+
+/* foto ini SELALU diambil tiap sesi dilanjutkan (reload/koneksi putus lalu tersambung lagi),
+   terpisah dari fotoStatus mulai/acak/selesai — supaya perpindahan HP di tengah tes tetap terekam,
+   diberi jarak minimal 25 detik antar pengambilan agar tidak spam bila reload beruntun */
+function ambilFotoLanjut(){
+  const now = Date.now();
+  if(now - (fotoStatus.lanjutAt||0) < 25000) return;
+  fotoStatus.lanjutAt = now;
+  saveDirty = true;
+  ambilFoto("lanjut_" + now);
 }
 
 /* ---------- timer (jangkar waktu server: used_at + durasi) ---------- */
@@ -1283,7 +1295,8 @@ async function initKamera(){
   await v.play().catch(()=>{});
 }
 async function ambilFoto(tahap, coba = 0){
-  if(!camStream || fotoStatus[tahap] === "ok") return;
+  if(!camStream) return;
+  if(!tahap.startsWith("lanjut_") && fotoStatus[tahap] === "ok") return;
   const v = document.getElementById("cam-vid");
   if(!v.videoWidth){                                  // kamera belum siap / dijeda saat pindah aplikasi
     if(coba < 8) return setTimeout(()=>ambilFoto(tahap, coba+1), 2000);
@@ -1298,7 +1311,7 @@ async function ambilFoto(tahap, coba = 0){
     const data = c.toDataURL("image/jpeg", 0.7);
     await sb("rpc/kirim_foto", { method:"POST",
       body: JSON.stringify({ p_token: tokenRow.token, p_tahap: tahap, p_foto: data }) });
-    fotoStatus[tahap] = "ok";
+    if(!tahap.startsWith("lanjut_")) fotoStatus[tahap] = "ok";
     saveDirty = true;
   }catch(e){
     if(coba < 3) setTimeout(()=>ambilFoto(tahap, coba+1), 5000);   // koneksi putus: coba lagi
