@@ -917,6 +917,15 @@ async function resumeTest(){
 /* foto ini SELALU diambil tiap sesi dilanjutkan (reload/koneksi putus lalu tersambung lagi),
    terpisah dari fotoStatus mulai/acak/selesai — supaya perpindahan HP di tengah tes tetap terekam,
    diberi jarak minimal 25 detik antar pengambilan agar tidak spam bila reload beruntun */
+function sidikPerangkat(){
+  try{
+    const ua = navigator.userAgent || "";
+    // ringkas jadi info yg mudah dibaca manusia: OS + browser, bukan string mentah panjang
+    const os = /iPhone|iPad/.test(ua) ? "iOS" : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows" : /Mac/.test(ua) ? "Mac" : "Lainnya";
+    const br = /Chrome/.test(ua) ? "Chrome" : /Safari/.test(ua) ? "Safari" : /Firefox/.test(ua) ? "Firefox" : "Browser lain";
+    return `${os} · ${br} · layar ${screen.width}x${screen.height} · dpr${window.devicePixelRatio||1}`;
+  }catch(e){ return "tidak diketahui"; }
+}
 function ambilFotoLanjut(){
   const now = Date.now();
   if(now - (fotoStatus.lanjutAt||0) < 25000) return;
@@ -1310,7 +1319,7 @@ async function ambilFoto(tahap, coba = 0){
     c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
     const data = c.toDataURL("image/jpeg", 0.7);
     await sb("rpc/kirim_foto", { method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_tahap: tahap, p_foto: data }) });
+      body: JSON.stringify({ p_token: tokenRow.token, p_tahap: tahap, p_foto: data, p_perangkat: sidikPerangkat() }) });
     if(!tahap.startsWith("lanjut_")) fotoStatus[tahap] = "ok";
     saveDirty = true;
   }catch(e){

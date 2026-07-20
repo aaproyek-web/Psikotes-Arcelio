@@ -1349,20 +1349,23 @@ async function muatFoto(token){
   const el = $("#foto-grid");
   if(!el) return;
   try{
-    const rows = await sb(`psikotes_foto?token=eq.${encodeURIComponent(token||"")}&select=tahap,foto,created_at&order=created_at.asc`);
+    const rows = await sb(`psikotes_foto?token=eq.${encodeURIComponent(token||"")}&select=tahap,foto,created_at,perangkat&order=created_at.asc`);
     if(!rows || rows.length === 0){
       el.innerHTML = '<h2>📷 Foto Verifikasi</h2><p class="small">Tidak ada foto untuk sesi ini — kemungkinan tes berlangsung sebelum fitur kamera aktif, atau kamera bermasalah di perangkat peserta.</p>';
       return;
     }
     const lbl = { mulai:"▶️ Mulai", acak1:"🎲 Acak", acak2:"🎲 Acak", selesai:"🏁 Soal akhir" };
     const jmlLanjut = rows.filter(f=>f.tahap.startsWith("lanjut_")).length;
+    const perangkatUnik = [...new Set(rows.map(f=>f.perangkat).filter(Boolean))];
+    const perangkatBeda = perangkatUnik.length >= 2;
     el.innerHTML = `<h2>📷 Foto Verifikasi (${rows.length})</h2>
       <p class="small">Pastikan wajah <b>sama</b> di semua foto dan tidak tampak orang lain membantu. Cocokkan dengan wajah kandidat saat wawancara. Klik foto untuk memperbesar.</p>
       ${jmlLanjut>0?`<div class="note-info" style="background:var(--amber-soft);border-color:var(--coral)">⚠️ Sesi tes ini <b>sempat terputus dan disambung ulang ${jmlLanjut}×</b> (foto berlabel 🔄). Bandingkan wajah pada foto tersebut dengan foto "Mulai" — kalau terlihat berbeda orang, ini indikasi kuat perpindahan tangan/joki di tengah tes. Jangan gunakan hasil ini untuk keputusan tanpa klarifikasi langsung.</div>`:""}
+      ${perangkatBeda?`<div class="note-info" style="background:var(--coral-soft);border-color:var(--coral)">🚨 <b>Foto-foto ini diambil dari PERANGKAT BERBEDA</b> (${perangkatUnik.join(" &nbsp;|&nbsp; ")}) — bukan sekadar dugaan visual lagi, ini indikasi teknis kuat bahwa lebih dari satu HP/perangkat dipakai selama sesi tes ini. Sangat disarankan untuk tidak memakai hasil ini dan meminta tes ulang yang diawasi.</div>`:""}
       <div class="foto-row">${rows.map(f=>`
         <figure class="foto-item" onclick="this.classList.toggle('big')">
           <img src="${f.foto}" alt="foto verifikasi" loading="lazy">
-          <figcaption>${f.tahap.startsWith("lanjut_")?"🔄 Sesi disambung":(lbl[f.tahap]||f.tahap)} · ${new Date(f.created_at).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</figcaption>
+          <figcaption>${f.tahap.startsWith("lanjut_")?"🔄 Sesi disambung":(lbl[f.tahap]||f.tahap)} · ${new Date(f.created_at).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}<br><span style="font-weight:400;color:var(--muted);font-size:10px">${f.perangkat||"—"}</span></figcaption>
         </figure>`).join("")}</div>`;
   }catch(e){
     el.innerHTML = '<h2>📷 Foto Verifikasi</h2><p class="small">Gagal memuat foto: '+e.message+'. Pastikan update_kamera.sql sudah dijalankan di Supabase.</p>';
