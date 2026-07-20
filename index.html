@@ -794,6 +794,7 @@ function gate(emo, title, msg){
       leaveCount = tokenRow.progress.keluar || 0;
       penutup = tokenRow.progress.penutup || penutup;
       itemLog = tokenRow.progress.log || [];
+      fotoStatus = tokenRow.progress.foto || {};
     }
     deadline = dl;
     resumeTest();
@@ -880,7 +881,7 @@ async function mulaiTes(){
   try {
     claimed = await sb("rpc/klaim_token", {
       method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount, penutup, log:itemLog } })
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page:0, peserta, keluar:leaveCount, penutup, log:itemLog, foto:fotoStatus } })
     });
   } catch(e){ alert("Gagal memulai — periksa koneksi lalu coba lagi."); return; }
   if(!claimed || claimed.length===0){
@@ -933,7 +934,7 @@ async function saveProgress(){
   try {
     await sb("rpc/simpan_progress", {
       method:"POST",
-      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount, penutup, log:itemLog } })
+      body: JSON.stringify({ p_token: tokenRow.token, p_progress:{ answers, page, peserta, keluar:leaveCount, penutup, log:itemLog, foto:fotoStatus } })
     });
   } catch(e){ /* koneksi putus — dicoba lagi pada siklus berikutnya */ }
 }
@@ -1272,7 +1273,7 @@ async function submitTest(waktuHabis){
 
 /* ---------- verifikasi kamera: mulai + 2 acak + selesai ---------- */
 let camStream = null;
-const fotoStatus = {};
+let fotoStatus = {};   // dipulihkan dari server saat resume, supaya reload tidak mengambil ulang foto yg sudah ada
 async function initKamera(){
   camStream = await navigator.mediaDevices.getUserMedia({
     video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false
@@ -1298,6 +1299,7 @@ async function ambilFoto(tahap, coba = 0){
     await sb("rpc/kirim_foto", { method:"POST",
       body: JSON.stringify({ p_token: tokenRow.token, p_tahap: tahap, p_foto: data }) });
     fotoStatus[tahap] = "ok";
+    saveDirty = true;
   }catch(e){
     if(coba < 3) setTimeout(()=>ambilFoto(tahap, coba+1), 5000);   // koneksi putus: coba lagi
   }
