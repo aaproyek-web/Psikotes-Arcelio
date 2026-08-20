@@ -1113,6 +1113,14 @@ function matchLabel(v){
   if(v>=50) return {t:"Cukup", c:"var(--amber)"};
   return {t:"Kurang cocok", c:"var(--coral)"};
 }
+/* akhiran dari Neuroticism — melapisi 12 arketipe DISC dengan info stabilitas emosi,
+   spt pola 16personalities (mis. "ISTJ-A" vs "ISTJ-T") tapi dari data OCEAN kita sendiri */
+function akhiranN(N){
+  if(N == null) return null;
+  if(N <= 40) return { label:"Tenang", ket:"stabil secara emosi, tidak mudah goyah di bawah tekanan" };
+  if(N >= 60) return { label:"Reaktif", ket:"lebih mudah terpengaruh tekanan/emosi — bukan kekurangan, tapi perlu pengelolaan stres yang lebih sadar" };
+  return null;   // N sedang (41-59): tidak diberi akhiran, supaya tidak membebani label pada mayoritas kasus netral
+}
 function archetypeOf(dims){
   const order = ["D","I","S","C"].map(d=>({d, v:dims[d]})).sort((a,b)=>b.v-a.v);
   const [p, s] = order;
@@ -1121,7 +1129,9 @@ function archetypeOf(dims){
   // (pasangan diagonal I+C dan D+S tidak punya arketipe gabungan DISC klasik)
   if(s.v >= 50 && (p.v - s.v) <= 18 && ARCHETYPES[p.d + s.d]) key = p.d + s.d;
   if(!ARCHETYPES[key]) key = p.d;
-  return { key, ...ARCHETYPES[key] };
+  const ak = akhiranN(dims.N);
+  const namaLengkap = ak ? `${ARCHETYPES[key].nama} (${ak.label})` : ARCHETYPES[key].nama;
+  return { key, ...ARCHETYPES[key], akhiran: ak, namaLengkap };
 }
 function flagsOf(r){ return FLAG_RULES.filter(f=>f.cond(r)); }
 function fmtTgl(iso){ return new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
@@ -1466,8 +1476,9 @@ function renderDetail(){
 
     <div class="arch">
       <div class="tag">Tipe karakter · DISC ${arch.key}</div>
-      <h2>${arch.nama}</h2>
+      <h2>${arch.namaLengkap}</h2>
       <p>${arch.desc}</p>
+      ${arch.akhiran?`<p class="small" style="margin-top:-6px;color:var(--muted)">Akhiran <b>"${arch.akhiran.label}"</b> dari stabilitas emosi (N=${dims.N}): ${arch.akhiran.ket}.</p>`:""}
       <div class="cols">
         <div><h4>Kekuatan</h4><ul>${arch.kuat.map(x=>`<li>${x}</li>`).join("")}</ul></div>
         <div><h4>Perlu diwaspadai</h4><ul>${arch.awas.map(x=>`<li>${x}</li>`).join("")}</ul></div>
@@ -1700,7 +1711,7 @@ function copyJSON(){
     skor:cur.hasil.dims, validitas:{konsistensi:cur.hasil.consist, socialDesirability:cur.hasil.sd,
       polaDatar:cur.hasil.flat, polaEkstrem:cur.hasil.extreme, tidakDijawab:cur.hasil.tidakDijawab},
     pasanganKonsistensi:cur.hasil.pairDetails,
-    arketipe:archetypeOf(cur.hasil.dims).nama,
+    arketipe:archetypeOf(cur.hasil.dims).namaLengkap,
     kecocokan:POSITIONS.map(p=>({posisi:p.nama, skor:matchScore(p,cur.hasil.dims)})).sort((a,b)=>b.skor-a.skor),
     flags:flagsOf(cur.hasil).map(f=>({level:f.level, judul:f.title})),
     wawancara:cur.wawancara||null, rekomendasi:cur.rekomendasi||null, jawabanMentah:cur.jawaban };
@@ -2238,7 +2249,7 @@ function renderRankTable(){
       const cat = x.wawancara&&x.wawancara.catatan?`<div class="small">📝 ${x.wawancara.catatan}</div>`:"";
       return `<tr class="${i===0?"rk1":""}">
         <td>${i+1}</td>
-        <td><b>${x.nama}</b><div class="small">${x.usia?x.usia+" th · ":""}${x.hasil.dims?archetypeOf(x.hasil.dims).nama:jenisNama(x.jenis)+" "+x.hasil.skor+"%"} · <a class="wa" href="https://wa.me/${(x.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${x.telepon||"—"}</a></div>${cat}</td>
+        <td><b>${x.nama}</b><div class="small">${x.usia?x.usia+" th · ":""}${x.hasil.dims?archetypeOf(x.hasil.dims).namaLengkap:jenisNama(x.jenis)+" "+x.hasil.skor+"%"} · <a class="wa" href="https://wa.me/${(x.telepon||"").replace(/^0/,"62")}" target="_blank">📱 ${x.telepon||"—"}</a></div>${cat}</td>
         <td>${rk.posisi}${beda}</td>
         <td>${tgl}</td>
         <td>${rk.pctTes}%</td>
