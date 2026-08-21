@@ -1121,6 +1121,20 @@ function akhiranN(N){
   if(N >= 60) return { label:"Reaktif", ket:"lebih mudah terpengaruh tekanan/emosi — bukan kekurangan, tapi perlu pengelolaan stres yang lebih sadar" };
   return null;   // N sedang (41-59): tidak diberi akhiran, supaya tidak membebani label pada mayoritas kasus netral
 }
+/* lapis ke-3: Conscientiousness (gaya keteraturan) & Openness (gaya terhadap hal baru) —
+   hanya muncul bila skornya ekstrem, sama seperti aturan N, supaya tidak membebani mayoritas kasus netral */
+function akhiranCo(Co){
+  if(Co == null) return null;
+  if(Co >= 70) return { label:"Terstruktur", ket:"disiplin, suka keteraturan dan rencana yang jelas" };
+  if(Co <= 35) return { label:"Fleksibel", ket:"santai pada aturan, lebih nyaman kerja spontan/adaptif" };
+  return null;
+}
+function akhiranO(O){
+  if(O == null) return null;
+  if(O >= 70) return { label:"Inovatif", ket:"suka ide dan cara baru, cepat beradaptasi pada perubahan" };
+  if(O <= 35) return { label:"Praktis", ket:"memilih cara yang sudah terbukti, kurang tertarik bereksperimen" };
+  return null;
+}
 function archetypeOf(dims){
   const order = ["D","I","S","C"].map(d=>({d, v:dims[d]})).sort((a,b)=>b.v-a.v);
   const [p, s] = order;
@@ -1130,8 +1144,11 @@ function archetypeOf(dims){
   if(s.v >= 50 && (p.v - s.v) <= 18 && ARCHETYPES[p.d + s.d]) key = p.d + s.d;
   if(!ARCHETYPES[key]) key = p.d;
   const ak = akhiranN(dims.N);
-  const namaLengkap = ak ? `${ARCHETYPES[key].nama} (${ak.label})` : ARCHETYPES[key].nama;
-  return { key, ...ARCHETYPES[key], akhiran: ak, namaLengkap };
+  const akCo = akhiranCo(dims.Co);
+  const akO = akhiranO(dims.O);
+  const labelTambahan = [ak, akCo, akO].filter(Boolean).map(x=>x.label);
+  const namaLengkap = labelTambahan.length ? `${ARCHETYPES[key].nama} (${labelTambahan.join(", ")})` : ARCHETYPES[key].nama;
+  return { key, ...ARCHETYPES[key], akhiran: ak, akhiranCo: akCo, akhiranO: akO, namaLengkap };
 }
 function flagsOf(r){ return FLAG_RULES.filter(f=>f.cond(r)); }
 function fmtTgl(iso){ return new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
@@ -1479,6 +1496,8 @@ function renderDetail(){
       <h2>${arch.namaLengkap}</h2>
       <p>${arch.desc}</p>
       ${arch.akhiran?`<p class="small" style="margin-top:-6px;color:var(--muted)">Akhiran <b>"${arch.akhiran.label}"</b> dari stabilitas emosi (N=${dims.N}): ${arch.akhiran.ket}.</p>`:""}
+      ${arch.akhiranCo?`<p class="small" style="margin-top:-6px;color:var(--muted)">Akhiran <b>"${arch.akhiranCo.label}"</b> dari keteraturan (Co=${dims.Co}): ${arch.akhiranCo.ket}.</p>`:""}
+      ${arch.akhiranO?`<p class="small" style="margin-top:-6px;color:var(--muted)">Akhiran <b>"${arch.akhiranO.label}"</b> dari keterbukaan (O=${dims.O}): ${arch.akhiranO.ket}.</p>`:""}
       <div class="cols">
         <div><h4>Kekuatan</h4><ul>${arch.kuat.map(x=>`<li>${x}</li>`).join("")}</ul></div>
         <div><h4>Perlu diwaspadai</h4><ul>${arch.awas.map(x=>`<li>${x}</li>`).join("")}</ul></div>
@@ -1489,8 +1508,7 @@ function renderDetail(){
     ${kartuSosial(dims)}
     ${kartuIntegritas(r)}
 
-    ${kartuTemperamen(dims)}
-    ${kartuMBTI(dims, r)}
+    ${kartuTipePekerja(dims)}
     ${kartuPotensi(dims, r)}
 
     <div class="card"><h2>Profil DISC</h2>${["D","I","S","C"].map(bar).join("")}</div>
@@ -1830,6 +1848,80 @@ function kartuPenutup(r){
 /* ============================================================
    TEMPERAMEN KLASIK & INDIKASI POTENSI JENJANG (lembar karakter)
    ============================================================ */
+/* ============================================================
+   4 TIPE PEKERJA — panduan kepemimpinan praktis (heuristik dari DISC+OCEAN,
+   BUKAN instrumen tervalidasi seperti DISC/Big Five — pelengkap komunikasi,
+   bukan dasar keputusan seleksi)
+   ============================================================ */
+const TIPE_PEKERJA = {
+  executor: { nama:"The Executor", ideal:{D:55,Co:65,N:35}, w:{D:2,Co:3,N:2},
+    ciri:"Bertindak cepat begitu tujuan jelas — bertanya \u201Capa, kapan, standarnya seperti apa\u201D, bukan \u201Ckenapa\u201D.",
+    jangan:"Melepas tanpa arahan detail — dia akan menebak-nebak dan hasilnya tidak konsisten, bukan karena malas tapi karena genuinely tidak tahu standarnya.",
+    lakukan:"Beri WHAT + WHEN + STANDARD secara eksplisit. Contoh: \u201CTarget minggu ini 20 leads, deadline Jumat jam 5 sore, standarnya nomor tervalidasi.\u201D" },
+  challenger: { nama:"The Challenger", ideal:{D:60,O:65,I:55}, w:{D:2,O:3,I:1},
+    ciri:"Sering bertanya \u201Ckenapa caranya begini?\u201D — bukan pembangkangan, biasanya melihat celah yang orang lain lewatkan.",
+    jangan:"Membungkam pertanyaannya atau menganggap \u201Csusah diatur\u201D — bisa membuatnya diam-diam menyabotase, atau resign membawa pergi critical thinker terbaikmu.",
+    lakukan:"Pisahkan CARA (boleh ditantang, dengarkan alternatifnya) dari KOMITMEN (setelah keputusan final, minta dia jalan bersama tim)." },
+  specialist: { nama:"The Specialist", ideal:{C:65,O:55,I:35}, w:{C:3,O:1,I:1},
+    ciri:"Mungkin tidak banyak bicara di rapat umum, tapi begitu masuk bidang keahliannya, percaya diri penuh: \u201Cpercayakan ke saya.\u201D",
+    jangan:"Memaksanya jadi generalist atau meng-override keputusan teknisnya — kualitas kerja terbaiknya akan menurun diam-diam karena merasa keputusan akhir bukan di dia.",
+    lakukan:"Ucapkan \u201Csaya tidak paham detailnya, kamu yang putuskan\u201D — ini yang membuat Specialist memberi hasil luar biasa." },
+  independent: { nama:"The Independent", ideal:{E:35,Co:60,D:50}, w:{E:2,Co:2,D:1},
+    ciri:"Tidak suka terlalu sering dicek — bukan karena tidak peduli, tapi karena bekerja lebih baik saat diberi rasa memiliki (ownership).",
+    jangan:"Terlalu sering mengecek proses kecilnya — pengawasan berlebih justru menurunkan motivasinya, bahkan pada orang paling kompeten sekalipun.",
+    lakukan:"Beri arah besar (bukan instruksi detail) \u2192 lepas soal caranya \u2192 evaluasi di akhir, fokus pada hasil bukan proses harian." },
+};
+function skorTipePekerja(dims){
+  const hasil = {};
+  for(const k in TIPE_PEKERJA){
+    const t = TIPE_PEKERJA[k];
+    let num=0, den=0;
+    for(const d in t.ideal){
+      const v = dims[d] ?? 50, target = t.ideal[d];
+      let diff = Math.abs(v - target);
+      // aturan satu-arah umum: target tinggi (>=55) yg terlampaui, atau target rendah (<=45)
+      // yg tidak tercapai ke arah baik, tidak dihukum — hanya kekurangan ke arah target yg dihitung
+      if(target >= 55 && v > target) diff = 0;
+      if(target <= 45 && v < target) diff = 0;
+      num += t.w[d]*diff; den += t.w[d];
+    }
+    hasil[k] = Math.max(0, Math.min(100, Math.round(100 - num/den*1.6)));
+  }
+  return hasil;
+}
+function kartuTipePekerja(dims){
+  const skor = skorTipePekerja(dims);
+  const urut = Object.keys(skor).map(k=>({k, v:skor[k]})).sort((a,b)=>b.v-a.v);
+  const [top, kedua] = urut;
+  const kombinasi = (top.v - kedua.v) <= 15;
+  const labelUtama = kombinasi
+    ? `${TIPE_PEKERJA[top.k].nama} – ${TIPE_PEKERJA[kedua.k].nama}`
+    : TIPE_PEKERJA[top.k].nama;
+  const tampilPanduan = kombinasi ? [top.k, kedua.k] : [top.k];
+  return `<div class="card">
+    <h2>Tipe Pekerja (Panduan Kepemimpinan)</h2>
+    <div style="font-size:22px;font-weight:800;color:var(--teal);margin-top:4px">${labelUtama}</div>
+    <p class="small">Kecocokan terhadap 4 gaya kerja praktis untuk memutuskan cara terbaik memimpin orang ini.</p>
+    ${urut.map(x=>{
+      const l = matchLabel(x.v);
+      return `<div class="bar-row">
+        <div class="bl" style="font-size:12.5px">${TIPE_PEKERJA[x.k].nama}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${x.v}%;background:${l.c}"></div></div>
+        <div class="bar-val">${x.v}</div></div>`;
+    }).join("")}
+    ${tampilPanduan.map(k=>{
+      const t = TIPE_PEKERJA[k];
+      return `<div style="margin-top:12px;padding:12px;border-radius:10px;background:var(--paper);border:1px solid var(--line)">
+        <div style="font-weight:800;color:var(--teal)">${t.nama}</div>
+        <p class="small" style="margin-top:4px">${t.ciri}</p>
+        <p class="small" style="margin-top:6px"><b style="color:var(--coral)">Jangan:</b> ${t.jangan}</p>
+        <p class="small" style="margin-top:4px"><b style="color:var(--green)">Lakukan:</b> ${t.lakukan}</p>
+      </div>`;
+    }).join("")}
+    <p class="small" style="margin-top:10px"><b>Catatan:</b> Ini kerangka heuristik untuk memudahkan komunikasi kepemimpinan sehari-hari, dikombinasikan dari DISC &amp; OCEAN yang sudah tervalidasi — <b>bukan instrumen seleksi tersendiri</b>. Gunakan sebagai bahan pendekatan, bukan dasar keputusan rekrutmen.</p>
+  </div>`;
+}
+
 function kartuTemperamen(dims){
   const map = [
     {k:"D", nama:"Koleris",    d:"tegas, dominan, berorientasi hasil"},
