@@ -418,50 +418,32 @@ function bukaDash(){
 
 /* ---------- POSISI + PROFIL IDEAL ---------- */
 const POSITIONS = [
-  { key:"kasir", nama:"Kasir",
-    ideal:{D:40,I:50,S:65,C:80,O:45,E:50,A:60,TOL:60,KEB:55},
-    w:{D:1,I:1,S:2,C:3,O:1,E:1,A:2,TOL:2,KEB:1} },
-  { key:"receptionist", nama:"Receptionist",
-    ideal:{D:40,I:75,S:70,C:60,O:55,E:70,A:75,TOL:75,KEB:65},
-    w:{D:1,I:3,S:2,C:1,O:1,E:2,A:3,TOL:3,KEB:1} },
-  { key:"sales", nama:"Sales",
-    ideal:{D:65,I:80,S:40,C:45,O:60,E:80,A:55,TOL:65,KEB:50},
-    w:{D:2,I:3,S:1,C:1,O:1,E:3,A:2,TOL:2,KEB:1} },
   { key:"marketing", nama:"Marketing",
     ideal:{D:55,I:60,S:45,C:65,O:80,E:55,A:55,TOL:70,KEB:55},
     w:{D:1,I:1,S:1,C:2,O:3,E:1,A:2,TOL:2,KEB:1} },
-  { key:"poolguard", nama:"Pool Guard",
+  { key:"sales", nama:"Sales",
+    ideal:{D:65,I:80,S:40,C:45,O:60,E:80,A:55,TOL:65,KEB:50},
+    w:{D:2,I:3,S:1,C:1,O:1,E:3,A:2,TOL:2,KEB:1} },
+  { key:"pool", nama:"Pool",
     ideal:{D:50,I:45,S:70,C:70,O:45,E:50,A:60,TOL:60,KEB:65},
-    w:{D:1,I:1,S:2,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
-  { key:"cleaning", nama:"Cleaning Staff",
-    ideal:{D:35,I:40,S:75,C:65,O:40,E:45,A:55,TOL:60,KEB:55},
     w:{D:1,I:1,S:2,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
   { key:"housekeeping", nama:"House Keeping",
     ideal:{D:35,I:40,S:70,C:75,O:40,E:40,A:55,TOL:60,KEB:55},
     w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
-  { key:"engineering", nama:"Engineering / Teknisi",
-    ideal:{D:50,I:40,S:55,C:80,O:70,E:40,A:50,TOL:55,KEB:50},
-    w:{D:1,I:1,S:1,C:3,O:3,E:1,A:1,TOL:1,KEB:1} },
+  { key:"fnb", nama:"FnB",
+    ideal:{D:45,I:65,S:60,C:65,O:55,E:65,A:70,TOL:65,KEB:60},
+    w:{D:1,I:2,S:2,C:2,O:1,E:2,A:2,TOL:2,KEB:1} },
   { key:"security", nama:"Security",
     ideal:{D:60,I:40,S:65,C:70,O:40,E:45,A:50,TOL:65,KEB:55},
     w:{D:2,I:1,S:1,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
-  { key:"accounting", nama:"Accounting",
-    ideal:{D:40,I:35,S:60,C:90,O:45,E:35,A:50,TOL:55,KEB:50},
-    w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
-  { key:"admin", nama:"Admin",
+  { key:"administration", nama:"Administration",
     ideal:{D:40,I:45,S:65,C:75,O:50,E:45,A:55,TOL:60,KEB:50},
     w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
-  { key:"hr", nama:"HR Staff",
-    ideal:{D:50,I:65,S:65,C:65,O:60,E:65,A:80,TOL:85,KEB:75},
-    w:{D:1,I:1,S:1,C:1,O:1,E:1,A:3,TOL:3,KEB:2} },
-  { key:"event", nama:"Event Coordinator",
-    ideal:{D:65,I:70,S:45,C:60,O:70,E:70,A:60,TOL:70,KEB:55},
-    w:{D:2,I:2,S:1,C:1,O:2,E:2,A:2,TOL:2,KEB:1} },
-  { key:"purchasing", nama:"Purchasing",
-    ideal:{D:55,I:50,S:55,C:75,O:55,E:50,A:50,TOL:60,KEB:50},
-    w:{D:2,I:1,S:1,C:2,O:1,E:1,A:1,TOL:1,KEB:1} },
-  { key:"store", nama:"Store / Gudang",
-    ideal:{D:35,I:40,S:65,C:75,O:40,E:40,A:50,TOL:55,KEB:50},
+  { key:"engineering", nama:"Engineering",
+    ideal:{D:50,I:40,S:55,C:80,O:70,E:40,A:50,TOL:55,KEB:50},
+    w:{D:1,I:1,S:1,C:3,O:3,E:1,A:1,TOL:1,KEB:1} },
+  { key:"accounting", nama:"Accounting",
+    ideal:{D:40,I:35,S:60,C:90,O:45,E:35,A:50,TOL:55,KEB:50},
     w:{D:1,I:1,S:1,C:3,O:1,E:1,A:1,TOL:1,KEB:1} },
 ];
 const DIM_LABELS = { D:"Dominance", I:"Influence", S:"Steadiness", C:"Compliance",
@@ -527,7 +509,14 @@ marketing: [
   { q:"Apa bedanya pekerjaan Anda dengan pekerjaan sales, menurut pemahaman Anda?", dig:"Kejelasan peran — marketing membangun permintaan, sales menutup penjualan." },
   { q:"Konten harus terbit rutin walau sedang tidak ada ide. Bagaimana Anda mengatasinya? Ceritakan sistem kerja Anda.", dig:"Konsistensi produksi (Co) — kreativitas butuh disiplin." },
 ],
-poolguard: [
+fnb: [
+  { q:"Ceritakan pengalaman Anda melayani pelanggan yang komplain soal makanan/minuman. Apa yang Anda lakukan detik-detik pertama?", dig:"Kesabaran (S) + kesigapan menangani keluhan langsung — inti pekerjaan FnB." },
+  { q:"Dapur/bar sedang ramai pesanan menumpuk dan pelanggan mulai tidak sabar. Ceritakan cara Anda tetap tenang dan memprioritaskan.", dig:"Ketahanan tekanan (N rendah) + kemampuan multitugas di jam sibuk." },
+  { q:"Bagaimana Anda memastikan kebersihan dan penyajian tetap standar meski sedang terburu-buru?", dig:"Ketelitian (C) yang tidak dikorbankan demi kecepatan." },
+  { q:"Ceritakan pengalaman bekerja sama dengan rekan dapur/kasir/pelayan lain untuk memastikan pesanan sampai tepat dan benar.", dig:"Kerja sama tim (A) — FnB selalu pekerjaan tim, bukan individu." },
+  { q:"Pelanggan komplain rasa makanan padahal menurut Anda sudah sesuai standar. Apa yang Anda lakukan?", dig:"Keseimbangan mempertahankan standar vs melayani dengan rendah hati (TOL/A)." },
+],
+pool: [
   { q:"Mengawasi kolam itu 95% membosankan dan 5% menentukan nyawa. Bagaimana Anda menjaga fokus pada jam ke-4 berdiri di pinggir kolam?", dig:"Kewaspadaan berkelanjutan — jawaban jujur mengakui beratnya." },
   { q:"Ceritakan pengalaman menolong orang atau menghadapi keadaan darurat. Apa yang Anda lakukan detik-detik pertama?", dig:"Ketenangan genting (N rendah) + naluri bertindak." },
   { q:"Anak-anak berlarian di area licin dan orang tuanya tidak peduli saat ditegur. Apa yang Anda lakukan?", dig:"Ketegasan sopan — berani menegakkan aturan pada pengunjung." },
@@ -569,7 +558,7 @@ accounting: [
   { q:"Tutup buku bulanan bertepatan dengan banyak transaksi menumpuk. Ceritakan pengalaman bekerja di bawah tenggat ketat.", dig:"Ketahanan tekanan (N) tanpa mengorbankan akurasi." },
   { q:"Software atau alat apa yang Anda kuasai (Excel, aplikasi akuntansi)? Fungsi Excel apa yang paling sering Anda pakai?", dig:"Kemampuan teknis nyata — jawaban spesifik (VLOOKUP, pivot) = benar-benar bisa." },
 ],
-admin: [
+administration: [
   { q:"Ceritakan sistem pengarsipan yang pernah Anda buat atau rapikan. Bagaimana orang lain mencari dokumen setelahnya?", dig:"Kerapian sistemik (C/Co) — admin baik membuat orang lain mudah." },
   { q:"Lima orang meminta bantuan Anda bersamaan dengan tenggat masing-masing. Bagaimana Anda mengurutkannya?", dig:"Prioritas & ketenangan multitugas." },
   { q:"Ceritakan kesalahan input/dokumen yang pernah Anda buat. Bagaimana Anda menemukannya dan apa yang Anda ubah setelahnya?", dig:"Kedewasaan + perbaikan sistem — semua orang pernah salah; yang penting sesudahnya." },
@@ -1776,7 +1765,7 @@ function kartuSosial(dims){
     <p class="small" style="margin-top:8px">Skor rendah bukan vonis — jadikan bahan wawancara. Sebaliknya, skor nyaris sempurna di keempatnya <b>bersamaan dengan</b> flag pencitraan justru patut dicurigai sebagai jawaban yang dibuat-buat.</p>
   </div>`;
 }
-const POSISI_UANG = ["kasir","accounting","store","admin","receptionist","purchasing"];
+const POSISI_UANG = ["fnb","accounting","administration"];
 function kartuIntegritas(r){
   const isJ = cur.jenis && cur.jenis !== "karakter";
   let poin = 0; const sinyal = [];

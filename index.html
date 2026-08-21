@@ -133,7 +133,7 @@ textarea:focus{outline:none;border-color:var(--aqua)}
       <select id="in-posisi"></select>
       <label class="f" for="in-usia">Usia (opsional)</label>
       <input type="text" id="in-usia" inputmode="numeric" placeholder="Contoh: 24" autocomplete="off">
-      <label class="f" for="in-bersedia-posisi">Apakah Anda bersedia ditempatkan pada posisi yang TIDAK sesuai dengan pilihan Anda?</label>
+      <label class="f" for="in-bersedia-posisi">Apakah Anda bersedia ditempatkan pada posisi lain?</label>
       <select id="in-bersedia-posisi">
         <option value="">— Pilih jawaban —</option>
         <option value="bersedia">Bersedia</option>
@@ -162,7 +162,7 @@ textarea:focus{outline:none;border-color:var(--aqua)}
         Tautan ini hanya bisa dipakai <b>satu kali</b>. Jika koneksi terputus, buka kembali tautan yang sama — Anda bisa melanjutkan selama waktu masih tersisa.
       </div>
       <div class="note-time" style="background:#F2FBF6;border-color:var(--green)">
-        🤝 <b style="color:var(--green)">Pernyataan kejujuran:</b>
+        🤝 <b style="color:var(--green)">Pernyataan Integritas &amp; Kejujuran:</b>
         <label style="display:flex;gap:10px;margin-top:10px;align-items:flex-start;cursor:pointer;font-weight:600">
           <input type="checkbox" id="jujur-setuju" style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
           <span>Saya berjanji menjawab sesuai <b>keadaan diri saya yang sebenarnya</b>, mengerjakan tes ini <b>sendiri tanpa bantuan siapa pun</b>, dan memahami bahwa jawaban yang tidak jujur dapat menggugurkan lamaran saya.</span>
@@ -241,21 +241,15 @@ async function sb(path, opt = {}) {
 
 /* ---------- DAFTAR POSISI (nama saja; profil ideal ada di hrd.html) ---------- */
 const POSITIONS = [
-  { key:"kasir",        nama:"Kasir" },
-  { key:"receptionist", nama:"Receptionist" },
-  { key:"sales",        nama:"Sales" },
-  { key:"marketing",    nama:"Marketing" },
-  { key:"poolguard",    nama:"Pool Guard" },
-  { key:"cleaning",     nama:"Cleaning Staff" },
-  { key:"housekeeping", nama:"House Keeping" },
-  { key:"engineering",  nama:"Engineering / Teknisi" },
-  { key:"security",     nama:"Security" },
-  { key:"accounting",   nama:"Accounting" },
-  { key:"admin",        nama:"Admin" },
-  { key:"hr",           nama:"HR Staff" },
-  { key:"event",        nama:"Event Coordinator" },
-  { key:"purchasing",   nama:"Purchasing" },
-  { key:"store",        nama:"Store / Gudang" },
+  { key:"marketing",     nama:"Marketing" },
+  { key:"sales",         nama:"Sales" },
+  { key:"pool",          nama:"Pool" },
+  { key:"housekeeping",  nama:"House Keeping" },
+  { key:"fnb",           nama:"FnB" },
+  { key:"security",      nama:"Security" },
+  { key:"administration",nama:"Administration" },
+  { key:"engineering",   nama:"Engineering" },
+  { key:"accounting",    nama:"Accounting" },
 ];
 
 /* ---------- BANK SOAL (identik dengan pengaturan skoring di hrd.html) ---------- */
