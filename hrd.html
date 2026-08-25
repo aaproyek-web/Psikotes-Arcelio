@@ -267,9 +267,9 @@ a.btn.wa-sudah{background:#EDF1F0 !important;border-color:#B9C4C0 !important;col
             </select></div>
           <div><label class="f">Link berlaku</label>
             <select id="tk-berlaku">
-              <option value="1">1 hari</option>
-              <option value="3" selected>3 hari</option>
-              <option value="7">7 hari</option>
+              <option value="30">30 menit</option>
+              <option value="60">1 jam</option>
+              <option value="90" selected>1 jam 30 menit (disarankan)</option>
             </select></div>
           <div><label class="f">Jumlah token</label>
             <select id="tk-jumlah">
@@ -1206,9 +1206,9 @@ async function buatToken(){
   const jenis = $("#tk-jenis").value;
   const posisi = jenis === "karakter" ? ($("#tk-posisi").value || null) : null;
   const durasi = +$("#tk-durasi").value;
-  const hari = +$("#tk-berlaku").value;
+  const menitBerlaku = +$("#tk-berlaku").value;
   const jumlah = +$("#tk-jumlah").value;
-  const expires = new Date(Date.now() + hari*86400000).toISOString();
+  const expires = new Date(Date.now() + menitBerlaku*60000).toISOString();
   const rows = Array.from({length:jumlah}, ()=>({
     token: genCode(), jenis, posisi_key: posisi, durasi_menit: durasi, expires_at: expires
   }));
@@ -1237,7 +1237,7 @@ async function buatToken(){
   btn.disabled = false; btn.textContent = "＋ Buat Token";
 }
 function waHref(t){
-  const msg = `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Berlaku sampai ${fmtTgl(t.expires_at)}\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
+  const msg = `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\n⏳ *PENTING: tautan ini HANYA AKTIF sampai ${fmtTgl(t.expires_at)}* — mohon segera dibuka dan dikerjakan sekarang juga, karena setelah itu tautan akan hangus.\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
   return "https://wa.me/?text="+encodeURIComponent(msg);
 }
 async function loadTokens(){
