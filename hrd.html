@@ -1220,7 +1220,7 @@ async function buatToken(){
       const teks = created.map((r,i)=>`${i+1}. ${tesLink(r.token)}`).join("\n");
       $("#bulk-hasil").innerHTML = `
         <div class="bulk-box">
-          <b>✅ ${created.length} token massal berhasil dibuat</b> — durasi ${durasi} menit, berlaku ${hari} hari${posisi?`, posisi ${posOf(posisi).nama}`:""}.
+          <b>✅ ${created.length} token massal berhasil dibuat</b> — durasi ${durasi} menit, berlaku ${menitBerlaku} menit${posisi?`, posisi ${posOf(posisi).nama}`:""}.
           <p class="small" style="margin:6px 0">Salin daftar di bawah, lalu bagikan satu tautan untuk satu pelamar (jangan satu tautan ke banyak orang — sekali dipakai langsung terkunci).</p>
           <textarea id="bulk-text" readonly>${teks}</textarea>
           <button class="btn small-btn" style="margin-top:8px" onclick="copyText(document.querySelector('#bulk-text').value, this, '📋 Salin Semua Tautan')">📋 Salin Semua Tautan</button>
