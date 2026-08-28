@@ -1230,16 +1230,17 @@ async function buatToken(){
         <div class="bulk-box"><b>✅ Token dibuat:</b> <span style="font-weight:800">${created[0].token}</span>
         <p class="small" style="margin:6px 0">${tesLink(created[0].token)}</p>
         <button class="btn small-btn" onclick="copyText(tesLink('${created[0].token}'), this, '📋 Salin Tautan')">📋 Salin Tautan</button>
-        <a class="btn small-btn green" style="text-decoration:none;margin-left:6px" target="_blank" href="${waHref(created[0])}">💬 Kirim via WhatsApp</a></div>`;
+        <button class="btn small-btn ghost" style="margin-left:6px" onclick="copyText(waMsg(window.__lastCreated0), this, '💬 Salin Pesan WA')">💬 Salin Pesan WA</button></div>`;
+  window.__lastCreated0 = created[0];
     }
     loadTokens();
   } catch(e){ alert("Gagal membuat token: "+e.message); }
   btn.disabled = false; btn.textContent = "＋ Buat Token";
 }
-function waHref(t){
-  const msg = `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\n⏳ *PENTING: tautan ini HANYA AKTIF sampai ${fmtTgl(t.expires_at)}* — mohon segera dibuka dan dikerjakan sekarang juga, karena setelah itu tautan akan hangus.\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
-  return "https://wa.me/?text="+encodeURIComponent(msg);
+function waMsg(t){
+  return `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\n⏳ *PENTING: tautan ini HANYA AKTIF sampai ${fmtTgl(t.expires_at)}* — mohon segera dibuka dan dikerjakan sekarang juga, karena setelah itu tautan akan hangus.\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
 }
+function waHref(t){ return "https://wa.me/?text="+encodeURIComponent(waMsg(t)); }
 async function loadTokens(){
   try { tokens = await sb("psikotes_tokens?select=*&order=created_at.desc&limit=200"); }
   catch(e){ $("#tok-list").innerHTML = `<p class="small">Gagal memuat: ${e.message}</p>`; return; }
@@ -1264,7 +1265,7 @@ function renderTokens(){
       <div class="acts">
         ${st==="baru" ? `
           <button class="btn small-btn ghost" onclick="copyText(tesLink('${t.token}'), this, '📋 Link')">📋 Link</button>
-          <a class="btn small-btn green" style="text-decoration:none" target="_blank" href="${waHref(t)}">💬 WA</a>
+          <button class="btn small-btn ghost" onclick="copyText(waMsg(JSON.parse(this.dataset.t)), this, '💬 WA')" data-t='${JSON.stringify(t).replace(/'/g,"&apos;")}'>💬 WA</button>
           <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" onclick="hapusToken('${t.token}')">✕</button>` : ""}
       </div>
     </div>`;
@@ -1347,18 +1348,21 @@ function tampilkanErrorLembar(e){
       <pre style="white-space:pre-wrap;font-size:11.5px;background:var(--coral-soft);padding:10px;border-radius:8px;overflow:auto">${(e && (e.stack || e.message)) || e}</pre>
     </div>`;
 }
+let scrollSebelumDetail = 0;
 function bukaHasil(id){
   cur = hasil.find(h=>h.id===id);
   if(!cur) return;
+  scrollSebelumDetail = window.scrollY;   // ingat posisi baca di daftar sebelum dibuka
   $("#hasil-list-wrap").classList.add("hidden");
   try { renderDetail(); } catch(e){ console.error(e); tampilkanErrorLembar(e); }
   $("#hasil-detail").classList.remove("hidden");
   window.scrollTo(0,0);
 }
-function tutupDetail(){
+async function tutupDetail(){
   $("#hasil-detail").classList.add("hidden");
   $("#hasil-list-wrap").classList.remove("hidden");
-  loadHasil();
+  await loadHasil();
+  window.scrollTo(0, scrollSebelumDetail);   // kembali persis ke posisi semula, bukan lompat acak
 }
 
 async function muatFoto(token){
