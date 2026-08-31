@@ -1072,8 +1072,14 @@ function computeResults(ans){
   ITEMS.forEach((it,i)=>{
     if(it.pairOf){
       const j = ITEMS.findIndex(x=>x.id===it.pairOf);
+      const jangkar = ITEMS[j];
       const a1 = ans[j]||3, a2 = ans[i]||3;
-      pairDetails.push({ q1:ITEMS[j].t, a1, q2:it.t, a2, diff:Math.abs(a2-a1) });
+      // bandingkan nilai YANG SUDAH DISELARASKAN ke arah sifat (bukan angka mentah) —
+      // supaya pasangan yang salah satunya rev:true tetap terbaca benar (setuju=setuju secara SIFAT,
+      // bukan dipaksa setuju=setuju secara ANGKA MENTAH yang bisa berlawanan arah kalimat)
+      const nilai1 = jangkar.rev ? 6-a1 : a1;
+      const nilai2 = it.rev ? 6-a2 : a2;
+      pairDetails.push({ q1:jangkar.t, a1, q2:it.t, a2, diff:Math.abs(nilai2-nilai1) });
     }
   });
   const consist = pairDetails.reduce((a,b)=>a+b.diff,0)/pairDetails.length;
