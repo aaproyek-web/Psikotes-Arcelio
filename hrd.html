@@ -173,6 +173,7 @@ table.rank tr:nth-child(even) td{background:#F7FBFB}
 .badge-final{font-weight:800;font-variant-numeric:tabular-nums}
 .del-btn{border:0;background:none;color:var(--coral);cursor:pointer;font-size:15px}
 a.wa{color:var(--green);font-weight:700;text-decoration:none}
+.kunci-aktif{opacity:.5;cursor:not-allowed;background:#EDF1F0!important;border-color:#B9C4C0!important;color:#6B7A75!important}
 .sticky-back{position:sticky;top:0;z-index:45;background:rgba(244,250,251,.97);backdrop-filter:blur(4px);
   padding:10px 0;margin:0 0 6px;display:flex;gap:10px;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--line)}
@@ -647,6 +648,55 @@ const FLAG_RULES = [
     baik:["Ada penjelasan wajar (terburu-buru, salah paham istilah) dan bersedia tes ulang","Saat dibacakan ulang, jawabannya konsisten"],
     buruk:["Tidak peduli / menganggap remeh","Jawaban lisan juga berubah-ubah"],
     rekom:"Hasil ini JANGAN dipakai untuk keputusan. Buat token baru untuk tes ulang di kondisi tenang. Jika hasil kedua tetap inkonsisten, itu sendiri adalah data tentang keseriusan kandidat." },
+  /* ===== FLAG BARU: dari skala sosial (INT/DEW/TOL/KEB) & kombinasi berbahaya ===== */
+  { id:"int-rendah", level:"red", cond:r=>r.dims.INT!=null&&r.dims.INT<=30,
+    title:"Integritas Sangat Rendah",
+    indikator:r=>`Skor Integritas ${r.dims.INT}/100 — kandidat setuju dengan rasionalisasi kecurangan (\u201Cbukan salah saya\u201D, \u201Ctidak ketahuan\u201D, \u201Csemua orang melakukannya\u201D).`,
+    risiko:"Risiko langsung untuk posisi yang memegang uang/barang (FnB, Administration, Accounting) dan untuk kepercayaan tim secara umum. Ini flag paling berat karena menyangkut kejujuran dasar, bukan sekadar gaya kerja.",
+    tanya:["Ceritakan saat Anda menemukan uang atau barang yang bukan milik Anda. Apa persis yang Anda lakukan? (STAR)","Pernahkah Anda melihat rekan berbuat curang? Apa yang Anda lakukan, dan apa akibatnya bagi Anda?","Ceritakan kesalahan kerja Anda yang sebenarnya bisa saja tidak ketahuan siapa pun."],
+    baik:["Cerita detail dan konsisten, tidak defensif","Ada bukti pernah memilih jujur meski merugikan diri sendiri"],
+    buruk:["Jawaban terlalu sempurna tanpa detail, atau balik bertanya \u201Ckenapa ditanya begini?\u201D","Menormalkan kecurangan kecil (\u201Csemua orang juga begitu\u201D)"],
+    rekom:"Cek referensi ke atasan sebelumnya dengan pertanyaan spesifik: \u201CApakah Anda akan mempekerjakannya lagi untuk posisi yang memegang uang?\u201D Jangan tempatkan di posisi pemegang uang tanpa masa percobaan dengan kontrol ganda." },
+  { id:"dew-rendah", level:"red", cond:r=>r.dims.DEW!=null&&r.dims.DEW<=30,
+    title:"Kedewasaan Emosional Rendah",
+    indikator:r=>`Skor Kedewasaan ${r.dims.DEW}/100 — cenderung menyalahkan pihak lain, sulit menerima kritik, atau menutupi kesalahan.`,
+    risiko:"Sulit dibina: teguran dianggap serangan, kesalahan disembunyikan sampai membesar. Menguras energi SPV dan merusak suasana tim. Sangat kritis untuk kandidat jalur SPV/Manager.",
+    tanya:["Ceritakan kesalahan kerja terbesar Anda. Bagaimana reaksi pertama Anda saat menyadarinya? (STAR)","Ceritakan saat Anda ditegur di depan rekan kerja. Apa yang Anda rasakan dan lakukan?","Ceritakan situasi yang membuat Anda sangat marah di tempat kerja. Apa yang Anda lakukan dengan kemarahan itu?"],
+    baik:["Mengakui kesalahan tanpa diminta, ada pembelajaran konkret","Bisa menceritakan teguran masa lalu dengan tenang"],
+    buruk:["Setiap cerita berakhir \u201Citu bukan salah saya\u201D","Emosi ikut naik saat menceritakan teguran lama"],
+    rekom:"Bukan penghalang mutlak untuk posisi pelaksana dengan SPV yang kuat, tapi JANGAN masukkan ke jalur kaderisasi SPV/Manager sebelum ada bukti perubahan nyata." },
+  { id:"tol-rendah", level:"red", cond:r=>r.dims.TOL!=null&&r.dims.TOL<=30,
+    title:"Toleransi Sangat Rendah",
+    indikator:r=>`Skor Toleransi ${r.dims.TOL}/100 — kaku terhadap perbedaan keyakinan, suku, atau pandangan; merasa cara hidupnya yang paling benar.`,
+    risiko:"Risiko gesekan di tim yang majemuk dan di lingkungan layanan pengunjung yang beragam. Untuk posisi FnB, Sales, Marketing, dan Pool, ini bisa berubah jadi konflik dengan pelanggan atau rekan.",
+    tanya:["Ceritakan pengalaman bekerja dalam tim yang anggotanya berbeda agama/suku/kebiasaan dari Anda. (STAR)","Ceritakan saat atasan Anda punya latar belakang yang jauh berbeda. Bagaimana hubungan kerja kalian?","Pekerjaan ini bersinggungan dengan pengunjung dari berbagai latar belakang. Apakah ada situasi yang membuat Anda tidak nyaman?"],
+    baik:["Ada pengalaman nyata bekerja lintas latar belakang yang berjalan baik","Menjawab tanpa nada menghakimi kelompok lain"],
+    buruk:["Menyebut kelompok tertentu dengan stereotip","Mengaku tidak pernah ada masalah tapi tidak bisa memberi contoh konkret"],
+    rekom:"Untuk posisi yang banyak berhadapan dengan orang (FnB, Sales, Pool, Marketing) ini sebaiknya jadi pertimbangan berat. Untuk posisi teknis/back-office, pantau interaksi di masa percobaan." },
+  { id:"keb-rendah", level:"yellow", cond:r=>r.dims.KEB!=null&&r.dims.KEB<=25,
+    title:"Kepedulian pada Sesama Sangat Rendah",
+    indikator:r=>`Skor Kebaikan Sesama ${r.dims.KEB}/100 — setuju bahwa membantu orang lain \u201Cmembuang waktu\u201D atau kesusahan orang \u201Cbukan urusan saya\u201D.`,
+    risiko:"Enggan menolong rekan saat tim kewalahan, dan kurang hangat ke pengunjung. Tidak selalu masalah untuk posisi teknis, tapi berat untuk posisi layanan.",
+    tanya:["Ceritakan saat Anda menolong rekan padahal itu mengorbankan waktu Anda sendiri. (STAR)","Kalau rekan satu shift kewalahan sementara pekerjaan Anda sudah selesai, apa yang biasanya Anda lakukan?"],
+    baik:["Ada contoh nyata membantu tanpa diminta","Tidak menganggap membantu sebagai kerugian"],
+    buruk:["Tidak bisa memberi satu pun contoh membantu orang lain","Menghitung-hitung setiap bantuan sebagai transaksi"],
+    rekom:"Cocokkan dengan posisi: aman untuk peran mandiri (Engineering, Accounting), pertimbangkan ulang untuk FnB, Pool, dan Sales." },
+  { id:"int-d-manipulatif", level:"red", cond:r=>r.dims.INT!=null&&r.dims.INT<=40&&r.dims.D>=70,
+    title:"Kombinasi Berbahaya: Dominan + Integritas Rendah",
+    indikator:r=>`Dominance ${r.dims.D}/100 (sangat tinggi) bersamaan dengan Integritas ${r.dims.INT}/100 (rendah).`,
+    risiko:"Orang yang tegas, berani, dan persuasif TAPI permisif terhadap kecurangan — profil paling berisiko untuk manipulasi, memanfaatkan posisi, atau menekan rekan demi kepentingan sendiri. Lebih berbahaya daripada integritas rendah saja, karena punya kemampuan untuk mewujudkannya.",
+    tanya:["Ceritakan saat Anda mendapat keuntungan dari situasi yang sebenarnya tidak sepenuhnya adil bagi orang lain. (STAR)","Pernahkah Anda meyakinkan orang untuk melakukan sesuatu yang belakangan Anda sesali?","Kalau Anda tahu cara mendapatkan bonus lebih besar tapi harus sedikit \u201Cmembengkokkan\u201D aturan, apa yang Anda lakukan?"],
+    baik:["Mengakui godaan itu nyata dan menceritakan bagaimana menahannya","Referensi mengkonfirmasi ia bisa dipercaya saat memegang wewenang"],
+    buruk:["Menganggap \u201Cpintar memanfaatkan celah\u201D sebagai kelebihan","Cerita keberhasilan selalu ada pihak lain yang dirugikan"],
+    rekom:"Jangan berikan wewenang atas uang, stok, atau orang tanpa verifikasi referensi yang sangat ketat. Jika direkrut, kontrol ganda wajib dan bukan kandidat jalur SPV/Manager." },
+  { id:"kejanggalan-lintas", level:"yellow", cond:r=>(r.tensions||[]).length>=2,
+    title:"Kejanggalan Lintas Kategori",
+    indikator:r=>`Ditemukan ${r.tensions.length} pasangan sifat yang seharusnya sejalan tapi bertolak belakang: ${r.tensions.map(t=>t.arah).join("; ")}.`,
+    risiko:"Jawaban tidak koheren antar bagian tes — bisa berarti mengisi tanpa membaca, mencoba menampilkan diri berbeda di soal tertentu, atau memang profil yang kontradiktif. Apa pun sebabnya, profil di lembar ini kurang bisa dipercaya sebelum diverifikasi.",
+    tanya:["Bacakan ulang 2\u20133 pasangan pernyataan yang bertolak belakang itu, minta jawaban lisan spontan, bandingkan dengan isian tertulisnya.","Tanyakan langsung dengan datar: \u201CDi tes, Anda menjawab X di satu bagian tapi Y di bagian lain. Mana yang lebih menggambarkan Anda?\u201D"],
+    baik:["Bisa menjelaskan perbedaan itu dengan konteks yang masuk akal","Jawaban lisan konsisten dengan salah satu sisi"],
+    buruk:["Jawaban lisan berubah-ubah lagi","Tidak ingat atau tidak bisa menjelaskan"],
+    rekom:"Turunkan bobot lembar ini dalam keputusan; andalkan wawancara dan referensi. Jika kandidat penting, pertimbangkan tes ulang yang diawasi." },
   { id:"pola-datar", level:"yellow", cond:r=>r.flat||r.extreme,
     title:"Pola Jawaban Perlu Dicermati",
     indikator:r=>r.flat
@@ -1145,8 +1195,44 @@ function tesLink(token){
   const base = location.origin + location.pathname.replace(/[^/]*$/,"");
   return base + "index.html?t=" + encodeURIComponent(token);
 }
-function copyText(txt, btn, orig){
-  const done=()=>{ if(btn){btn.textContent="✓ Tersalin"; setTimeout(()=>btn.textContent=orig,1500);} };
+/* ---------- kunci token setelah disalin sekali — TERSIMPAN DI DATABASE, berlaku di SEMUA perangkat ---------- */
+let tokenTerkunciSementara = {};   // cache lokal utk token yg baru dibuat (belum sempat masuk array `tokens`)
+async function kunciToken(token){
+  tokenTerkunciSementara[token] = new Date().toISOString();
+  document.querySelectorAll(`[data-token-kunci="${token}"]`).forEach(terapkanKunciTombol);
+  try{
+    await sb(`psikotes_tokens?token=eq.${encodeURIComponent(token)}`, {
+      method:"PATCH", body: JSON.stringify({ link_disalin_at: tokenTerkunciSementara[token] })
+    });
+    const t = tokens.find(x=>x.token===token);
+    if(t) t.link_disalin_at = tokenTerkunciSementara[token];
+  }catch(e){ console.error("Gagal menyimpan status kunci:", e.message); }
+}
+async function bukaKunciToken(token){
+  if(!confirm("Buka kunci token ini? Gunakan HANYA jika Anda yakin akan mengirim ulang ke ORANG YANG SAMA (misal pesan WA sebelumnya hilang) — bukan ke pelamar lain.")) return;
+  delete tokenTerkunciSementara[token];
+  document.querySelectorAll(`[data-token-kunci="${token}"]`).forEach(terapkanKunciTombol);
+  try{
+    await sb(`psikotes_tokens?token=eq.${encodeURIComponent(token)}`, {
+      method:"PATCH", body: JSON.stringify({ link_disalin_at: null })
+    });
+    const t = tokens.find(x=>x.token===token);
+    if(t) t.link_disalin_at = null;
+  }catch(e){ console.error("Gagal membuka kunci:", e.message); alert("Gagal membuka kunci: "+e.message); }
+}
+function statusKunci(token){
+  const t = tokens.find(x=>x.token===token);
+  return !!(tokenTerkunciSementara[token] || (t && t.link_disalin_at));
+}
+function terapkanKunciTombol(btn){
+  const terkunci = statusKunci(btn.dataset.tokenKunci);
+  btn.disabled = terkunci;
+  btn.classList.toggle("kunci-aktif", terkunci);
+}
+function terapkanSemuaKunci(){ document.querySelectorAll("[data-token-kunci]").forEach(terapkanKunciTombol); }
+
+function copyText(txt, btn, orig, tokenUtkKunci){
+  const done=()=>{ if(btn){btn.textContent="✓ Tersalin"; setTimeout(()=>{ if(!tokenUtkKunci) btn.textContent=orig; },1500);} if(tokenUtkKunci) kunciToken(tokenUtkKunci); };
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(()=>fb());
   else fb();
   function fb(){ const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
@@ -1229,9 +1315,11 @@ async function buatToken(){
       $("#bulk-hasil").innerHTML = `
         <div class="bulk-box"><b>✅ Token dibuat:</b> <span style="font-weight:800">${created[0].token}</span>
         <p class="small" style="margin:6px 0">${tesLink(created[0].token)}</p>
-        <button class="btn small-btn" onclick="copyText(tesLink('${created[0].token}'), this, '📋 Salin Tautan')">📋 Salin Tautan</button>
-        <button class="btn small-btn ghost" style="margin-left:6px" onclick="copyText(waMsg(window.__lastCreated0), this, '💬 Salin Pesan WA')">💬 Salin Pesan WA</button></div>`;
+        <button class="btn small-btn" data-token-kunci="${created[0].token}" onclick="copyText(tesLink('${created[0].token}'), this, '📋 Salin Tautan', '${created[0].token}')">📋 Salin Tautan</button>
+        <button class="btn small-btn ghost" style="margin-left:6px" data-token-kunci="${created[0].token}" onclick="copyText(waMsg(window.__lastCreated0), this, '💬 Salin Pesan WA', '${created[0].token}')">💬 Salin Pesan WA</button>
+        <button class="btn small-btn ghost" style="margin-left:6px;color:var(--coral);border-color:var(--coral)" onclick="bukaKunciToken('${created[0].token}')">🔓 Buka Kunci</button></div>`;
   window.__lastCreated0 = created[0];
+  terapkanSemuaKunci();
     }
     loadTokens();
   } catch(e){ alert("Gagal membuat token: "+e.message); }
@@ -1264,12 +1352,15 @@ function renderTokens(){
       </div>
       <div class="acts">
         ${st==="baru" ? `
-          <button class="btn small-btn ghost" onclick="copyText(tesLink('${t.token}'), this, '📋 Link')">📋 Link</button>
-          <button class="btn small-btn ghost" onclick="copyText(waMsg(JSON.parse(this.dataset.t)), this, '💬 WA')" data-t='${JSON.stringify(t).replace(/'/g,"&apos;")}'>💬 WA</button>
+          <button class="btn small-btn ghost" data-token-kunci="${t.token}" onclick="copyText(tesLink('${t.token}'), this, '📋 Link', '${t.token}')">📋 Link</button>
+          <button class="btn small-btn ghost" data-token-kunci="${t.token}" onclick="copyText(waMsg(JSON.parse(this.dataset.t)), this, '💬 WA', '${t.token}')" data-t='${JSON.stringify(t).replace(/'/g,"&apos;")}'>💬 WA</button>
+          <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" onclick="bukaKunciToken('${t.token}')" title="Buka kunci untuk kirim ulang ke orang yang sama">🔓</button>
           <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" onclick="hapusToken('${t.token}')">✕</button>` : ""}
       </div>
     </div>`;
   }).join("");
+
+  terapkanSemuaKunci();
 }
 async function hapusToken(tok){
   if(!confirm(`Hapus token ${tok}?`)) return;
