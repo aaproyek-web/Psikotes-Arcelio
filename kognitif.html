@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Tes Kemampuan Kognitif — Arcelio</title>
+<style>
+:root{--teal:#0B3C49;--bg:#F1F7F8;--card:#fff;--line:#d9e3e5;--ink:#16323b;
+      --muted:#6b8189;--accent:#0d7f8f;--warn:#b4552c;--ok:#2f6f48}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.55}
+.w{max-width:620px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:21px;margin:0 0 4px}h2{font-size:17px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.small{font-size:13px;color:var(--muted)}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+input,select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;font:inherit;background:#fff}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;background:var(--teal);color:#fff;
+  font:inherit;font-weight:600;font-size:15px;cursor:pointer;margin-top:14px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.err{color:var(--warn);font-size:13px;margin-top:8px;display:none}
+.hidden{display:none!important}
+/* bilah timer */
+.bar{position:sticky;top:0;z-index:9;background:rgba(241,247,248,.97);backdrop-filter:blur(4px);
+  border-bottom:1px solid var(--line);padding:9px 0;display:flex;align-items:center;gap:12px}
+#jam{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+#jam.kritis{color:var(--warn)}
+#posisi{font-size:13px;color:var(--muted)}
+.pill{margin-left:auto;font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 10px;background:#fff}
+/* soal */
+.stim{text-align:center;margin:6px 0 14px}
+.stim svg{max-width:100%;height:auto}
+.figural .stim svg,.spasial .stim svg{width:230px}
+.spasial .stim svg[viewBox^="0 0 268"],.spasial .stim svg[viewBox^="0 0 398"]{width:100%}
+.opsi{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.opsi.teks{flex-direction:column;flex-wrap:nowrap}
+.op{border:2px solid var(--line);background:#fcfdfd;border-radius:10px;cursor:pointer;
+  transition:.12s;display:flex;align-items:center;gap:9px;padding:9px 11px;font-size:14.5px}
+.op:active{transform:scale(.98)}
+.op.sel{border-color:var(--accent);background:#e8f4f6}
+.op .lab{font-weight:700;font-size:12.5px;color:var(--muted);min-width:15px}
+.op.sel .lab{color:var(--accent)}
+.opsi:not(.teks) .op{flex-direction:column;padding:6px;gap:2px}
+.opsi:not(.teks) .op svg{width:74px;height:74px}
+/* peta soal */
+.peta{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.peta b{width:27px;height:27px;border-radius:7px;border:1.5px solid var(--line);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+  color:var(--muted);cursor:pointer}
+.peta b.isi{background:var(--accent);border-color:var(--accent);color:#fff}
+.peta b.kini{outline:2px solid var(--teal);outline-offset:1px}
+.nav{display:flex;gap:8px;margin-top:14px}
+.nav .btn{margin-top:0}
+/* contoh */
+.contoh{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;background:#fafcfc}
+.contoh .jwb{margin-top:8px;font-size:13px;color:var(--ok);font-weight:600}
+.contoh .bhs{font-size:12.5px;color:var(--muted);margin-top:3px}
+.aturan{background:#fff8e8;border:1px solid #e8d9b4;border-radius:9px;padding:11px 13px;
+  font-size:13px;color:#6b5a35}
+#cam{position:fixed;width:1px;height:1px;opacity:.01;pointer-events:none;top:0;left:0}
+</style>
+</head>
+<body>
+<div class="w">
+
+<!-- ============ 1. GERBANG ============ -->
+<section id="s-gate">
+  <div class="card" style="text-align:center">
+    <div style="font-size:40px">🧠</div>
+    <h1>Tes Kemampuan Kognitif</h1>
+    <p class="small" id="gate-msg">Memeriksa tautan…</p>
+  </div>
+</section>
+
+<!-- ============ 2. BIODATA ============ -->
+<section id="s-bio" class="hidden">
+  <div class="card">
+    <h1>Tes Kemampuan Kognitif</h1>
+    <p class="small">Isi data berikut dengan benar sebelum memulai.</p>
+    <label for="i-nama">Nama lengkap</label>
+    <input id="i-nama" type="text" autocomplete="name" placeholder="Nama sesuai KTP">
+    <label for="i-telp">Nomor WhatsApp</label>
+    <input id="i-telp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="08xxxxxxxxxx">
+    <label for="i-usia">Usia</label>
+    <input id="i-usia" type="number" inputmode="numeric" placeholder="Contoh: 24">
+    <label for="i-pend">Pendidikan terakhir</label>
+    <select id="i-pend">
+      <option value="">— pilih —</option>
+      <option>SD / SMP</option><option>SMA / SMK</option>
+      <option>D1 / D2 / D3</option><option>S1</option><option>S2 ke atas</option>
+    </select>
+    <p class="err" id="e-bio"></p>
+    <button class="btn" id="b-bio">Lanjut</button>
+  </div>
+</section>
+
+<!-- ============ 3. INSTRUKSI UMUM ============ -->
+<section id="s-intro" class="hidden">
+  <div class="card">
+    <h2>Sebelum mulai</h2>
+    <div class="aturan">
+      <b>Tes ini terdiri dari 4 bagian.</b> Setiap bagian punya waktunya sendiri dan
+      berjalan terus tanpa jeda. Bila waktu habis, bagian itu tertutup otomatis dan
+      tidak bisa dibuka lagi.<br><br>
+      Di dalam satu bagian Anda <b>boleh</b> melewati soal sulit lalu kembali lagi.
+      Namun setelah pindah ke bagian berikutnya, Anda tidak bisa kembali.<br><br>
+      Jawaban tersimpan otomatis. Bila koneksi terputus, buka kembali tautan yang sama —
+      <b>tetapi jam tidak berhenti</b>, jadi kerjakan di tempat dengan sinyal yang stabil.<br><br>
+      Kerjakan sendiri tanpa alat bantu. Kamera depan akan mengambil foto beberapa kali
+      untuk memastikan tes dikerjakan oleh Anda.
+    </div>
+    <p class="small" style="margin-top:12px">Total waktu sekitar 38 menit termasuk instruksi.
+    Pastikan baterai cukup dan Anda tidak akan terganggu.</p>
+    <button class="btn" id="b-intro">Saya mengerti, mulai</button>
+  </div>
+</section>
+
+<!-- ============ 4. JEDA / INSTRUKSI SUBTES ============ -->
+<section id="s-jeda" class="hidden">
+  <div class="card">
+    <span class="pill" id="j-urut"></span>
+    <h2 id="j-judul"></h2>
+    <p class="small" id="j-desk"></p>
+    <div id="j-contoh"></div>
+    <p class="small" style="margin-top:12px" id="j-info"></p>
+    <button class="btn" id="b-mulai" disabled>Mulai bagian ini</button>
+  </div>
+</section>
+
+<!-- ============ 5. SUBTES ============ -->
+<section id="s-tes" class="hidden">
+  <div class="bar">
+    <span id="jam">–:–</span>
+    <span id="posisi"></span>
+    <span class="pill" id="nama-subtes"></span>
+  </div>
+  <div class="card" id="kotak-soal"></div>
+  <div class="nav">
+    <button class="btn ghost" id="b-prev">← Sebelumnya</button>
+    <button class="btn" id="b-next">Berikutnya →</button>
+  </div>
+  <div class="peta" id="peta"></div>
+  <button class="btn ghost" id="b-selesai-sub" style="margin-top:14px">Selesaikan bagian ini</button>
+</section>
+
+<!-- ============ 6. SELESAI ============ -->
+<section id="s-akhir" class="hidden">
+  <div class="card" style="text-align:center">
+    <div style="font-size:40px">✅</div>
+    <h1>Terima kasih</h1>
+    <p class="small" id="akhir-msg">Jawaban Anda sudah tersimpan.</p>
+    <p class="small">Hasil tes akan ditinjau oleh tim HRD Arcelio. Anda boleh menutup halaman ini.</p>
+  </div>
+</section>
+
+<video id="cam" autoplay muted playsinline></video>
+</div>
+
+<script>
+/* =======================================================================
+   Konfigurasi — isi dua baris di bawah, sama seperti berkas psikotes lain
+   ======================================================================= */
+const SUPABASE_URL = "https://sscfekaqpsrszgwnnbgz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzY2Zla2FxcHNyc3pnd25uYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNDg0NDksImV4cCI6MjA5ODcyNDQ0OX0.LL-2T2UPEQ7hKtFlc1TkeowzGZ-fSpQFQDvgpBwerYw";
+
+const CONTOH = {"figural": [{"teks": "Bentuk apa yang seharusnya mengisi kotak bertanda tanya?", "stim": "<svg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(0,0)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><circle cx=\"30\" cy=\"30\" r=\"17\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(70,0)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><circle cx=\"30\" cy=\"30\" r=\"17\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(140,0)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><circle cx=\"30\" cy=\"30\" r=\"17\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(0,70)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"16\" y=\"16\" width=\"29\" height=\"29\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(70,70)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"16\" y=\"16\" width=\"29\" height=\"29\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(140,70)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"16\" y=\"16\" width=\"29\" height=\"29\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(0,140)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><polygon points=\"30,13 46,43 14,43\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(70,140)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><polygon points=\"30,13 46,43 14,43\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></g><g transform=\"translate(140,140)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><text x=\"30\" y=\"41\" text-anchor=\"middle\" font-size=\"27\" fill=\"#a8a196\" font-family=\"Georgia,serif\">?</text></g></svg>", "opsi": ["<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><circle cx=\"30\" cy=\"30\" r=\"17\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"16\" y=\"16\" width=\"29\" height=\"29\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><polygon points=\"30,13 46,43 14,43\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><polygon points=\"30,13 47,30 30,47 13,30\" fill=\"none\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><polygon points=\"30,13 46,43 14,43\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"2\"/></svg>"], "kunci": 2, "tipe": "svg", "bahas": "Setiap baris berisi bentuk yang sama. Baris ketiga berisi segitiga kosong, jadi kotak yang hilang juga segitiga kosong."}, {"teks": "Gambar apa yang seharusnya mengisi kotak bertanda tanya?", "stim": "<svg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(0,0)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"26\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(70,0)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"20\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(140,0)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"14\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"26\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"38\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(0,70)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"20\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(70,70)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"14\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"26\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"38\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(140,70)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"8\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"20\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"44\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(0,140)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"14\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"26\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"38\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(70,140)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"8\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"20\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"44\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></g><g transform=\"translate(140,140)\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><text x=\"30\" y=\"41\" text-anchor=\"middle\" font-size=\"27\" fill=\"#a8a196\" font-family=\"Georgia,serif\">?</text></g></svg>", "opsi": ["<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"14\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"26\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"38\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"8\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"20\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"44\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"8\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"20\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"44\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"26\" y=\"32\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"8\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"20\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"44\" y=\"20\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"20\" y=\"32\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"32\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"20\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/><rect x=\"32\" y=\"26\" width=\"9\" height=\"9\" fill=\"#2b2b2b\" stroke=\"#2b2b2b\" stroke-width=\"1.5\"/></svg>"], "kunci": 2, "tipe": "svg", "bahas": "Jumlah kotak bertambah satu ke kanan dan satu ke bawah, sehingga sel terakhir berisi lima."}], "spasial": [{"teks": "Manakah yang merupakan hasil <b>pemutaran</b> gambar di atas, bukan bayangan cerminnya?", "stim": "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"18.0\" y=\"6.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"42.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/></svg>", "opsi": ["<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"18.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"6.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"42.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"18.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"6.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"42.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"6.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"42.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"18.0\" y=\"6.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"42.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/></svg>", "<svg viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"58\" height=\"58\" fill=\"none\" stroke=\"#d8d4cc\" stroke-width=\"1.5\" rx=\"5\"/><rect x=\"6.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"18.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"30.0\" y=\"30.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/><rect x=\"42.0\" y=\"18.0\" width=\"12\" height=\"12\" fill=\"#2b2b2b\" stroke=\"#ffffff\" stroke-width=\"1\"/></svg>"], "kunci": 1, "tipe": "svg", "bahas": "Gambar induk hanya diputar, tidak dibalik. Empat pilihan lain adalah bayangan cermin — urutan tonjolannya terbalik, dan itu tidak bisa dihasilkan dengan memutar."}, {"teks": "Kertas dilipat <b>satu kali</b> mengikuti urutan gambar, lalu dilubangi sekali. Bagaimana pola lubangnya setelah dibuka kembali?", "stim": "<svg viewBox=\"0 0 268 96\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(4,2)\"><rect x=\"2\" y=\"2\" width=\"66\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.6\" rx=\"2\"/><rect x=\"35\" y=\"2\" width=\"33\" height=\"66\" fill=\"#e6e1d7\" stroke=\"#2b2b2b\" stroke-width=\"1.6\" rx=\"2\"/><line x1=\"35\" y1=\"2\" x2=\"35\" y2=\"68\" stroke=\"#2b2b2b\" stroke-width=\"1.4\" stroke-dasharray=\"4 3\"/><path d=\"M58,14 q-16,-8 -30,0\" fill=\"none\" stroke=\"#8a5a2b\" stroke-width=\"1.6\"/><polygon points=\"27,14 33,10 33,18\" fill=\"#8a5a2b\"/></g><text x=\"39\" y=\"90\" font-size=\"9.5\" fill=\"#8a8378\" text-anchor=\"middle\" font-family=\"sans-serif\">kertas utuh</text><text x=\"79\" y=\"42\" font-size=\"17\" fill=\"#bdb5a6\">&#8594;</text><g transform=\"translate(88,2)\"><rect x=\"2\" y=\"2\" width=\"33\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.6\" rx=\"2\"/></g><text x=\"123\" y=\"90\" font-size=\"9.5\" fill=\"#8a8378\" text-anchor=\"middle\" font-family=\"sans-serif\">setelah dilipat</text><text x=\"163\" y=\"42\" font-size=\"17\" fill=\"#bdb5a6\">&#8594;</text><g transform=\"translate(172,2)\"><rect x=\"2\" y=\"2\" width=\"33\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.6\" rx=\"2\"/><circle cx=\"20\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/></g><text x=\"207\" y=\"90\" font-size=\"9.5\" fill=\"#8a8378\" text-anchor=\"middle\" font-family=\"sans-serif\">dilubangi</text></svg>", "opsi": ["<svg viewBox=\"0 0 70 70\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"2\" y=\"2\" width=\"66\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.8\" rx=\"2\"/><line x1=\"35.0\" y1=\"2\" x2=\"35.0\" y2=\"68\" stroke=\"#c3bcb0\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><circle cx=\"20\" cy=\"44\" r=\"5\" fill=\"#2b2b2b\"/><circle cx=\"50\" cy=\"44\" r=\"5\" fill=\"#2b2b2b\"/></svg>", "<svg viewBox=\"0 0 70 70\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"2\" y=\"2\" width=\"66\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.8\" rx=\"2\"/><line x1=\"35.0\" y1=\"2\" x2=\"35.0\" y2=\"68\" stroke=\"#c3bcb0\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><circle cx=\"20\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/><circle cx=\"50\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/></svg>", "<svg viewBox=\"0 0 70 70\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"2\" y=\"2\" width=\"66\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.8\" rx=\"2\"/><line x1=\"35.0\" y1=\"2\" x2=\"35.0\" y2=\"68\" stroke=\"#c3bcb0\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><circle cx=\"30\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/><circle cx=\"40\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/></svg>", "<svg viewBox=\"0 0 70 70\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"2\" y=\"2\" width=\"66\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.8\" rx=\"2\"/><line x1=\"35.0\" y1=\"2\" x2=\"35.0\" y2=\"68\" stroke=\"#c3bcb0\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><circle cx=\"20\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/></svg>", "<svg viewBox=\"0 0 70 70\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"2\" y=\"2\" width=\"66\" height=\"66\" fill=\"#fdfcfa\" stroke=\"#2b2b2b\" stroke-width=\"1.8\" rx=\"2\"/><line x1=\"35.0\" y1=\"2\" x2=\"35.0\" y2=\"68\" stroke=\"#c3bcb0\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><circle cx=\"12\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/><circle cx=\"58\" cy=\"22\" r=\"5\" fill=\"#2b2b2b\"/></svg>"], "kunci": 1, "tipe": "svg", "bahas": "Satu lipatan menghasilkan satu sumbu cermin, sehingga satu lubang menjadi dua lubang yang saling bercermin terhadap garis lipatan, pada ketinggian yang sama."}], "numerik": [{"teks": "Tentukan bilangan berikutnya:<br><b>2 &nbsp; 4 &nbsp; 6 &nbsp; 8 &nbsp; …</b>", "stim": null, "opsi": ["9", "10", "11", "12", "14"], "kunci": 1, "tipe": "teks", "bahas": "Setiap bilangan bertambah 2."}, {"teks": "Sebuah kardus berisi 24 botol. Berapa botol dalam <b>3</b> kardus?", "stim": null, "opsi": ["64", "68", "70", "72", "76"], "kunci": 3, "tipe": "teks", "bahas": "24 dikalikan 3 sama dengan 72."}], "verbal": [{"teks": "<b>PISAU</b> : <b>MEMOTONG</b> = <b>PALU</b> : …", "stim": null, "opsi": ["Besi", "Paku", "Memukul", "Tukang", "Kayu"], "kunci": 2, "tipe": "teks", "bahas": "Hubungannya alat dengan kegunaannya. Paku adalah benda yang dikenai, bukan kegunaan."}, {"teks": "Semua <b>MIRAK</b> adalah <b>TULEN</b>.<br>Tidak ada <b>TULEN</b> yang merupakan <b>PARBU</b>.<br>Manakah yang <b>pasti benar</b>?", "stim": null, "opsi": ["Semua PARBU adalah MIRAK", "Sebagian MIRAK adalah PARBU", "Tidak ada MIRAK yang merupakan PARBU", "Semua TULEN adalah MIRAK", "Tidak dapat ditentukan"], "kunci": 2, "tipe": "teks", "bahas": "Seluruh MIRAK ada di dalam TULEN, sedangkan TULEN sama sekali terpisah dari PARBU. Maka MIRAK pun pasti terpisah dari PARBU."}]};
+
+const SUBTES = [
+  {id:"figural", nama:"Pola Gambar",
+   desk:"Temukan aturan yang mengatur susunan gambar, lalu tentukan isi kotak yang bertanda tanya. Tidak ada kata atau angka yang perlu diketahui sebelumnya."},
+  {id:"numerik", nama:"Bilangan",
+   desk:"Penalaran dengan angka. Semua soal dapat dikerjakan dengan tambah, kurang, kali, bagi, pecahan sederhana, dan persen."},
+  {id:"spasial", nama:"Ruang dan Bentuk",
+   desk:"Bayangkan bentuk diputar, dicerminkan, atau dilipat — tanpa perlu menggambarnya di kertas."},
+  {id:"verbal", nama:"Kata dan Logika",
+   desk:"Hubungan antar kata dan penalaran logis. Semua kata adalah kata sehari-hari, atau sengaja dibuat tanpa arti agar tidak bisa ditebak dari pengetahuan."},
+];
+const LET = ["A","B","C","D","E"];
+const $ = s => document.querySelector(s);
+
+let tokenRow = null, bio = {}, iSub = 0;
+let sesi = null;          // { subtes, durasi_detik, started_at, soal[] }
+let jawab = {}, iSoal = 0, tick = null, simpanTimer = null, dirty = false;
+let camStream = null, fotoSudah = {};
+
+/* ---------- pemanggil API ---------- */
+async function sb(path, body){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method:"POST",
+    headers:{apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`,
+             "Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+  const txt = await res.text();
+  if(!res.ok) throw new Error(txt.slice(0,200));
+  return txt ? JSON.parse(txt) : null;
+}
+function tampil(id){
+  ["s-gate","s-bio","s-intro","s-jeda","s-tes","s-akhir"]
+    .forEach(x => $("#"+x).classList.toggle("hidden", x !== id));
+  window.scrollTo({top:0});
+}
+function gagal(pesan){ $("#gate-msg").innerHTML = pesan; tampil("s-gate"); }
+
+/* ---------- pengacakan urutan opsi, tetap sama saat dimuat ulang ---------- */
+function seedDari(str){
+  let h = 2166136261;
+  for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h,16777619); }
+  return h >>> 0;
+}
+const permCache = {};
+function urutanOpsi(itemId, n){
+  if(permCache[itemId]) return permCache[itemId];
+  let s = seedDari((tokenRow?tokenRow.token:"x") + "|" + itemId);
+  const rnd = () => { s = (s*1664525 + 1013904223) >>> 0; return s/4294967296; };
+  const p = Array.from({length:n},(_,k)=>k);
+  for(let k=n-1;k>0;k--){ const j = Math.floor(rnd()*(k+1)); [p[k],p[j]]=[p[j],p[k]]; }
+  permCache[itemId] = p; return p;
+}
+
+/* ---------- gerbang ---------- */
+(async function init(){
+  if(SUPABASE_URL.startsWith("ISI_")) return gagal("Aplikasi belum dikonfigurasi. Administrator: isi SUPABASE_URL dan SUPABASE_KEY di bagian atas berkas ini.");
+  const tok = new URLSearchParams(location.search).get("t");
+  if(!tok) return gagal("Tautan tidak lengkap. Gunakan tautan undangan yang dikirim HRD.");
+  let rows;
+  try { rows = await sb("rpc/ambil_token", { p_token: tok }); }
+  catch(e){ return gagal("Gagal menghubungi server. Periksa koneksi Anda, lalu muat ulang halaman."); }
+  const r = Array.isArray(rows) ? rows[0] : rows;
+  if(!r) return gagal("Tautan tidak dikenal. Hubungi HRD Arcelio.");
+  if(r.jenis !== "kognitif") return gagal("Tautan ini bukan untuk Tes Kemampuan Kognitif.");
+  if(r.status === "selesai") return gagal("Tes ini sudah pernah diselesaikan. Terima kasih.");
+  if(new Date(r.expires_at) < new Date() && r.status === "baru")
+    return gagal("Masa berlaku tautan sudah habis. Hubungi HRD untuk tautan baru.");
+  tokenRow = r;
+  if(r.status === "dipakai" && r.progress){        // lanjutkan sesi yang terputus
+    bio = r.progress.bio || {};
+    iSub = r.progress.iSub || 0;
+    tampil("s-jeda"); siapkanJeda();
+    nyalakanKamera();
+  } else {
+    tampil("s-bio");
+  }
+})();
+
+/* ---------- biodata ---------- */
+$("#b-bio").onclick = async () => {
+  const nama = $("#i-nama").value.trim(), telp = $("#i-telp").value.trim();
+  const usia = $("#i-usia").value.trim(), pend = $("#i-pend").value;
+  if(nama.length < 3 || telp.length < 8 || !usia || !pend){
+    $("#e-bio").textContent = "Lengkapi semua isian terlebih dahulu.";
+    $("#e-bio").style.display = "block"; return;
+  }
+  bio = { nama, telepon:telp, usia, pendidikan:pend };
+  tampil("s-intro");
+};
+
+$("#b-intro").onclick = async () => {
+  try {
+    const rows = await sb("rpc/klaim_token", { p_token: tokenRow.token, p_progress: {bio, iSub:0} });
+    const r = Array.isArray(rows) ? rows[0] : rows;
+    if(!r) return gagal("Tautan sudah dipakai atau kedaluwarsa.");
+    tokenRow = r;
+  } catch(e){ return gagal("Gagal memulai tes. Muat ulang halaman dan coba lagi."); }
+  nyalakanKamera();
+  ambilFoto("mulai");
+  iSub = 0; tampil("s-jeda"); siapkanJeda();
+};
+
+/* ---------- layar jeda ---------- */
+function siapkanJeda(){
+  const s = SUBTES[iSub];
+  $("#j-urut").textContent = `Bagian ${iSub+1} dari ${SUBTES.length}`;
+  $("#j-judul").textContent = s.nama;
+  $("#j-desk").textContent = s.desk;
+  $("#j-contoh").innerHTML = "<p class='small' style='margin-top:12px'><b>Contoh soal beserta jawabannya:</b></p>" +
+    CONTOH[s.id].map(c => {
+      const ops = c.opsi.map((o,i) =>
+        `<div class="op${i===c.kunci?" sel":""}"><span class="lab">${LET[i]}</span>${c.tipe==="svg"?o:`<span>${o}</span>`}</div>`).join("");
+      return `<div class="contoh ${s.id}"><div style="font-size:14px">${c.teks}</div>
+        ${c.stim?`<div class="stim">${c.stim}</div>`:""}
+        <div class="opsi ${c.tipe==="teks"?"teks":""}">${ops}</div>
+        <div class="jwb">Jawaban: ${LET[c.kunci]}</div><div class="bhs">${c.bahas}</div></div>`;
+    }).join("");
+  $("#j-info").textContent = "Baca contoh di atas sampai paham. Waktu bagian ini baru berjalan setelah Anda menekan tombol di bawah.";
+  const b = $("#b-mulai"); b.disabled = true;
+  let sisa = 20;
+  b.textContent = `Mulai bagian ini (${sisa})`;
+  const t = setInterval(() => {
+    sisa--;
+    if(sisa <= 0){ clearInterval(t); b.disabled = false; b.textContent = "Mulai bagian ini"; }
+    else b.textContent = `Mulai bagian ini (${sisa})`;
+  }, 1000);
+  setTimeout(() => { if(!$("#s-jeda").classList.contains("hidden")) b.click(); }, 90000);
+}
+
+$("#b-mulai").onclick = async () => {
+  const s = SUBTES[iSub];
+  try {
+    sesi = await sb("rpc/kognitif_ambil_soal", { p_token: tokenRow.token, p_subtes: s.id });
+  } catch(e){ alert("Gagal memuat soal: " + e.message); return; }
+  if(sesi.terkunci){ lanjutSubtes(); return; }
+  jawab = {}; iSoal = 0; permCache.__ = null;
+  tampil("s-tes"); $("#s-tes").className = s.id;
+  $("#nama-subtes").textContent = s.nama;
+  gambarSoal(); jalankanJam();
+  simpanTimer = setInterval(simpanProgres, 15000);
+};
+
+/* ---------- jam, berjangkar pada waktu server ---------- */
+function jalankanJam(){
+  clearInterval(tick);
+  tick = setInterval(() => {
+    const lewat = (Date.now() - new Date(sesi.started_at).getTime())/1000;
+    let sisa = Math.max(0, Math.round(sesi.durasi_detik - lewat));
+    const m = Math.floor(sisa/60), d = String(sisa%60).padStart(2,"0");
+    const el = $("#jam"); el.textContent = `${m}:${d}`;
+    el.className = sisa <= 60 ? "kritis" : "";
+    if(sisa <= 0){ clearInterval(tick); kirimSubtes(true); }
+  }, 250);
+}
+
+/* ---------- gambar soal ---------- */
+function gambarSoal(){
+  const q = sesi.soal[iSoal];
+  const ord = urutanOpsi(q.id, q.opsi.length);
+  const svg = q.opsi_tipe === "svg";
+  $("#posisi").textContent = `Soal ${iSoal+1}/${sesi.soal.length}`;
+  $("#kotak-soal").innerHTML =
+    (q.teks ? `<div style="font-size:15px;margin-bottom:6px">${q.teks}</div>` : "") +
+    (q.svg ? `<div class="stim">${q.svg}</div>` : "") +
+    `<div class="opsi ${svg?"":"teks"}">` +
+    ord.map((oi,pos) =>
+      `<div class="op${jawab[q.id]===oi?" sel":""}" data-oi="${oi}">
+         <span class="lab">${LET[pos]}</span>${svg?q.opsi[oi]:`<span>${q.opsi[oi]}</span>`}</div>`).join("") +
+    `</div>`;
+  $("#kotak-soal").querySelectorAll(".op").forEach(el => {
+    el.onclick = () => {
+      jawab[q.id] = +el.dataset.oi; dirty = true;
+      $("#kotak-soal").querySelectorAll(".op").forEach(x => x.classList.toggle("sel", x===el));
+      gambarPeta();
+      setTimeout(() => { if(iSoal < sesi.soal.length-1){ iSoal++; gambarSoal(); } }, 180);
+    };
+  });
+  $("#b-prev").disabled = iSoal === 0;
+  $("#b-next").disabled = iSoal === sesi.soal.length-1;
+  gambarPeta();
+  cekFoto();
+}
+function gambarPeta(){
+  $("#peta").innerHTML = sesi.soal.map((q,i) =>
+    `<b class="${jawab[q.id]!==undefined?"isi":""}${i===iSoal?" kini":""}" data-i="${i}">${i+1}</b>`).join("");
+  $("#peta").querySelectorAll("b").forEach(el =>
+    el.onclick = () => { iSoal = +el.dataset.i; gambarSoal(); });
+}
+$("#b-prev").onclick = () => { if(iSoal>0){ iSoal--; gambarSoal(); } };
+$("#b-next").onclick = () => { if(iSoal<sesi.soal.length-1){ iSoal++; gambarSoal(); } };
+
+$("#b-selesai-sub").onclick = () => {
+  const kosong = sesi.soal.filter(q => jawab[q.id]===undefined).length;
+  const pesan = kosong ? `Masih ada ${kosong} soal yang belum dijawab. ` : "";
+  if(confirm(pesan + "Setelah bagian ini ditutup Anda tidak bisa kembali. Lanjutkan?")) kirimSubtes(false);
+};
+
+/* ---------- simpan & kirim ---------- */
+async function simpanProgres(){
+  if(!dirty || !sesi) return;
+  dirty = false;
+  try { await sb("rpc/kognitif_simpan_progres",
+        { p_token: tokenRow.token, p_subtes: sesi.subtes, p_progres: jawab }); } catch(e){}
+}
+async function kirimSubtes(habis){
+  clearInterval(tick); clearInterval(simpanTimer);
+  const isi = sesi.soal.map(q => ({ item_id:q.id, pilihan: jawab[q.id] ?? null, waktu_ms: null }));
+  try {
+    await sb("rpc/kognitif_kirim_jawaban",
+      { p_token: tokenRow.token, p_subtes: sesi.subtes, p_jawaban: isi });
+  } catch(e){
+    if(!/sudah ditutup|sudah habis/.test(e.message)){
+      alert("Gagal mengirim jawaban: " + e.message + "\nCoba lagi.");
+      jalankanJam(); return;
+    }
+  }
+  if(habis) alert("Waktu untuk bagian ini sudah habis. Anda akan lanjut ke bagian berikutnya.");
+  lanjutSubtes();
+}
+async function lanjutSubtes(){
+  iSub++;
+  try { await sb("rpc/simpan_progress", { p_token: tokenRow.token, p_progress: {bio, iSub} }); } catch(e){}
+  if(iSub < SUBTES.length){ tampil("s-jeda"); siapkanJeda(); }
+  else selesaiSemua();
+}
+async function selesaiSemua(){
+  ambilFoto("selesai");
+  tampil("s-akhir");
+  try {
+    await sb("rpc/kognitif_selesai", { p_token: tokenRow.token, p: bio });
+  } catch(e){
+    $("#akhir-msg").innerHTML = "Jawaban Anda tersimpan, tetapi penilaian akhir gagal dikirim. "
+      + "Mohon beri tahu HRD dengan menyebut nama Anda.";
+  }
+}
+
+/* ---------- verifikasi kamera ---------- */
+async function nyalakanKamera(){
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640}});
+    $("#cam").srcObject = camStream;
+  } catch(e){ camStream = null; }
+}
+async function ambilFoto(tahap){
+  if(!camStream || fotoSudah[tahap]) return;
+  const v = $("#cam");
+  if(!v.videoWidth) return setTimeout(() => ambilFoto(tahap), 1500);
+  try {
+    const sk = 480 / Math.max(v.videoWidth, v.videoHeight);
+    const c = document.createElement("canvas");
+    c.width = Math.round(v.videoWidth*Math.min(1,sk));
+    c.height = Math.round(v.videoHeight*Math.min(1,sk));
+    c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+    await sb("rpc/kirim_foto", { p_token: tokenRow.token, p_tahap: tahap,
+      p_foto: c.toDataURL("image/jpeg",0.7), p_perangkat: sidik() });
+    fotoSudah[tahap] = true;
+  } catch(e){}
+}
+function cekFoto(){
+  const kunci = "sub" + iSub + "_" + (iSoal === Math.floor(sesi.soal.length/2) ? "tengah" : "");
+  if(iSoal === Math.floor(sesi.soal.length/2)) ambilFoto(kunci);
+}
+function sidik(){
+  return [navigator.userAgent, screen.width+"x"+screen.height,
+          Intl.DateTimeFormat().resolvedOptions().timeZone].join(" | ").slice(0,300);
+}
+window.addEventListener("beforeunload", e => {
+  if(sesi && !$("#s-tes").classList.contains("hidden")){ e.preventDefault(); e.returnValue = ""; }
+});
+</script>
+</body>
+</html>

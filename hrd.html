@@ -256,6 +256,7 @@ a.btn.wa-sudah{background:#EDF1F0 !important;border-color:#B9C4C0 !important;col
               <option value="karakter" selected>Psikotes Karakter (80 item)</option>
               <option value="spv">Tes Jenjang SPV (30 soal)</option>
               <option value="manager">Tes Jenjang Manager (30 soal)</option>
+              <option value="kognitif">Tes Kemampuan Kognitif (54 soal)</option>
             </select></div>
           <div id="tk-posisi-wrap"><label class="f">Posisi</label><select id="tk-posisi"></select></div>
           <div><label class="f">Durasi tes</label>
@@ -1132,7 +1133,12 @@ document.addEventListener("click", e=>{
 });
 new MutationObserver(terapkanWaSudah).observe(document.body, { childList:true, subtree:true });
 
-function jenisNama(j){ return !j||j==="karakter" ? "Psikotes Karakter" : (j==="spv" ? "Tes Jenjang SPV" : "Tes Jenjang Manager"); }
+function jenisNama(j){
+  if(!j || j==="karakter") return "Psikotes Karakter";
+  if(j==="spv")            return "Tes Jenjang SPV";
+  if(j==="kognitif")       return "Tes Kemampuan Kognitif";
+  return "Tes Jenjang Manager";
+}
 function namaPosisiIv(){
   if(ivState.posisiKey==="jenjang-spv") return "Supervisor (Tes Jenjang)";
   if(ivState.posisiKey==="jenjang-manager") return "Manager (Tes Jenjang)";
@@ -1196,9 +1202,13 @@ function archetypeOf(dims){
 }
 function flagsOf(r){ return FLAG_RULES.filter(f=>f.cond(r)); }
 function fmtTgl(iso){ return new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
-function tesLink(token){
+function tesLink(token, jenis){
   const base = location.origin + location.pathname.replace(/[^/]*$/,"");
-  return base + "index.html?t=" + encodeURIComponent(token);
+  if(jenis === undefined){
+    const t = (tokens||[]).find(x=>x.token===token); jenis = t && t.jenis;
+  }
+  const berkas = jenis === "kognitif" ? "kognitif.html" : "index.html";
+  return base + berkas + "?t=" + encodeURIComponent(token);
 }
 /* ---------- kunci token setelah disalin sekali — TERSIMPAN DI DATABASE, berlaku di SEMUA perangkat ---------- */
 let tokenTerkunciSementara = {};   // cache lokal utk token yg baru dibuat (belum sempat masuk array `tokens`)
@@ -1264,6 +1274,7 @@ function copyText(txt, btn, orig, tokenUtkKunci){
   $("#tk-jenis").addEventListener("change", ()=>{
     const j = $("#tk-jenis").value;
     if(j === "karakter"){ $("#tk-durasi").value = "25"; $("#tk-posisi").disabled = false; }
+    else if(j === "kognitif"){ $("#tk-durasi").value = "45"; $("#tk-posisi").disabled = false; }
     else { $("#tk-durasi").value = "40"; $("#tk-posisi").disabled = true; }
   });
   $("#btn-buat-token").addEventListener("click", buatToken);
@@ -1296,7 +1307,7 @@ function genCode(){
 }
 async function buatToken(){
   const jenis = $("#tk-jenis").value;
-  const posisi = jenis === "karakter" ? ($("#tk-posisi").value || null) : null;
+  const posisi = (jenis === "karakter" || jenis === "kognitif") ? ($("#tk-posisi").value || null) : null;
   const durasi = +$("#tk-durasi").value;
   const menitBerlaku = +$("#tk-berlaku").value;
   const jumlah = +$("#tk-jumlah").value;
@@ -1332,7 +1343,7 @@ async function buatToken(){
   btn.disabled = false; btn.textContent = "＋ Buat Token";
 }
 function waMsg(t){
-  return `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token)}\n\n⏳ *PENTING: tautan ini HANYA AKTIF sampai ${fmtTgl(t.expires_at)}* — mohon segera dibuka dan dikerjakan sekarang juga, karena setelah itu tautan akan hangus.\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
+  return `Halo! Berikut tautan ${jenisNama(t.jenis)} Arcelio Aquapark untuk Anda:\n${tesLink(t.token, t.jenis)}\n\n⏳ *PENTING: tautan ini HANYA AKTIF sampai ${fmtTgl(t.expires_at)}* — mohon segera dibuka dan dikerjakan sekarang juga, karena setelah itu tautan akan hangus.\n\nKetentuan:\n• Tautan hanya bisa dipakai 1 kali\n• Waktu pengerjaan ${t.durasi_menit} menit, berjalan sejak tombol Mulai ditekan\n• Kerjakan di tempat tenang dengan sinyal stabil\n\nSelamat mengerjakan!`;
 }
 function waHref(t){ return "https://wa.me/?text="+encodeURIComponent(waMsg(t)); }
 async function loadTokens(){
@@ -1410,6 +1421,18 @@ function renderHasilList(){
   if(list.length===0){ $("#hasil-list").innerHTML = '<p class="small" style="margin-top:10px">Belum ada hasil tes masuk.</p>'; return; }
   $("#hasil-list").innerHTML = list.map(h=>{
     const r = h.hasil;
+    if(h.jenis === "kognitif"){
+      const pt = r.item_total ? Math.round(r.benar_total/r.item_total*100) : 0;
+      const chipsK = [
+        `<span class="chip c-teal">🧠 Kognitif · ${r.benar_total??"?"}/${r.item_total??"?"} (${pt}%)</span>`,
+        (h.status_kerja==="karyawan")?`<span class="chip c-teal">👷 Karyawan</span>`:"",
+        h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:""
+      ].join("");
+      return `<div class="hasil-row">
+        <div><b>${h.nama}</b><div class="meta">${h.pendidikan||"—"} · ${fmtTgl(h.created_at)}</div>
+        <div class="chips">${chipsK}</div></div>
+        <button class="btn small-btn" onclick="bukaHasil('${h.id}')">Lihat</button></div>`;
+    }
     if(h.jenis && h.jenis !== "karakter"){
       const chipsJ = [
         `<span class="chip c-teal">🧭 ${jenisNama(h.jenis)} · ${r.skor}%</span>`,
@@ -1510,6 +1533,7 @@ async function muatFoto(token){
 }
 
 function renderDetail(){
+  if(cur.jenis === "kognitif"){ renderDetailKognitif(); return; }
   if(cur.jenis && cur.jenis !== "karakter"){ renderDetailJenjang(); return; }
   const r = cur.hasil;
   const dims = r.dims;
@@ -2220,6 +2244,56 @@ function kartuPotensi(dims, r){
 /* ============================================================
    LEMBAR HASIL TES JENJANG (SPV / MANAGER)
    ============================================================ */
+const SUB_NAMA = {figural:"Pola Gambar", numerik:"Bilangan",
+                  spasial:"Ruang dan Bentuk", verbal:"Kata dan Logika"};
+function renderDetailKognitif(){
+  const r = cur.hasil || {};
+  const sub = r.subtes || {};
+  const baris = Object.keys(SUB_NAMA).filter(k=>sub[k]).map(k=>{
+    const d = sub[k];
+    return `<tr><td>${SUB_NAMA[k]}</td><td style="text-align:right">${d.benar} / ${d.total}</td>
+            <td style="text-align:right"><b>${d.persen}%</b></td></tr>`;
+  }).join("");
+  const persenTotal = r.item_total ? Math.round(r.benar_total / r.item_total * 100) : 0;
+  $("#hasil-detail").innerHTML = `
+    <div class="card no-print">
+      <button class="btn small-btn ghost" id="btn-tutup-detail">← Kembali ke daftar</button>
+    </div>
+    <div class="card">
+      <h2>${cur.nama}</h2>
+      <p class="small">${jenisNama(cur.jenis)} · ${cur.usia?cur.usia+" th · ":""}${cur.pendidikan||"pendidikan tidak diisi"}
+        · ${cur.telepon||"—"} · ${fmtTgl(cur.created_at)}</p>
+      <div class="big" style="margin-top:12px">
+        <div><div class="n">${r.benar_total ?? "—"}/${r.item_total ?? "—"}</div><div class="l">Jawaban benar</div></div>
+        <div><div class="n">${persenTotal}%</div><div class="l">Skor mentah</div></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:14px">
+        <tr><th style="text-align:left">Subtes</th><th style="text-align:right">Benar</th><th style="text-align:right">Persen</th></tr>
+        ${baris}
+      </table>
+      <div style="margin-top:14px;background:#fff8e8;border:1px solid #e8d9b4;border-radius:9px;padding:11px 13px;font-size:13px;color:#6b5a35">
+        <b>Angka ini skor mentah, bukan IQ.</b> Norma internal belum terbentuk, sehingga persentil
+        belum dapat dihitung. Gunakan hanya untuk membandingkan pelamar pada posisi yang sama,
+        dan jangan memakai selisih kecil sebagai dasar keputusan.
+      </div>
+    </div>
+    <div class="card no-print" id="foto-wrap"><h2>Verifikasi Kamera</h2><div id="foto-list"><p class="small">Memuat…</p></div></div>
+    <div class="card no-print">
+      <h2>Aksi</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn small-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
+        <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;border:1.5px solid #dfe6e9;border-radius:8px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="chk-karyawan" style="width:16px;height:16px;margin:0" ${cur.status_kerja==="karyawan"?"checked":""}>
+          <span>Sudah dipekerjakan</span>
+        </label>
+      </div>
+    </div>`;
+  $("#btn-tutup-detail").addEventListener("click", tutupDetail);
+  $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
+  { const ck = $("#chk-karyawan"); if(ck) ck.addEventListener("change", ()=>ubahStatusKerja(ck)); }
+  muatFoto(cur.token);
+}
 function renderDetailJenjang(){
   const r = cur.hasil;
   const b = J_BANK[cur.jenis];

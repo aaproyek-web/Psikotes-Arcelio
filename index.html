@@ -758,9 +758,19 @@ function gate(emo, title, msg){
     return;
   }
   let rows;
+  // Pengaman: token Tes Kemampuan Kognitif memakai berkas tersendiri.
+  // Kalau pelamar terlanjur membuka tautan ini, alihkan tanpa membuang waktunya.
+  function alihkanKalauKognitif(row){
+    if(row && row.jenis === "kognitif"){
+      location.replace("kognitif.html?t=" + encodeURIComponent(row.token));
+      return true;
+    }
+    return false;
+  }
   try { rows = await sb("rpc/ambil_token", { method:"POST", body: JSON.stringify({ p_token: tok }) }); }
   catch(e){ gate("📡","Gagal terhubung","Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu muat ulang halaman."); return; }
   if (!rows || rows.length === 0) { gate("❌","Tautan tidak valid","Kode undangan tidak ditemukan. Pastikan tautan disalin lengkap, atau hubungi HRD."); return; }
+  if(alihkanKalauKognitif(rows[0])) return;
   tokenRow = rows[0];
   MODE = tokenRow.jenis || "karakter";
   if (MODE !== "karakter") {
