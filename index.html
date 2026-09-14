@@ -1164,6 +1164,36 @@ function isAnswered(i){
   }
   return answers[i] > 0;
 }
+/* ---------- pengacakan urutan opsi (deterministik per token) ----------
+   Hanya TAMPILAN yang diacak. Nilai yang disimpan di answers[] tetap indeks
+   asli sesuai urutan di J_BANK, sehingga computeJenjang() dan kolom jawaban
+   (audit) tidak terpengaruh sama sekali. Seed diambil dari token supaya
+   urutan tetap sama setelah reload / pemulihan sesi. */
+function _seedDari(str){
+  let h = 2166136261;
+  for(let i = 0; i < str.length; i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+const _permCache = {};
+/* Mengembalikan array: urutan-tampil -> indeks-asli.
+   Contoh [2,0,3,1] berarti opsi yang tampil sebagai "A" adalah opsi asli ke-3. */
+function urutanOpsi(i, n){
+  const key = MODE + ":" + i + ":" + n;
+  if(_permCache[key]) return _permCache[key];
+  let s = _seedDari(((tokenRow && tokenRow.token) || "x") + "|" + MODE + "|" + i);
+  const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  const p = Array.from({length: n}, (_, k) => k);
+  for(let k = n - 1; k > 0; k--){
+    const j = Math.floor(rnd() * (k + 1));
+    [p[k], p[j]] = [p[j], p[k]];
+  }
+  _permCache[key] = p;
+  return p;
+}
+
 function renderJenjangItem(div, i){
   const q = jItem(i);
   const huruf = ["A","B","C","D"];
@@ -1173,9 +1203,9 @@ function renderJenjangItem(div, i){
       <div class="no">SOAL ${i+1} DARI ${answers.length} · SKENARIO</div>
       <div class="stmt">${q.t}</div>
       <p class="jj-hint">Pilih satu <b class="tb">✔ PALING TEPAT</b> dan satu <b class="tw">✘ PALING KELIRU</b></p>
-      ${q.o.map((op,oi)=>`
+      ${urutanOpsi(i, q.o.length).map((oi,pos)=>`
         <div class="opt-row ${bi===oi+1?"is-b":""} ${wi===oi+1?"is-w":""}">
-          <div class="opt-t"><b>${huruf[oi]}.</b>${op.t}</div>
+          <div class="opt-t"><b>${huruf[pos]}.</b>${q.o[oi].t}</div>
           <div class="pick">
             <button type="button" class="pb ${bi===oi+1?"on":""}" data-oi="${oi+1}" data-role="b">✔ Tepat</button>
             <button type="button" class="pw ${wi===oi+1?"on":""}" data-oi="${oi+1}" data-role="w">✘ Keliru</button>
@@ -1200,8 +1230,8 @@ function renderJenjangItem(div, i){
     div.innerHTML = `
       <div class="no">SOAL ${i+1} DARI ${answers.length} · HITUNGAN</div>
       <div class="stmt">${q.t}</div>
-      <div class="opts">${q.o.map((op,oi)=>
-        `<button type="button" data-v="${oi+1}" class="${answers[i]===oi+1?"sel":""}"><b>${huruf[oi]}.</b>${op}</button>`).join("")}</div>`;
+      <div class="opts">${urutanOpsi(i, q.o.length).map((oi,pos)=>
+        `<button type="button" data-v="${oi+1}" class="${answers[i]===oi+1?"sel":""}"><b>${huruf[pos]}.</b>${q.o[oi]}</button>`).join("")}</div>`;
     div.querySelectorAll(".opts button").forEach(bt=>{
       bt.addEventListener("click", ()=>{
         answers[i] = +bt.dataset.v;
