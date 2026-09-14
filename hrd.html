@@ -307,6 +307,11 @@ a.btn.wa-sudah{background:#EDF1F0 !important;border-color:#B9C4C0 !important;col
           <div class="filters no-print">
             <input type="text" id="h-cari" placeholder="Cari nama…" style="max-width:220px">
             <select id="h-posisi"></select>
+            <select id="h-status">
+              <option value="">Calon &amp; karyawan</option>
+              <option value="calon">Hanya calon karyawan</option>
+              <option value="karyawan">Hanya karyawan</option>
+            </select>
             <button class="btn small-btn ghost" id="btn-h-refresh">↻ Muat ulang</button>
           </div>
           <div id="hasil-list"><p class="small" style="margin-top:10px">Memuat…</p></div>
@@ -1267,6 +1272,7 @@ function copyText(txt, btn, orig, tokenUtkKunci){
   $("#btn-h-refresh").addEventListener("click", loadHasil);
   $("#h-cari").addEventListener("input", renderHasilList);
   $("#h-posisi").addEventListener("change", renderHasilList);
+  $("#h-status").addEventListener("change", renderHasilList);
   $("#btn-rank-refresh").addEventListener("click", loadRank);
   $("#f-posisi").addEventListener("change", renderRankTable);
   $("#f-periode").addEventListener("change", renderRankTable);
@@ -1379,10 +1385,28 @@ async function loadHasil(){
   catch(e){ $("#hasil-list").innerHTML = `<p class="small">Gagal memuat: ${e.message}</p>`; return; }
   renderHasilList();
 }
+async function ubahStatusKerja(el){
+  const baru = el.checked ? "karyawan" : "calon";
+  el.disabled = true;
+  try{
+    await sb(`psikotes_hasil?id=eq.${cur.id}`, { method:"PATCH",
+      body: JSON.stringify({ status_kerja: baru, status_diubah_at: new Date().toISOString() }) });
+    cur.status_kerja = baru;
+    const i = hasil.findIndex(h => h.id === cur.id);
+    if(i >= 0) hasil[i].status_kerja = baru;
+    renderHasilList();
+  }catch(e){
+    el.checked = !el.checked;                 // kembalikan ke keadaan semula
+    alert("Gagal menyimpan status: " + e.message);
+  }
+  el.disabled = false;
+}
 function renderHasilList(){
   const q = $("#h-cari").value.trim().toLowerCase();
   const fp = $("#h-posisi").value;
-  const list = hasil.filter(h=>(!q || h.nama.toLowerCase().includes(q)) && (!fp || h.posisi_key===fp));
+  const fs = $("#h-status").value;
+  const list = hasil.filter(h=>(!q || h.nama.toLowerCase().includes(q)) && (!fp || h.posisi_key===fp)
+                             && (!fs || (h.status_kerja||"calon")===fs));
   if(list.length===0){ $("#hasil-list").innerHTML = '<p class="small" style="margin-top:10px">Belum ada hasil tes masuk.</p>'; return; }
   $("#hasil-list").innerHTML = list.map(h=>{
     const r = h.hasil;
@@ -1394,7 +1418,8 @@ function renderHasilList(){
       r.bersediaMess==="tidak"?`<span class="chip c-amber">🏠 tidak bersedia mess</span>`:"",
       r.gajiHarapan?`<span class="chip c-teal">💰 ${r.gajiHarapan}</span>`:"",
         (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
-        h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
+        (h.status_kerja==="karyawan")?`<span class="chip c-teal">👷 Karyawan</span>`:"",
+      h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
       ].join("");
       return `<div class="hasil-row">
         <div>
@@ -1417,6 +1442,7 @@ function renderHasilList(){
       r.bersediaMess==="tidak"?`<span class="chip c-amber">🏠 tidak bersedia mess</span>`:"",
       r.gajiHarapan?`<span class="chip c-teal">💰 ${r.gajiHarapan}</span>`:"",
       (r.keluarLayar||0)>=3?`<span class="chip c-red">👀 keluar layar ${r.keluarLayar}×</span>`:"",
+      (h.status_kerja==="karyawan")?`<span class="chip c-teal">👷 Karyawan</span>`:"",
       h.rekomendasi?`<span class="chip c-green">⭐ Direkomendasikan</span>`:(h.wawancara?`<span class="chip c-teal">🎤 Sudah wawancara</span>`:"")
     ].join("");
     return `<div class="hasil-row">
@@ -1661,6 +1687,10 @@ function renderDetail(){
         <button class="btn small-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
         <button class="btn small-btn ghost" id="btn-json">📋 Salin Data (JSON)</button>
         <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
+        <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;border:1.5px solid #dfe6e9;border-radius:8px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="chk-karyawan" style="width:16px;height:16px;margin:0" ${cur.status_kerja==="karyawan"?"checked":""}>
+          <span>Sudah dipekerjakan</span>
+        </label>
       </div>
     </div>
     </div>`;
@@ -1675,6 +1705,7 @@ function renderDetail(){
   $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
   $("#btn-json").addEventListener("click", copyJSON);
   $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
+  { const ck = $("#chk-karyawan"); if(ck) ck.addEventListener("change", ()=>ubahStatusKerja(ck)); }
 
   // pulihkan wawancara tersimpan (jika ada)
   muatFoto(cur.token);
@@ -2339,6 +2370,10 @@ function renderDetailJenjang(){
         <button class="btn small-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
         <button class="btn small-btn ghost" id="btn-json">📋 Salin Data (JSON)</button>
         <button class="btn small-btn ghost" style="color:var(--coral);border-color:var(--coral)" id="btn-hapus-hasil">🗑️ Hapus Hasil</button>
+        <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;border:1.5px solid #dfe6e9;border-radius:8px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="chk-karyawan" style="width:16px;height:16px;margin:0" ${cur.status_kerja==="karyawan"?"checked":""}>
+          <span>Sudah dipekerjakan</span>
+        </label>
       </div>
     </div>
     </div>`;
@@ -2352,6 +2387,7 @@ function renderDetailJenjang(){
   $("#btn-iv-hitung").addEventListener("click", hitungWawancara);
   $("#btn-json").addEventListener("click", copyJSON);
   $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
+  { const ck = $("#chk-karyawan"); if(ck) ck.addEventListener("change", ()=>ubahStatusKerja(ck)); }
   muatFoto(cur.token);
   setupInterviewJenjang(ivKey, cur.wawancara);
   if(cur.wawancara) tampilkanHasilWawancara();
