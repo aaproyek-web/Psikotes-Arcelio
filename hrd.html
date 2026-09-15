@@ -2272,13 +2272,9 @@ function renderDetailKognitif(){
         <tr><th style="text-align:left">Subtes</th><th style="text-align:right">Benar</th><th style="text-align:right">Persen</th></tr>
         ${baris}
       </table>
-      <div style="margin-top:14px;background:#fff8e8;border:1px solid #e8d9b4;border-radius:9px;padding:11px 13px;font-size:13px;color:#6b5a35">
-        <b>Angka ini skor mentah, bukan IQ.</b> Norma internal belum terbentuk, sehingga persentil
-        belum dapat dihitung. Gunakan hanya untuk membandingkan pelamar pada posisi yang sama,
-        dan jangan memakai selisih kecil sebagai dasar keputusan.
-      </div>
+      <div id="skala-kognitif" style="margin-top:14px"><p class="small">Memeriksa norma internal…</p></div>
     </div>
-    <div class="card no-print" id="foto-wrap"><h2>Verifikasi Kamera</h2><div id="foto-list"><p class="small">Memuat…</p></div></div>
+    <div class="card no-print" id="foto-grid"><p class="small">Memuat foto verifikasi…</p></div>
     <div class="card no-print">
       <h2>Aksi</h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -2294,6 +2290,53 @@ function renderDetailKognitif(){
   $("#btn-hapus-hasil").addEventListener("click", hapusHasil);
   { const ck = $("#chk-karyawan"); if(ck) ck.addEventListener("change", ()=>ubahStatusKerja(ck)); }
   muatFoto(cur.token);
+  tampilkanSkala((cur.hasil && cur.hasil.benar_total) || 0);
+}
+
+/* Skor berskala menyala SENDIRI begitu norma cukup; sebelum itu tetap diam. */
+async function tampilkanSkala(benarTotal){
+  const el = document.getElementById("skala-kognitif");
+  if(!el) return;
+  const kotak = (w, isi) =>
+    `<div style="background:${w.bg};border:1px solid ${w.br};border-radius:9px;
+      padding:11px 13px;font-size:13px;color:${w.tx}">${isi}</div>`;
+  const kuning = {bg:"#fff8e8", br:"#e8d9b4", tx:"#6b5a35"};
+  const hijau  = {bg:"#eef6f0", br:"#bcd9c6", tx:"#2f5a40"};
+  let d;
+  try { d = await sb("rpc/kognitif_hitung_norma", { method:"POST", body:"{}" }); }
+  catch(e){
+    el.innerHTML = kotak(kuning, "<b>Angka ini skor mentah, bukan IQ.</b> Status norma tidak dapat "
+      + "diperiksa saat ini. Bandingkan hanya antar pelamar pada posisi yang sama.");
+    return;
+  }
+  const n = (d && d.n) || 0, ambang = (d && d.ambang) || 250;
+  if(!d || !d.siap){
+    el.innerHTML = kotak(kuning,
+      `<b>Angka ini skor mentah, bukan IQ.</b> Norma internal belum terbentuk — baru
+       <b>${n} dari ${ambang}</b> pelamar yang datanya lengkap, kurang ${Math.max(0,ambang-n)} lagi.
+       Sampai ambang itu tercapai skor berskala sengaja tidak ditampilkan, karena angkanya masih
+       akan bergoyang setiap ada peserta baru.<br><br>
+       Untuk sekarang: bandingkan hanya antar pelamar pada posisi yang sama, dan jangan memakai
+       selisih kecil sebagai dasar keputusan.`);
+    return;
+  }
+  const k = d.norma && d.norma.komposit;
+  if(!k || !Number(k.sd)){
+    el.innerHTML = kotak(kuning, "<b>Skor mentah.</b> Sebaran skor belum cukup beragam untuk "
+      + "menghitung angka berskala.");
+    return;
+  }
+  const skor = Math.round(100 + 15 * (benarTotal - Number(k.mean)) / Number(k.sd));
+  const pita = skor >= 130 ? "Sangat Tinggi" : skor >= 115 ? "Tinggi"
+             : skor >= 85  ? "Rata-rata"     : skor >= 70  ? "Rendah" : "Sangat Rendah";
+  el.innerHTML = kotak(hijau,
+    `<div style="font-size:26px;font-weight:700;line-height:1.2">${skor}
+       <span style="font-size:15px;font-weight:400">(rentang ${skor-9}–${skor+9})</span></div>
+     <div style="font-weight:600;margin-bottom:6px">Norma Internal Arcelio · pita ${pita}</div>
+     Dihitung terhadap ${k.n} pelamar, rata-rata ${Number(k.mean).toFixed(1)} dari 54 soal.
+     <b>Ini bukan IQ klinis</b> — angka ini hanya berarti di dalam kolam pelamar Arcelio.<br><br>
+     <b>Selisih di bawah 9 poin tidak boleh dipakai memilih kandidat.</b> Rentang di atas adalah
+     ketidakpastian pengukurannya, bukan hiasan.`);
 }
 function renderDetailJenjang(){
   const r = cur.hasil;
